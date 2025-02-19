@@ -65,7 +65,7 @@ class Bicycle:
 
         # best combos: ai = 70, mpc = 2; ai = 40, mpc = 3
         self.action_interval = 70
-        self.mpc_horizon = 2
+        self.mpc_horizon = 1
         # acceleration, then steering
         self.action_lst = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 

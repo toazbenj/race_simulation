@@ -164,7 +164,7 @@ class Bicycle:
     def build_vector_arr(self, trajectories):
         size = len(self.action_lst) ** self.mpc_horizon
         safety_cost_arr = np.zeros((size, size))
-        distance_cost_arr = np.zeros((size, size))
+        competitive_cost_arr = np.zeros((size, size))
 
         # absolute method
         if not self.is_relative_cost:
@@ -179,27 +179,24 @@ class Bicycle:
                     cost_row_safety[0][other_traj.number] += traj.collision_weight
 
                 safety_cost_arr[i] = cost_row_safety
-                distance_cost_arr[i] = cost_row_distance
+                competitive_cost_arr[i] = cost_row_distance
 
         # relative costs
         else:
-            bounds_cost = np.zeros((1, size))
             for i, traj in enumerate(trajectories):
-                safety_cost_arr[i] = traj.relative_arc_length_costs
+                competitive_cost_arr[i] = traj.relative_arc_length_costs
+                safety_cost_arr[i] = traj.trajectory_proximity_costs + traj.bounds_cost
 
-                bounds_cost[0,:] = traj.bounds_cost
-                distance_cost_arr[i] = traj.trajectory_proximity_costs + traj.trajectory_overlap_costs + bounds_cost
-
-        E = find_adjusted_costs(distance_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
+        E = find_adjusted_costs(competitive_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
 
         if E is None:
             print("no minima")
-            self.cost_arr = distance_cost_arr + safety_cost_arr
+            self.cost_arr = competitive_cost_arr + safety_cost_arr
         else:
             print("adjustment success")
-            self.cost_arr = distance_cost_arr + E
+            self.cost_arr = competitive_cost_arr + E
 
-        np.savez('../samples/A1.npz', arr=distance_cost_arr)
+        np.savez('../samples/A1.npz', arr=competitive_cost_arr)
         np.savez('../samples/A2.npz', arr=safety_cost_arr)
 
     def compute_action(self):
@@ -249,13 +246,20 @@ class Bicycle:
             is_in_range = sqrt((self.x - other_bike.x) ** 2 + (self.y - other_bike.y) ** 2) < self.action_interval * self.mpc_horizon
 
         # allow traj to know possible collisions
-        if other_bike is not None and len(other_bike.choice_trajectories) > 0 and is_in_range:
+        # if other_bike is not None and len(other_bike.choice_trajectories) > 0 and is_in_range:
+        #     for traj in self.choice_trajectories:
+        #         if traj.is_collision_checked:
+        #             continue
+        #         for other_traj in other_bike.choice_trajectories:
+        #             if other_traj.is_collision_checked:
+        #                 continue
+        #             other_traj.collision_checked = True
+        #             traj.collision_checked = True
+        #             traj.trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
+
+        if other_bike is not None and len(other_bike.choice_trajectories) > 0:
             for traj in self.choice_trajectories:
-                if traj.is_collision_checked:
-                    continue
                 for other_traj in other_bike.choice_trajectories:
-                    if other_traj.is_collision_checked:
-                        continue
                     other_traj.collision_checked = True
                     traj.collision_checked = True
                     traj.trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)

@@ -109,23 +109,23 @@ def is_global_min_enforced(phi, global_min_position):
     return True
 
 
-def find_adjusted_costs(A1, A2, B):
-    player2_sec_policy = np.argmin(np.max(B, axis=0), axis=0)
+def find_adjusted_costs(A1, B1, C2):
+    player2_sec_policy = np.argmin(np.max(C2, axis=0), axis=0)
 
     # find worst case safety actions and avoid
-    max_value = np.max(A2)
-    safe_row_indices = np.where(~np.any(A2 == max_value, axis=1))[0]
+    safe_row_indices = np.where((~np.any(B1 == np.max(B1), axis=1)) &
+                                (~np.any(A1 == np.max(A1), axis=1)))[0]
 
     # find error matrices to make each combination of indices the global min of potential function
     E_star = np.ones_like(A1) * np.inf
     for i in safe_row_indices:
         min_position = (i, player2_sec_policy)
-        E = cost_adjustment(A1, B, min_position)
+        E = cost_adjustment(A1, C2, min_position)
 
         if E is not None:
-            phi = potential_function(E + A1, B, min_position)
+            phi = potential_function(E + A1, C2, min_position)
             is_min = is_global_min_enforced(phi, min_position)
-            is_exact = is_valid_exact_potential(A1 + E, B, phi)
+            is_exact = is_valid_exact_potential(A1 + E, C2, phi)
 
             print(is_min, is_exact)
             if is_min and is_exact and (np.linalg.norm(E) < np.linalg.norm(E_star)):

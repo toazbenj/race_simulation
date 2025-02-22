@@ -7,9 +7,14 @@ BOUNDS_WEIGHT = 10
 COLLISION_WEIGHT = 100
 DISTANCE_WEIGHT = -1/1000
 
-RELATIVE_PROGRESS_WEIGHT = 1/5
-PROXIMITY_WEIGHT = 1
-OVERLAP_WEIGHT = 1
+# RELATIVE_PROGRESS_WEIGHT = 1/50
+# PROXIMITY_WEIGHT = -1/1000
+# OVERLAP_WEIGHT = 50
+# RELATIVE_BOUNDS_WEIGHT = 0.1
+
+RELATIVE_PROGRESS_WEIGHT = 1/50
+PROXIMITY_WEIGHT = 5
+OVERLAP_WEIGHT = 50
 
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
@@ -240,19 +245,20 @@ class Trajectory:
 
         # proximity
         distance = abs(sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2))
-        self.trajectory_proximity_costs[other_traj.number] = distance * PROXIMITY_WEIGHT
-        other_traj.trajectory_proximity_costs[self.number] = distance * PROXIMITY_WEIGHT
+        self.trajectory_proximity_costs[other_traj.number] = np.exp(-0.1*distance) * PROXIMITY_WEIGHT
+        other_traj.trajectory_proximity_costs[self.number] = np.exp(-0.1*distance) * PROXIMITY_WEIGHT
 
         # overlap
         # Compute bounding boxes
         box1 = self.get_bounding_box()
         box2 = other_traj.get_bounding_box()
 
+        is_overlap = False
         # If bounding boxes don't overlap, trajectories don't intersect
         if boxes_intersect(box1, box2):
             area = intersecting_area(box1, box2)
-            self.trajectory_overlap_costs[other_traj.number] = area * OVERLAP_WEIGHT
-            other_traj.trajectory_overlap_costs[self.number] = area * OVERLAP_WEIGHT
+            # self.trajectory_overlap_costs[other_traj.number] = area * OVERLAP_WEIGHT
+            # other_traj.trajectory_overlap_costs[self.number] = area * OVERLAP_WEIGHT
 
             # length must be multiple of action interval size
             length_interval = action_interval * mpc_horizon
@@ -264,5 +270,16 @@ class Trajectory:
                 other_traj.intersecting_trajectories.append(self)
                 self.color = ORANGE
                 other_traj.color = ORANGE
-                return True
-        return False
+                is_overlap = True
+
+                self.trajectory_overlap_costs[other_traj.number] += OVERLAP_WEIGHT
+                other_traj.trajectory_overlap_costs[self.number] += OVERLAP_WEIGHT
+
+        self.total_relative_costs = (self.relative_arc_length_costs
+                                     + self.trajectory_proximity_costs
+                                     + self.bounds_cost)
+
+        other_traj.total_relative_costs = (other_traj.relative_arc_length_costs
+                                           + other_traj.trajectory_proximity_costs
+                                           + other_traj.bounds_cost )
+        return is_overlap

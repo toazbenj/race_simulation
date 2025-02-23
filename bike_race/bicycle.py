@@ -1,4 +1,4 @@
-from math import cos, sin, tan, atan2, radians, sqrt
+from math import cos, sin, tan, atan2, radians, sqrt, pi
 import pygame
 import numpy as np
 
@@ -77,6 +77,46 @@ class Bicycle:
         self.opponent = opponent
         self.cost_arr = None
 
+        # stats
+        self.pass_cnt = 0
+        self.collision_cnt = 0
+        self.choice_cnt = 0
+        self.ahead_cnt = 0
+        self.is_ahead = False
+        self.progress_cnt = 0
+        self.out_bounds_cnt = 0
+
+        self.collision_radius = 45
+
+        # Lap tracking
+        self.laps_completed = 0
+        self.previous_angle = self.compute_angle()  # Initial angle
+        self.crossed_start_line = False
+
+    def compute_angle(self):
+        """
+        Compute the bike's angle relative to the center of the track, but in a CLOCKWISE direction.
+        - 0 radians is at the rightmost point.
+        - -π/2 radians (or 3π/2) is at the top.
+        - -π radians (or π) is at the leftmost point.
+        - -3π/2 radians (or π/2) is at the bottom.
+        - Angle **decreases clockwise**.
+        """
+        dx = self.x - self.course.center_x
+        dy = self.y - self.course.center_y
+
+        # Compute angle normally (CCW) using atan2
+        angle = atan2(dy, dx)
+
+        # Convert to clockwise by inverting and shifting
+        # angle = -angle  # Invert the direction to make it clockwise
+
+        # Normalize angle to the range [0, 2π]
+        if angle < 0:
+            angle += 2 * pi  # Ensures all angles stay positive in [0, 2π]
+
+        return angle
+
     def dynamics(self, acc, steering, x_in, y_in, v_in, phi_in, b_in):
         # Update positions
         x_next = x_in + v_in * cos(phi_in + b_in) * DT
@@ -120,6 +160,13 @@ class Bicycle:
             # print(f"Trajectory {i}: Cost = {traj.cost}, Points = {traj.points[0]}, {traj.points[-1]}")
             traj.draw(screen)
 
+        # check where opponent is, determine collision in every frame
+        x2, y2 = self.opponent.x, self.opponent.y
+        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
+        if distance < self.collision_radius:
+            self.collision_cnt += 1
+
+
     def update_choices(self, count, other_bike):
         if count % (self.action_interval * self.mpc_horizon) == 0:
             self.new_choices(other_bike)
@@ -137,6 +184,9 @@ class Bicycle:
 
         # Update the bicycle state
         self.x, self.y, self.v, self.phi, self.b  = self.dynamics(self.a, self.steering_angle, self.x, self.y, self.v, self.phi, self.b)
+
+        # Check if a lap has been completed
+        self.check_lap_completion()
 
     def build_arr(self, trajectories):
         size = len(self.action_lst)**self.mpc_horizon
@@ -220,6 +270,31 @@ class Bicycle:
         self.choice_trajectories.remove(chosen_traj)
         self.chosen_action_sequence = self.action_choices[action_index]
 
+        # update stats
+        self.choice_cnt += 1
+        current_traj = self.past_trajectories[-1]
+        previous_traj = self.choice_trajectories[-2]
+        self.progress_cnt += current_traj.length
+
+        # negative means ahead
+
+        is_ahead_conditions = ((self.previous_angle > self.opponent.previous_angle) and (self.laps_completed >= self.opponent.laps_completed))\
+                           or (self.laps_completed > self.opponent.laps_completed)
+        if is_ahead_conditions:
+            # relative costs change sign, means bike got ahead
+            if not self.is_ahead:
+                self.pass_cnt += 1
+
+            self.is_ahead = True
+            self.ahead_cnt += 1
+
+        else:
+            self.is_ahead = False
+
+        if current_traj.bounds_cost > 0:
+            self.out_bounds_cnt += 1
+
+
     def new_choices(self, other_bike=None):
         # Precompute trajectories for visualization
         self.choice_trajectories = []
@@ -265,12 +340,20 @@ class Bicycle:
                     traj.collision_checked = True
                     traj.trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
 
-    def get_costs(self):
-        distance, bounds, collision, total = 0, 0, 0, 0
-        for traj in self.past_trajectories:
-            distance += traj.distance_cost
-            bounds += traj.bounds_cost
-            collision += traj.collision_cost
-            total += traj.total_absolute_cost
+    def check_lap_completion(self):
+        """
+        Detects when the bike completes a lap by crossing 0 radians going clockwise.
+        """
+        current_angle = self.compute_angle()
 
-        return distance, bounds, collision, total
+        if self.velocity_limit ==15:
+
+            print("current_angle: ", current_angle, ', previous_angle: ', self.previous_angle)
+
+
+        # Detect transition from just above 2π to just below 0
+        if self.previous_angle > 1.8*pi and current_angle < 0.5 * pi:
+                self.laps_completed += 1
+                print(f"Bicycle {self.color} completed lap {self.laps_completed}")
+
+        self.previous_angle = current_angle  # Update for next check

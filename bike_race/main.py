@@ -41,6 +41,8 @@ import pygame
 import sys
 import random
 from course import Course
+import numpy as np
+
 
 pygame.init()
 
@@ -51,6 +53,8 @@ WHITE = (255, 255, 255)
 # Number of races to run
 NUM_RACES = 3
 RACE_DURATION = 500  # Number of frames per race
+seed = 42
+
 
 def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -58,12 +62,16 @@ def main():
 
     clock = pygame.time.Clock()
 
+    random.seed(seed)
+    seed_lst  = [random.randint(1, 1000) for _ in range(NUM_RACES)]
+
     for race in range(NUM_RACES):
         print(f"Starting Race {race + 1}")
 
         # Initialize a new course with bikes in random positions
         center_x, center_y = WIDTH // 2, HEIGHT // 2
-        course = Course(center_x, center_y, inner_radius=250, outer_radius=400, randomize_start=True)
+
+        course = Course(center_x, center_y, inner_radius=250, outer_radius=400, randomize_start=True, seed=seed_lst[race])
 
         for _ in range(RACE_DURATION):
             for event in pygame.event.get():
@@ -81,7 +89,7 @@ def main():
 
             clock.tick(60)  # Limit frame rate
 
-        course.save_stats()
+        course.save_stats(race)
         print(f"Race {race + 1} finished!")
 
 if __name__ == "__main__":

@@ -104,9 +104,10 @@
 
 
 import pygame
-import random
 from math import radians, atan2, pi, sqrt
 from bicycle import Bicycle
+import random
+import csv
 
 # Colors
 WHITE = (255, 255, 255)
@@ -114,9 +115,11 @@ GRAY = (169, 169, 169)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 DARK_GREEN = (0, 150, 0)
+WRITE_FILE = "race_stats.csv"
+
 
 class Course:
-    def __init__(self, center_x, center_y, outer_radius=300, inner_radius=125, randomize_start=False):
+    def __init__(self, center_x, center_y, outer_radius=300, inner_radius=125, randomize_start=False, seed=42):
         self.count = 0
         self.center_x = center_x
         self.center_y = center_y
@@ -125,6 +128,8 @@ class Course:
 
         # Calculate the track centerline radius
         self.centerline_radius = (inner_radius + outer_radius) / 2
+
+        random.seed(seed)
 
         # Randomize bike start positions if enabled
         if randomize_start:
@@ -150,10 +155,11 @@ class Course:
         phi1 = atan2(y1-center_y, x1-center_x) + pi/2
         phi2 = atan2(y2-center_y, x2-center_x) + pi/2
 
-        # Initialize bikes facing directly down the track (phi = 180 degrees)
+        # Initialize bikes facing directly down the track
         self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True, velocity_limit=15)
         self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
                              is_vector_cost=False, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
+        self.bike1.opponent = self.bike2
 
     def snap_to_centerline(self, x, y):
         """ Adjusts a point to the nearest position on the centerline. """
@@ -188,5 +194,20 @@ class Course:
 
         self.count += 1
 
-    def save_stats(self):
-        pass
+    def save_stats(self, race_number):
+        with open(WRITE_FILE, mode='a') as file:
+            writer = csv.writer(file)
+            if race_number == 0:
+                writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
+                                 'Choices',
+                                 'Proportion Ahead P1', 'Proportion Ahead P2',
+                                 'Win P1', 'Win P2',
+                                 'Progress P1', 'Progress P2',
+                                 'Out of Bounds P1', 'Out of Bounds P2'])
+            writer.writerow([race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt, self.bike1.collision_cnt,
+                             self.bike1.choice_cnt,
+                             round(self.bike1.ahead_cnt/self.bike1.choice_cnt,2), round(self.bike2.ahead_cnt/self.bike1.choice_cnt,2),
+                             self.bike1.is_ahead, self.bike2.is_ahead,
+                             round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
+                             self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt])
+

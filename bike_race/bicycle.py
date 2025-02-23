@@ -188,6 +188,7 @@ class Bicycle:
                 safety_cost_arr[i] = traj.trajectory_proximity_costs + traj.bounds_cost
 
         E = find_adjusted_costs(competitive_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
+        # E = find_adjusted_costs(safety_cost_arr, competitive_cost_arr, self.opponent.cost_arr.transpose())
 
         if E is None:
             print("no minima")

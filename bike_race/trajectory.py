@@ -3,18 +3,27 @@ import pygame
 import numpy as np
 
 # cost weights
-BOUNDS_WEIGHT = 10
+# BOUNDS_WEIGHT = 10
 COLLISION_WEIGHT = 100
 DISTANCE_WEIGHT = -1/1000
 
-# RELATIVE_PROGRESS_WEIGHT = 1/50
-# PROXIMITY_WEIGHT = -1/1000
-# OVERLAP_WEIGHT = 50
-# RELATIVE_BOUNDS_WEIGHT = 0.1
+# RELATIVE_PROGRESS_WEIGHT = 1/5
+# PROXIMITY_WEIGHT = 1
+# DANGER_SPREAD = 50
+# RELATIVE_BOUNDS_WEIGHT = 100
 
-RELATIVE_PROGRESS_WEIGHT = 1/50
-PROXIMITY_WEIGHT = 5
-OVERLAP_WEIGHT = 50
+BOUNDS_WEIGHT = 50
+RELATIVE_PROGRESS_WEIGHT = 100
+PROXIMITY_WEIGHT = 1/1000
+DANGER_SPREAD = 50
+
+#RELATIVE_PROGRESS_WEIGHT = 1/50
+#PROXIMITY_WEIGHT = 5
+#OVERLAP_WEIGHT = 50
+
+# RELATIVE_PROGRESS_WEIGHT = 1
+# PROXIMITY_WEIGHT = 1
+# RELATIVE_BOUNDS_WEIGHT = 1
 
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
@@ -244,9 +253,9 @@ class Trajectory:
         other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * RELATIVE_PROGRESS_WEIGHT
 
         # proximity
-        distance = abs(sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2))
-        self.trajectory_proximity_costs[other_traj.number] = np.exp(-0.1*distance) * PROXIMITY_WEIGHT
-        other_traj.trajectory_proximity_costs[self.number] = np.exp(-0.1*distance) * PROXIMITY_WEIGHT
+        distance = sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2)
+        self.trajectory_proximity_costs[other_traj.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
+        other_traj.trajectory_proximity_costs[self.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
 
         # overlap
         # Compute bounding boxes
@@ -271,9 +280,6 @@ class Trajectory:
                 self.color = ORANGE
                 other_traj.color = ORANGE
                 is_overlap = True
-
-                self.trajectory_overlap_costs[other_traj.number] += OVERLAP_WEIGHT
-                other_traj.trajectory_overlap_costs[self.number] += OVERLAP_WEIGHT
 
         self.total_relative_costs = (self.relative_arc_length_costs
                                      + self.trajectory_proximity_costs

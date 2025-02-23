@@ -248,7 +248,9 @@ class Trajectory:
         other_arc_length = self.arc_length(other_end_pos[0], other_end_pos[1])
 
         # negative is good, incentive
-        relative_arc_length = other_arc_length - arc_length
+        relative_arc_length = ((other_arc_length+ 2*pi * other_traj.bike.laps_completed*self.course.outer_radius) -
+                               (arc_length + 2*pi * self.bike.laps_completed*self.course.outer_radius))
+
         self.relative_arc_length_costs[other_traj.number] = relative_arc_length * RELATIVE_PROGRESS_WEIGHT
         other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * RELATIVE_PROGRESS_WEIGHT
 
@@ -265,10 +267,6 @@ class Trajectory:
         is_overlap = False
         # If bounding boxes don't overlap, trajectories don't intersect
         if boxes_intersect(box1, box2):
-            area = intersecting_area(box1, box2)
-            # self.trajectory_overlap_costs[other_traj.number] = area * OVERLAP_WEIGHT
-            # other_traj.trajectory_overlap_costs[self.number] = area * OVERLAP_WEIGHT
-
             # length must be multiple of action interval size
             length_interval = action_interval * mpc_horizon
             (pt1, pt2) = self.points[0], self.points[length_interval - 1]

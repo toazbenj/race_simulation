@@ -4,26 +4,24 @@ import numpy as np
 
 # cost weights
 # BOUNDS_WEIGHT = 10
-COLLISION_WEIGHT = 100
+COLLISION_WEIGHT = 750
 DISTANCE_WEIGHT = -1/1000
 
-# RELATIVE_PROGRESS_WEIGHT = 1/5
-# PROXIMITY_WEIGHT = 1
-# DANGER_SPREAD = 50
-# RELATIVE_BOUNDS_WEIGHT = 100
-
-BOUNDS_WEIGHT = 50
+# vector tuned
+BOUNDS_WEIGHT = 1000
 RELATIVE_PROGRESS_WEIGHT = 100
-PROXIMITY_WEIGHT = 1/1000
-DANGER_SPREAD = 50
+# magnitude of collision badness
+PROXIMITY_WEIGHT = 100
+# lower numbers = more spread
+DANGER_SPREAD = 5.5
 
-#RELATIVE_PROGRESS_WEIGHT = 1/50
-#PROXIMITY_WEIGHT = 5
-#OVERLAP_WEIGHT = 50
-
-# RELATIVE_PROGRESS_WEIGHT = 1
-# PROXIMITY_WEIGHT = 1
-# RELATIVE_BOUNDS_WEIGHT = 1
+# scalar tuned
+# BOUNDS_WEIGHT = 50
+# RELATIVE_PROGRESS_WEIGHT = 100
+# # magnitude of collision badness
+# PROXIMITY_WEIGHT = 1000
+# # lower numbers = more spread
+# DANGER_SPREAD = 1
 
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
@@ -136,6 +134,10 @@ class Trajectory:
         self.trajectory_proximity_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
         self.trajectory_overlap_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
         self.relative_arc_length_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
+
+        self.proximity_outcome_cost  = 0
+        self.relative_arc_length_outcome_cost = 0
+
         self.total_relative_costs = np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
         self.point_count = 0
 
@@ -159,12 +161,17 @@ class Trajectory:
             screen.blit(num_text, (text_x, text_y))
 
     def update(self):
-        for other_traj in self.intersecting_trajectories:
-            if other_traj.is_chosen:
-                self.collision_cost += COLLISION_WEIGHT
-                self.total_absolute_cost = self.bounds_cost + self.distance_cost + self.collision_cost
-                self.total_relative_cost = self.relative_arc_length_costs + self.trajectory_proximity_costs + self.trajectory_overlap_costs
 
+        other_traj = self.bike.opponent.past_trajectories[-1]
+
+        self.collision_cost += COLLISION_WEIGHT
+        self.total_absolute_cost = self.bounds_cost + self.distance_cost + self.collision_cost
+        self.total_relative_cost = self.relative_arc_length_costs + self.trajectory_proximity_costs + self.bounds_cost
+
+        self.relative_arc_length_outcome_cost = self.relative_arc_length_costs[other_traj.number]
+        self.proximity_outcome_cost = self.trajectory_proximity_costs[other_traj.number]
+
+        # print(self.relative_arc_length_outcome_cost, self.proximity_outcome_cost)
     def add_point(self, x, y):
 
         # update min/max of trajectory for bounding boxes
@@ -202,19 +209,16 @@ class Trajectory:
         else:
             return 1
 
-    def arc_length(self, x, y):
+    def angel(self, x, y):
         # Calculate angular position in radians
         theta = atan2(y - self.course.center_y, x - self.course.center_x)
         theta = (theta + 2 * pi) % (2 * pi)  # Normalize to [0, 2π)
-
-        # Compute arc length
-        arc_length = theta * self.course.outer_radius
-        return arc_length
+        return theta
 
     def calc_arc_length_distance(self, x, y):
         # Calculate arc lengths for both points
-        arc1 = self.arc_length(self.bike.x, self.bike.y)
-        arc2 = self.arc_length(x, y)
+        arc1 = self.angel(self.bike.x, self.bike.y)
+        arc2 = self.angel(x, y)
 
         # Calculate the absolute distance, handling wraparound
         distance = abs(arc2 - arc1)
@@ -230,7 +234,7 @@ class Trajectory:
                     self.intersecting_trajectories.append(other_traj)
 
 
-    def trajectory_sensing(self, other_traj, action_interval, mpc_horizon):
+    def absolute_trajectory_sensing(self, other_traj, action_interval, mpc_horizon):
         """
         Check if two trajectories intersect using bounding box filtering.
 
@@ -240,24 +244,6 @@ class Trajectory:
         Returns:
             bool: True if the trajectories intersect, False otherwise.
         """
-        # relative arc length
-        other_end_pos = other_traj.points[-1]
-        end_pos = self.points[-1]
-
-        arc_length = self.arc_length(end_pos[0], end_pos[1])
-        other_arc_length = self.arc_length(other_end_pos[0], other_end_pos[1])
-
-        # negative is good, incentive
-        relative_arc_length = ((other_arc_length+ 2*pi * other_traj.bike.laps_completed*self.course.outer_radius) -
-                               (arc_length + 2*pi * self.bike.laps_completed*self.course.outer_radius))
-
-        self.relative_arc_length_costs[other_traj.number] = relative_arc_length * RELATIVE_PROGRESS_WEIGHT
-        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * RELATIVE_PROGRESS_WEIGHT
-
-        # proximity
-        distance = sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2)
-        self.trajectory_proximity_costs[other_traj.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
-        other_traj.trajectory_proximity_costs[self.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
 
         # overlap
         # Compute bounding boxes
@@ -279,11 +265,44 @@ class Trajectory:
                 other_traj.color = ORANGE
                 is_overlap = True
 
-        self.total_relative_costs = (self.relative_arc_length_costs
-                                     + self.trajectory_proximity_costs
-                                     + self.bounds_cost)
-
         other_traj.total_relative_costs = (other_traj.relative_arc_length_costs
                                            + other_traj.trajectory_proximity_costs
                                            + other_traj.bounds_cost )
         return is_overlap
+
+
+    def relative_trajectory_sensing(self, other_traj):
+        """
+        Check if two trajectories intersect using bounding box filtering.
+
+        Args:
+            other_traj (Trajectory): Another trajectory to check intersection with.
+
+        Returns:
+            bool: True if the trajectories intersect, False otherwise.
+        """
+        # relative arc length
+        other_end_pos = other_traj.points[-1]
+        end_pos = self.points[-1]
+
+        angle = self.angel(end_pos[0], end_pos[1])
+        other_angle = self.angel(other_end_pos[0], other_end_pos[1])
+
+        # negative is good, incentive
+        relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed*self.course.outer_radius) -
+                               (angle + 2*pi * self.bike.laps_completed*self.course.outer_radius))
+
+        self.relative_arc_length_costs[other_traj.number] = relative_arc_length * RELATIVE_PROGRESS_WEIGHT
+        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * RELATIVE_PROGRESS_WEIGHT
+
+        # proximity
+        distance = sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2)
+        self.trajectory_proximity_costs[other_traj.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
+        other_traj.trajectory_proximity_costs[self.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
+
+        other_traj.total_relative_costs = (other_traj.relative_arc_length_costs
+                                           + other_traj.trajectory_proximity_costs
+                                           + other_traj.bounds_cost )
+        self.total_relative_costs = (self.relative_arc_length_costs
+                                           + self.trajectory_proximity_costs
+                                           + self.bounds_cost )

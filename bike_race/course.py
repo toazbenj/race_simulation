@@ -10,7 +10,7 @@ GRAY = (169, 169, 169)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 DARK_GREEN = (0, 150, 0)
-WRITE_FILE = "vector_scalar.csv"
+WRITE_FILE = "scalar_scalar_mpc_3.csv"
 
 
 class Course:
@@ -52,9 +52,9 @@ class Course:
 
         # Initialize bikes facing directly down the track
         # Note you switched the x,y phi for lead/follow switch
-        self.bike1 = Bicycle(self, x=x2, y=y2, phi=phi2, is_relative_cost=True, velocity_limit=22.5)
-        self.bike2 = Bicycle(self, x=x1, y=y1, phi=phi1, color=GREEN,
-                             is_vector_cost=True, is_relative_cost=True, velocity_limit=15, opponent=self.bike1)
+        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True, velocity_limit=15)
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
+                             is_vector_cost=False, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
         self.bike1.opponent = self.bike2
 
     def snap_to_centerline(self, x, y):

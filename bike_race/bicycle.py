@@ -12,7 +12,6 @@ GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
 
-
 DT = 0.05  # Time step
 STEERING_INCREMENT = radians(1)  # Increment for steering angle
 ACCELERATION_INCREMENT = 3  # Increment for acceleration
@@ -64,7 +63,7 @@ class Bicycle:
         self.chosen_action_sequence = [] # sequence of actions to create chosen trajectory
 
         # best combos: ai = 70, mpc = 2; ai = 40, mpc = 3
-        self.action_interval = 70
+        self.action_interval = 75
         self.mpc_horizon = 1
         # acceleration, then steering
         self.action_lst = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -82,11 +81,15 @@ class Bicycle:
         self.collision_cnt = 0
         self.choice_cnt = 0
         self.ahead_cnt = 0
-        self.is_ahead = False
+        self.is_ahead = True
         self.progress_cnt = 0
         self.out_bounds_cnt = 0
-
+        self.adjust_cnt = 0
         self.collision_radius = 45
+
+        self.progress_cost = 0
+        self.bounds_cost = 0
+        self.proximity_cost = 0
 
         # Lap tracking
         self.laps_completed = 0
@@ -204,9 +207,13 @@ class Bicycle:
                 cost_arr[i, :] = cost_row
 
         # relative costs
+
         else:
             for i, traj in enumerate(trajectories):
                 cost_arr[i] = traj.total_relative_costs
+
+                for other_traj in traj.intersecting_trajectories:
+                    cost_arr[i][other_traj.number] += traj.collision_weight
 
         self.cost_arr = cost_arr
         # np.savez('B.npz', arr=self.cost_arr)
@@ -237,6 +244,9 @@ class Bicycle:
                 competitive_cost_arr[i] = traj.relative_arc_length_costs
                 safety_cost_arr[i] = traj.trajectory_proximity_costs + traj.bounds_cost
 
+                for other_traj in traj.intersecting_trajectories:
+                    safety_cost_arr[i][other_traj.number] += traj.collision_weight
+
         E = find_adjusted_costs(competitive_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
         # E = find_adjusted_costs(safety_cost_arr, competitive_cost_arr, self.opponent.cost_arr.transpose())
 
@@ -246,6 +256,7 @@ class Bicycle:
         else:
             print("adjustment success")
             self.cost_arr = competitive_cost_arr + E
+            self.adjust_cnt += 1
 
         np.savez('../samples/A1.npz', arr=competitive_cost_arr)
         np.savez('../samples/A2.npz', arr=safety_cost_arr)
@@ -270,14 +281,25 @@ class Bicycle:
         self.choice_trajectories.remove(chosen_traj)
         self.chosen_action_sequence = self.action_choices[action_index]
 
+        self.update_stats()
+
+    def update_stats(self):
         # update stats
         self.choice_cnt += 1
-        current_traj = self.past_trajectories[-1]
-        previous_traj = self.choice_trajectories[-2]
-        self.progress_cnt += current_traj.length
+
+        if len(self.past_trajectories) > 1:
+            previous_traj = self.past_trajectories[-2]
+            self.progress_cnt += previous_traj.length
+            self.progress_cost += previous_traj.relative_arc_length_outcome_cost
+            self.proximity_cost += previous_traj.proximity_outcome_cost
+
+            self.bounds_cost += previous_traj.bounds_cost
+            if previous_traj.bounds_cost > 0:
+                self.out_bounds_cnt += 1
+
+            # print(previous_traj.relative_arc_length_outcome_cost, previous_traj.proximity_outcome_cost, previous_traj.bounds_cost)
 
         # negative means ahead
-
         is_ahead_conditions = ((self.previous_angle > self.opponent.previous_angle) and (self.laps_completed >= self.opponent.laps_completed))\
                            or (self.laps_completed > self.opponent.laps_completed)
         if is_ahead_conditions:
@@ -290,10 +312,6 @@ class Bicycle:
 
         else:
             self.is_ahead = False
-
-        if current_traj.bounds_cost > 0:
-            self.out_bounds_cnt += 1
-
 
     def new_choices(self, other_bike=None):
         # Precompute trajectories for visualization
@@ -321,24 +339,22 @@ class Bicycle:
         if other_bike is not None:
             is_in_range = sqrt((self.x - other_bike.x) ** 2 + (self.y - other_bike.y) ** 2) < self.action_interval * self.mpc_horizon
 
-        # allow traj to know possible collisions
-        # if other_bike is not None and len(other_bike.choice_trajectories) > 0 and is_in_range:
-        #     for traj in self.choice_trajectories:
-        #         if traj.is_collision_checked:
-        #             continue
-        #         for other_traj in other_bike.choice_trajectories:
-        #             if other_traj.is_collision_checked:
-        #                 continue
-        #             other_traj.collision_checked = True
-        #             traj.collision_checked = True
-        #             traj.trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
-
+        # allow traj to know possible collisions, absolute costs
+        if other_bike is not None and len(other_bike.choice_trajectories) > 0 and is_in_range:
+            for traj in self.choice_trajectories:
+                if traj.is_collision_checked:
+                    continue
+                for other_traj in other_bike.choice_trajectories:
+                    if other_traj.is_collision_checked:
+                        continue
+                    other_traj.collision_checked = True
+                    traj.collision_checked = True
+                    traj.absolute_trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
+        # relative costs
         if other_bike is not None and len(other_bike.choice_trajectories) > 0:
             for traj in self.choice_trajectories:
                 for other_traj in other_bike.choice_trajectories:
-                    other_traj.collision_checked = True
-                    traj.collision_checked = True
-                    traj.trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
+                    traj.relative_trajectory_sensing(other_traj)
 
     def check_lap_completion(self):
         """
@@ -346,14 +362,12 @@ class Bicycle:
         """
         current_angle = self.compute_angle()
 
-        if self.velocity_limit ==15:
-
-            print("current_angle: ", current_angle, ', previous_angle: ', self.previous_angle)
-
+        # if self.velocity_limit ==15:
+            # print("current_angle: ", current_angle, ', previous_angle: ', self.previous_angle)
 
         # Detect transition from just above 2π to just below 0
         if self.previous_angle > 1.8*pi and current_angle < 0.5 * pi:
                 self.laps_completed += 1
-                print(f"Bicycle {self.color} completed lap {self.laps_completed}")
+                # print(f"Bicycle {self.color} completed lap {self.laps_completed}")
 
         self.previous_angle = current_angle  # Update for next check

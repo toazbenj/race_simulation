@@ -127,9 +127,9 @@ def find_adjusted_costs(A1, B1, C2):
             is_min = is_global_min_enforced(phi, min_position)
             is_exact = is_valid_exact_potential(A1 + E, C2, phi)
 
-            print(is_min, is_exact)
+            # print(is_min, is_exact)
             if is_min and is_exact and (np.linalg.norm(E) < np.linalg.norm(E_star)):
-                print("Pos: ", min_position)
+                # print("Pos: ", min_position)
                 E_star = E
 
     if np.any(np.isinf(E_star)):

@@ -116,6 +116,10 @@ def find_adjusted_costs(A1, B1, C2):
     safe_row_indices = np.where((~np.any(B1 == np.max(B1), axis=1)) &
                                 (~np.any(A1 == np.max(A1), axis=1)))[0]
 
+    # add operation that selects only pareto optimal indices
+    # pareto_indices = pareto(A1,B1)
+    # pareto_safe_indices = intersection of safe and pareto
+
     # find error matrices to make each combination of indices the global min of potential function
     E_star = np.ones_like(A1) * np.inf
     for i in safe_row_indices:

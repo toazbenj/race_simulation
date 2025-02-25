@@ -10,7 +10,7 @@ GRAY = (169, 169, 169)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 DARK_GREEN = (0, 150, 0)
-WRITE_FILE = "scalar_scalar_mpc_3.csv"
+WRITE_FILE = "../data/vector_scalar2.csv"
 
 
 class Course:
@@ -54,7 +54,7 @@ class Course:
         # Note you switched the x,y phi for lead/follow switch
         self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True, velocity_limit=15)
         self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
-                             is_vector_cost=False, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
+                             is_vector_cost=True, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
         self.bike1.opponent = self.bike2
 
     def snap_to_centerline(self, x, y):
@@ -90,7 +90,7 @@ class Course:
 
         self.count += 1
 
-    def save_stats(self, race_number):
+    def save_stats(self, race_number, seed):
         with open(WRITE_FILE, mode='a', newline='') as file:
             writer = csv.writer(file)
             if race_number == 0:
@@ -104,7 +104,7 @@ class Course:
                                  'Progress Cost P1', 'Progress Cost P2',
                                  'Bounds Cost P1', 'Bounds Cost P2',
                                  'Proximity Cost P1', 'Proximity Cost P2',
-                                 'Adjustment Count P2'])
+                                 'Adjustment Count P2', f'Seed: {seed}'])
 
             # P1 always ahead, pass count -1 since counts as a pass
             writer.writerow([race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,

@@ -53,7 +53,7 @@ def main():
 
             clock.tick(60)  # Limit frame rate
 
-        course.save_stats(race)
+        course.save_stats(race, seed)
         print(f"Race {race + 1} finished!")
 
 if __name__ == "__main__":

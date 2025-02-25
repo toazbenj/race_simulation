@@ -62,9 +62,9 @@ class Bicycle:
         self.action_choices = [] # sequences of actions to create all possible trajectories
         self.chosen_action_sequence = [] # sequence of actions to create chosen trajectory
 
-        # best combos: ai = 70, mpc = 2; ai = 40, mpc = 3
-        self.action_interval = 40
-        self.mpc_horizon = 3
+        # best combos: ai = 75, mpc = 2; ai = 40, mpc = 3
+        self.action_interval = 75
+        self.mpc_horizon = 1
         # acceleration, then steering
         self.action_lst = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 

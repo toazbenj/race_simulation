@@ -1,10 +1,10 @@
-import gym
+import gymnasium as gym
 import tensorflow as tf
 import numpy as np
 import cv2  # For visualization
 
 # Initialize the CarRacing-v2 environment
-env = gym.make("CarRacing-v2", render_mode="rgb_array")
+env = gym.make("CarRacing-v3", render_mode="rgb_array")
 
 # Set input and output dimensions
 n_inputs = (96, 96, 3)  # Image input

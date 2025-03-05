@@ -342,11 +342,11 @@ class Bicycle:
         # allow traj to know possible collisions, absolute costs
         if other_bike is not None and len(other_bike.choice_trajectories) > 0 and is_in_range:
             for traj in self.choice_trajectories:
-                if traj.is_collision_checked:
-                    continue
+                # if traj.is_collision_checked:
+                #     continue
                 for other_traj in other_bike.choice_trajectories:
-                    if other_traj.is_collision_checked:
-                        continue
+                    # if other_traj.is_collision_checked:
+                    #     continue
                     other_traj.collision_checked = True
                     traj.collision_checked = True
                     traj.absolute_trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
@@ -354,6 +354,8 @@ class Bicycle:
         if other_bike is not None and len(other_bike.choice_trajectories) > 0:
             for traj in self.choice_trajectories:
                 for other_traj in other_bike.choice_trajectories:
+                    # if other_traj.is_relative_checked:
+                    #     continue
                     traj.relative_trajectory_sensing(other_traj)
 
     def check_lap_completion(self):
@@ -368,6 +370,6 @@ class Bicycle:
         # Detect transition from just above 2π to just below 0
         if self.previous_angle > 1.8*pi and current_angle < 0.5 * pi:
                 self.laps_completed += 1
-                # print(f"Bicycle {self.color} completed lap {self.laps_completed}")
+                print(f"Bicycle {self.color} completed lap {self.laps_completed}")
 
         self.previous_angle = current_angle  # Update for next check

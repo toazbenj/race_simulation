@@ -128,6 +128,7 @@ class Trajectory:
         self.is_displaying = False
         self.is_chosen = False
         self.is_collision_checked = False
+        self.is_relative_checked = False
         self.number = number
 
         self.intersecting_trajectories = []
@@ -265,9 +266,6 @@ class Trajectory:
                 other_traj.color = ORANGE
                 is_overlap = True
 
-        other_traj.total_relative_costs = (other_traj.relative_arc_length_costs
-                                           + other_traj.trajectory_proximity_costs
-                                           + other_traj.bounds_cost )
         return is_overlap
 
 
@@ -288,9 +286,12 @@ class Trajectory:
         angle = self.angel(end_pos[0], end_pos[1])
         other_angle = self.angel(other_end_pos[0], other_end_pos[1])
 
+        if self.bike.previous_angle > 1.8*pi and angle < 0.25 * pi:
+            angle += 2*pi
+
         # negative is good, incentive
-        relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed*self.course.outer_radius) -
-                               (angle + 2*pi * self.bike.laps_completed*self.course.outer_radius))
+        relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed) -
+                               (angle + 2*pi * self.bike.laps_completed))
 
         self.relative_arc_length_costs[other_traj.number] = relative_arc_length * RELATIVE_PROGRESS_WEIGHT
         other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * RELATIVE_PROGRESS_WEIGHT

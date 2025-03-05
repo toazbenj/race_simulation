@@ -10,7 +10,7 @@ GRAY = (169, 169, 169)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 DARK_GREEN = (0, 150, 0)
-WRITE_FILE = "../data/test.csv"
+WRITE_FILE = "../data2/scalar_vector2.csv"
 
 
 class Course:
@@ -52,10 +52,15 @@ class Course:
 
         # Initialize bikes facing directly down the track
         # Note you switched the x,y phi for lead/follow switch
-        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True, velocity_limit=15)
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
-                             is_vector_cost=False, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
+        self.bike1 = Bicycle(self, x=x2, y=y2, phi=phi2, is_relative_cost=True, velocity_limit=22.5)
+        self.bike2 = Bicycle(self, x=x1, y=y1, phi=phi1, color=GREEN,
+                             is_vector_cost=True, is_relative_cost=True, velocity_limit=15, opponent=self.bike1)
         self.bike1.opponent = self.bike2
+
+        # self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True, velocity_limit=15)
+        # self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
+        #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
+        # self.bike1.opponent = self.bike2
 
     def snap_to_centerline(self, x, y):
         """ Adjusts a point to the nearest position on the centerline. """
@@ -106,10 +111,17 @@ class Course:
                                  'Proximity Cost P1', 'Proximity Cost P2',
                                  'Adjustment Count P2', f'Seed: {seed}'])
 
+            try:
+                p1_ahead = round(self.bike1.ahead_cnt/self.bike1.choice_cnt,2)
+                p2_ahead = round(self.bike2.ahead_cnt/self.bike1.choice_cnt,2)
+            except ZeroDivisionError:
+                p1_ahead = 0
+                p2_ahead = 0
+
             # P1 always ahead, pass count -1 since counts as a pass
             writer.writerow([race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
                              ceil(self.bike1.collision_cnt/200), self.bike1.choice_cnt,
-                             round(self.bike1.ahead_cnt/self.bike1.choice_cnt,2), round(self.bike2.ahead_cnt/self.bike1.choice_cnt,2),
+                             p1_ahead, p2_ahead,
                              self.bike1.is_ahead, self.bike2.is_ahead,
                              round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
                              self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt,

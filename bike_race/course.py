@@ -10,7 +10,7 @@ GRAY = (169, 169, 169)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 DARK_GREEN = (0, 150, 0)
-WRITE_FILE = "../data2/scalar_vector2.csv"
+WRITE_FILE = "../data2/test.csv"
 
 
 class Course:

@@ -22,7 +22,10 @@ model = tf.keras.Sequential([
 ])
 
 # Load trained weights (ensure you have saved weights after training)
-model.load_weights("trained_carracing_policy.h5")
+# model.load_weights("trained_carracing_policy.h5")
+
+# Instead, initialize the model randomly
+model.set_weights([np.random.randn(*w.shape) for w in model.get_weights()])
 
 # Function to preprocess observation (resize, normalize)
 def preprocess_obs(obs):
@@ -48,7 +51,10 @@ def play_with_policy(env, model, n_episodes=5, display=True):
             # Render frame using OpenCV
             if display:
                 frame = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)  # Convert color format
-                cv2.imshow("CarRacing-v2 Agent", frame)
+                frame_resized = cv2.resize(frame, (300, 300),
+                                           interpolation=cv2.INTER_CUBIC)  # Resize with high clarity
+
+                cv2.imshow("CarRacing-v2 Agent", frame_resized)
                 if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to exit
                     break
 

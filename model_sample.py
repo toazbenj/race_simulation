@@ -3,28 +3,24 @@ import tensorflow as tf
 import numpy as np
 import cv2  # For visualization
 
-# Initialize the CarRacing-v2 environment
-env = gym.make("CarRacing-v3", render_mode="rgb_array")
+# Initialize the CarRacing-v3 environment in discrete mode
+env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=False)
 
-# Set input and output dimensions
-n_inputs = (96, 96, 3)  # Image input
-n_outputs = env.action_space.shape[0]  # Continuous 3D action space
+# Get the number of discrete actions
+n_actions = env.action_space.n  # Discrete action space
 
-# Define the trained CNN-based policy network
+# Define the CNN-based policy network for discrete actions
 model = tf.keras.Sequential([
-    tf.keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=n_inputs),
+    tf.keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(96, 96, 3)),
     tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Conv2D(64, (3, 3), activation="relu"),
     tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation="relu"),
-    tf.keras.layers.Dense(n_outputs, activation="tanh")  # Outputs continuous values
+    tf.keras.layers.Dense(n_actions, activation="softmax")  # Outputs probabilities for each discrete action
 ])
 
-# Load trained weights (ensure you have saved weights after training)
-# model.load_weights("trained_carracing_policy.h5")
-
-# Instead, initialize the model randomly
+# Randomly initialize weights (replace with `model.load_weights()` if using a trained model)
 model.set_weights([np.random.randn(*w.shape) for w in model.get_weights()])
 
 # Function to preprocess observation (resize, normalize)
@@ -42,7 +38,14 @@ def play_with_policy(env, model, n_episodes=5, display=True):
         while not done:
             # Get model prediction
             obs_processed = preprocess_obs(obs)
-            action = model.predict(obs_processed, verbose=0)[0]  # Predict continuous actions
+
+            # action_probs = model.predict(obs_processed, verbose=0)[0]  # Predict action probabilities
+            # action = int(np.argmax(action_probs))  # Ensure action is an integer
+
+            with tf.GradientTape() as tape:
+                probas = model(obs_processed)
+                logits = tf.math.log(probas + tf.keras.backend.epsilon())
+                action = tf.random.categorical(logits, num_samples=1)
 
             # Step environment
             obs, reward, done, truncated, _ = env.step(action)
@@ -51,10 +54,9 @@ def play_with_policy(env, model, n_episodes=5, display=True):
             # Render frame using OpenCV
             if display:
                 frame = cv2.cvtColor(obs, cv2.COLOR_RGB2BGR)  # Convert color format
-                frame_resized = cv2.resize(frame, (300, 300),
-                                           interpolation=cv2.INTER_CUBIC)  # Resize with high clarity
+                frame_resized = cv2.resize(frame, (300, 300), interpolation=cv2.INTER_CUBIC)  # Resize with high clarity
 
-                cv2.imshow("CarRacing-v2 Agent", frame_resized)
+                cv2.imshow("CarRacing-v3 Agent", frame_resized)
                 if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to exit
                     break
 

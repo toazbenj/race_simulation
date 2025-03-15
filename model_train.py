@@ -1,9 +1,12 @@
 import gymnasium as gym
+import keras
 import tensorflow as tf
 import numpy as np
 from collections import deque
 from matplotlib import pyplot as plt
 from pathlib import Path
+from datetime import datetime
+import os
 
 # Set up directories for saving images
 IMAGES_PATH = Path() / "images" / "rl"
@@ -29,7 +32,7 @@ def epsilon_greedy_policy(state, epsilon=0):
         return int(np.argmax(Q_values))  # Choose best action (ensure it's an int)
 
 # Sample a batch of experiences from replay buffer
-def sample_experiences(batch_size):
+def sample_experiences(batch_size, replay_buffer):
     indices = np.random.randint(len(replay_buffer), size=batch_size)
     batch = [replay_buffer[index] for index in indices]
     return [
@@ -38,15 +41,15 @@ def sample_experiences(batch_size):
     ]  # [states, actions, rewards, next_states, dones, truncateds]
 
 # Play one step and store in replay buffer
-def play_one_step(env, state, epsilon):
+def play_one_step(env, state, epsilon, replay_buffer):
     action = epsilon_greedy_policy(state, epsilon)
     next_state, reward, done, truncated, info = env.step(action)
     replay_buffer.append((state, action, reward, next_state, done, truncated))
     return next_state, reward, done, truncated, info
 
 # Training function
-def training_step(batch_size):
-    experiences = sample_experiences(batch_size)
+def training_step(batch_size, replay_buffer):
+    experiences = sample_experiences(batch_size, replay_buffer)
     states, actions, rewards, next_states, dones, truncateds = experiences
 
     next_Q_values = model(next_states)  # No preprocessing needed for batch
@@ -55,7 +58,6 @@ def training_step(batch_size):
     runs = 1.0 - (dones | truncateds)  # Episode is not done or truncated
     target_Q_values = rewards + runs * discount_factor * max_next_Q_values
     target_Q_values = tf.reshape(target_Q_values, (-1, 1))
-
 
     mask = tf.one_hot(actions, n_outputs)
     with tf.GradientTape() as tape:
@@ -72,7 +74,6 @@ env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.9
 input_shape = (96, 96, 3)
 n_outputs = env.action_space.n  # 5 discrete actions
 
-# 🛠️ **Fixed Neural Network Model (Using CNN)**
 model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape),
     tf.keras.layers.MaxPooling2D((2, 2)),
@@ -80,7 +81,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation="relu"),
-    tf.keras.layers.Dense(n_outputs, activation="softmax")  # Output probabilities for discrete actions
+    tf.keras.layers.Dense(n_outputs)  # Output probabilities for discrete actions
 ])
 
 # Set up replay buffer
@@ -93,34 +94,43 @@ tf.random.set_seed(42)
 
 # Hyperparameters
 rewards = []
-best_score = 0
+best_score = -10000
 batch_size = 32
 discount_factor = 0.95
 optimizer = tf.keras.optimizers.Nadam(learning_rate=1e-2)
 loss_fn = tf.keras.losses.MeanSquaredError()
 
 # 🏁 **Training Loop**
-for episode in range(20):
+for episode in range(1):
     obs, info = env.reset()
-    for step in range(100):
+    episode_reward = 0  # Track total reward for this episode
+
+    for step in range(200):
         epsilon = max(1 - episode / 500, 0.01)
-        obs, reward, done, truncated, info = play_one_step(env, obs, epsilon)
+        obs, reward, done, truncated, info = play_one_step(env, obs, epsilon, replay_buffer)
+        episode_reward += reward  # Accumulate the actual reward
+
         if done or truncated:
             break
 
     print(f"\rEpisode: {episode + 1}, Steps: {step + 1}, eps: {epsilon:.3f}", end="")
-    rewards.append(step)
+    rewards.append(episode_reward)
 
-    if step >= best_score:
+    if episode_reward >= best_score:
         best_weights = model.get_weights()
-        best_score = step
+        best_score = episode_reward
+        print(f" - New best score! {best_score:.2f}")
+    else:
+        print("")  # Just add a newline
 
     if episode > 10:
-        training_step(batch_size)
+        training_step(batch_size, replay_buffer)
 
 model.set_weights(best_weights)  # Restore best model weights
+timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+file_path = os.path.join("models", f"{timestamp}_dqn_model.h5")
+keras.saving.save_model(model, file_path)
 
-# 🎯 **Plot Training Progress**
 plt.figure(figsize=(8, 4))
 plt.plot(rewards)
 plt.xlabel("Episode", fontsize=14)

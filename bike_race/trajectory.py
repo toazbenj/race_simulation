@@ -1,33 +1,8 @@
-from math import cos, sin, tan, atan2, radians, pi, degrees, sqrt
+from math import atan2, pi, sqrt
 import pygame
 import numpy as np
+from constants import *
 
-# cost weights
-# BOUNDS_WEIGHT = 10
-COLLISION_WEIGHT = 750
-DISTANCE_WEIGHT = -1/1000
-
-# vector tuned
-BOUNDS_WEIGHT = 1000
-RELATIVE_PROGRESS_WEIGHT = 100
-# magnitude of collision badness
-PROXIMITY_WEIGHT = 100
-# lower numbers = more spread
-DANGER_SPREAD = 5.5
-
-# scalar tuned
-# BOUNDS_WEIGHT = 50
-# RELATIVE_PROGRESS_WEIGHT = 100
-# # magnitude of collision badness
-# PROXIMITY_WEIGHT = 1000
-# # lower numbers = more spread
-# DANGER_SPREAD = 1
-
-GREEN = (0, 255, 0)
-YELLOW = (255, 255, 0)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-ORANGE = (255, 130, 80)
 
 def bounding_box(points):
     """
@@ -290,6 +265,14 @@ class Trajectory:
             angle += 2*pi
 
         # negative is good, incentive
+        laps = self.bike.laps_completed
+        other_laps = other_traj.bike.laps_completed
+
+        if self.bike.is_crossing_finish:
+            laps += 1
+        if other_traj.bike.is_crossing_finish:
+            other_laps += 1
+
         relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed) -
                                (angle + 2*pi * self.bike.laps_completed))
 

@@ -48,12 +48,6 @@ def cost_adjustment(A, B, global_min_position):
     problem = cp.Problem(objective, constraints)
 
     problem.solve(solver=cp.SCS, max_iters=50000, eps=1e-6, verbose=False)
-
-    # have to install things for these solvers
-    # problem.solve(solver=cp.ECOS, abstol=1e-8, reltol=1e-8, feastol=1e-8, max_iters=10000)
-    # problem.solve(solver=cp.GUROBI, verbose=False)
-    # problem.solve(solver=cp.MOSEK, mosek_params={'MSK_DPAR_INTPNT_TOL_REL_GAP': 1e-9})
-
     return E.value
 
 
@@ -142,7 +136,6 @@ def find_adjusted_costs(A1, B1, C2):
     pareto_indices = pareto_optimal(A1,B1, player2_sec_policy)
     print(pareto_indices)
     pareto_safe_indices = np.intersect1d(safe_row_indices, pareto_indices)
-
 
     # find error matrices to make each combination of indices the global min of potential function
     E_star = np.ones_like(A1) * np.inf

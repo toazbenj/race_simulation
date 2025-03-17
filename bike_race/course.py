@@ -1,16 +1,9 @@
 import pygame
-from math import radians, atan2, pi, sqrt, ceil
+from math import atan2, pi, sqrt, ceil
 from bicycle import Bicycle
 import random
 import csv
-
-# Colors
-WHITE = (255, 255, 255)
-GRAY = (169, 169, 169)
-BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
-DARK_GREEN = (0, 150, 0)
-WRITE_FILE = "../data2/test.csv"
+from constants import *
 
 
 class Course:
@@ -51,16 +44,38 @@ class Course:
         phi2 = atan2(y2-center_y, x2-center_x) + pi/2
 
         # Initialize bikes facing directly down the track
-        # Note you switched the x,y phi for lead/follow switch
-        self.bike1 = Bicycle(self, x=x2, y=y2, phi=phi2, is_relative_cost=True, velocity_limit=22.5)
-        self.bike2 = Bicycle(self, x=x1, y=y1, phi=phi1, color=GREEN,
-                             is_vector_cost=True, is_relative_cost=True, velocity_limit=15, opponent=self.bike1)
+        # Note switched x,y phi for lead/follow switch
+        # self.bike1 = Bicycle(self, x=x2, y=y2, phi=phi2, is_relative_cost=True, velocity_limit=15)
+        # self.bike2 = Bicycle(self, x=x1, y=y1, phi=phi1, color=GREEN,
+        #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=10, opponent=self.bike1)
+        # self.bike1.opponent = self.bike2
+
+        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True)
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
+                             is_vector_cost=True, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
         self.bike1.opponent = self.bike2
 
-        # self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=True, velocity_limit=15)
-        # self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN,
-        #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=22.5, opponent=self.bike1)
-        # self.bike1.opponent = self.bike2
+    def draw_button(self, screen, text, x, y, width, height, base_color, hover_color):
+        """ Draws a button and returns True if clicked """
+        mouse_pos = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        # Change color on hover
+        color = hover_color if x < mouse_pos[0] < x + width and y < mouse_pos[1] < y + height else base_color
+
+        pygame.draw.rect(screen, color, (x, y, width, height), border_radius=10)
+
+        # Render text
+        font = pygame.font.Font(None, 36)
+        text_surf = font.render(text, True, WHITE)
+        text_rect = text_surf.get_rect(center=(x + width // 2, y + height // 2))
+        screen.blit(text_surf, text_rect)
+
+        # Check for click
+        if click[0] == 1 and x < mouse_pos[0] < x + width and y < mouse_pos[1] < y + height:
+            return True  # Button clicked
+
+        return False
 
     def snap_to_centerline(self, x, y):
         """ Adjusts a point to the nearest position on the centerline. """

@@ -1,22 +1,11 @@
-from math import cos, sin, tan, atan2, radians, sqrt, pi
+from math import cos, sin, tan, atan2, sqrt, pi
 import pygame
 import numpy as np
 
+from constants import *
 from cost_adjust_cvx import find_adjusted_costs
 from trajectory import Trajectory
 from itertools import product
-
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-YELLOW = (255, 255, 0)
-BLACK = (0, 0, 0)
-
-DT = 0.05  # Time step
-STEERING_INCREMENT = radians(1)  # Increment for steering angle
-ACCELERATION_INCREMENT = 3  # Increment for acceleration
-STEER_LIMIT = radians(20)
-
 
 def generate_combinations(numbers, num_picks):
     """
@@ -94,7 +83,7 @@ class Bicycle:
         # Lap tracking
         self.laps_completed = 0
         self.previous_angle = self.compute_angle()  # Initial angle
-        self.crossed_start_line = False
+        self.is_crossing_finish = False
 
     def compute_angle(self):
         """
@@ -364,12 +353,13 @@ class Bicycle:
         """
         current_angle = self.compute_angle()
 
-        # if self.velocity_limit ==15:
-            # print("current_angle: ", current_angle, ', previous_angle: ', self.previous_angle)
-
         # Detect transition from just above 2π to just below 0
-        if self.previous_angle > 1.8*pi and current_angle < 0.5 * pi:
+        if self.previous_angle > 1.8*pi:
+            self.is_crossing_finish = True
+            if current_angle < 0.5 * pi:
                 self.laps_completed += 1
                 print(f"Bicycle {self.color} completed lap {self.laps_completed}")
+        else:
+            self.is_crossing_finish = False
 
         self.previous_angle = current_angle  # Update for next check

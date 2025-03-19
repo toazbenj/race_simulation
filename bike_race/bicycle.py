@@ -1,7 +1,47 @@
+"""
+Bicycle Racing Simulation - Bicycle Class
+
+This module defines the `Bicycle` class, which simulates a racing bicycle navigating a circular track. The bicycle
+follows a simplified kinematic bicycle model and interacts with an opponent during the race.
+
+Key Features:
+- Simulates realistic bicycle motion using acceleration, steering, and velocity constraints.
+- Implements trajectory planning with multiple possible action sequences.
+- Uses cost-based decision-making to select optimal paths.
+- Tracks race progress, collisions, and performance metrics.
+- Detects lap completions and updates racing statistics.
+
+Modules Used:
+- math: Provides mathematical functions for kinematics.
+- pygame: Handles graphical rendering of bicycles and trajectories.
+- numpy: Enables matrix operations for cost calculations.
+- constants: Stores simulation configuration parameters.
+- cost_adjust_cvx: Computes cost adjustments for trajectory optimization.
+- trajectory: Manages trajectory generation and visualization.
+- itertools: Generates combinations of possible action sequences.
+
+Class Methods:
+- `__init__`: Initializes the bicycle with position, velocity, and opponent interactions.
+- `compute_angle`: Determines the bicycle’s angle relative to the track’s center.
+- `dynamics`: Updates the bicycle’s state based on acceleration and steering inputs.
+- `draw`: Renders the bicycle, its past trajectory, and predicted future paths.
+- `update_choices`: Refreshes available action choices at regular intervals.
+- `update_action`: Executes the chosen action sequence and updates movement.
+- `build_arr`: Constructs a cost array for trajectory evaluation.
+- `build_vector_arr`: Computes vector-based cost matrices for decision-making.
+- `compute_action`: Determines the optimal action sequence using cost analysis.
+- `update_stats`: Tracks race statistics, including lap progress and collisions.
+- `new_choices`: Generates new trajectory options based on possible actions.
+- `check_lap_completion`: Detects lap completions when the bicycle crosses the finish line.
+
+Entry Point:
+- This module is designed to be integrated with a larger simulation and does not run independently.
+
+"""
+
 from math import cos, sin, tan, atan2, sqrt, pi
 import pygame
 import numpy as np
-
 from constants import *
 from cost_adjust_cvx import find_adjusted_costs
 from trajectory import Trajectory
@@ -9,14 +49,14 @@ from itertools import product
 
 def generate_combinations(numbers, num_picks):
     """
-    Generate all combinations of choices by picking `num_picks` times from the list `numbers`.
+    Generate all possible combinations of choices by picking `num_picks` times from the list `numbers`.
 
-    Args:
-        numbers (list): The list of numbers to pick from.
-        num_picks (int): The number of times to pick.
+    Parameters:
+    - numbers (list[int]): The list of numbers to pick from.
+    - num_picks (int): The number of times to pick.
 
     Returns:
-        list of tuples: All combinations of length `num_picks`.
+    - list[list[int]]: All possible combinations of length `num_picks`.
     """
     if not numbers or num_picks <= 0:
         return []
@@ -30,7 +70,26 @@ def generate_combinations(numbers, num_picks):
 class Bicycle:
     def __init__(self, course, x=300, y=300, v=5, color=BLUE, phi=radians(90), b=0, velocity_limit=15,
                  is_vector_cost=False, is_relative_cost=False, opponent=None):
-        self.bicycle_size = 20
+        """
+            Initializes a Bicycle object to simulate movement on a racetrack.
+
+            Parameters:
+            - course (Course): The racetrack the bicycle is on.
+            - x (float, optional): Initial x-coordinate. Default is 300.
+            - y (float, optional): Initial y-coordinate. Default is 300.
+            - v (float, optional): Initial velocity. Default is 5.
+            - color (tuple[int, int, int], optional): RGB color of the bicycle. Default is BLUE.
+            - phi (float, optional): Initial heading angle in radians. Default is 90 degrees.
+            - b (float, optional): Initial slip angle. Default is 0.
+            - velocity_limit (float, optional): Maximum velocity. Default is 15.
+            - is_vector_cost (bool, optional): Whether to use vector cost calculation. Default is False.
+            - is_relative_cost (bool, optional): Whether to use relative cost calculation. Default is False.
+            - opponent (Bicycle, optional): Reference to the opponent bicycle. Default is None.
+
+            Returns:
+            - None
+        """
+        self.bicycle_size = BIKE_SIZE
         self.color = color
 
         self.x = x
@@ -39,8 +98,8 @@ class Bicycle:
         self.phi = phi
         self.b = b
 
-        self.lr = 1
-        self.lf = 1
+        self.lr = LR
+        self.lf = LF
 
         self.a = 0
         self.steering_angle = 0
@@ -51,11 +110,9 @@ class Bicycle:
         self.action_choices = [] # sequences of actions to create all possible trajectories
         self.chosen_action_sequence = [] # sequence of actions to create chosen trajectory
 
-        # best combos: ai = 75, mpc = 2; ai = 40, mpc = 3
-        self.action_interval = 75
-        self.mpc_horizon = 1
-        # acceleration, then steering
-        self.action_lst = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+        self.action_interval = ACTION_INTERVAL
+        self.mpc_horizon = MPC_HORIZON
+        self.action_lst = ACTION_LST
 
         self.course = course
 
@@ -74,7 +131,7 @@ class Bicycle:
         self.progress_cnt = 0
         self.out_bounds_cnt = 0
         self.adjust_cnt = 0
-        self.collision_radius = 45
+        self.collision_radius = COLLISION_RADIUS
 
         self.progress_cost = 0
         self.bounds_cost = 0
@@ -87,12 +144,11 @@ class Bicycle:
 
     def compute_angle(self):
         """
-        Compute the bike's angle relative to the center of the track, but in a CLOCKWISE direction.
-        - 0 radians is at the rightmost point.
-        - -π/2 radians (or 3π/2) is at the top.
-        - -π radians (or π) is at the leftmost point.
-        - -3π/2 radians (or π/2) is at the bottom.
-        - Angle **decreases clockwise**.
+        Computes the bicycle's angle relative to the center of the track in a clockwise direction,
+        starting from far right
+
+        Returns:
+        - float: Angle in radians normalized between [0, 2π].
         """
         dx = self.x - self.course.center_x
         dy = self.y - self.course.center_y
@@ -110,6 +166,21 @@ class Bicycle:
         return angle
 
     def dynamics(self, acc, steering, x_in, y_in, v_in, phi_in, b_in):
+        """
+        Computes the next state of the bicycle using a simple bicycle model.
+
+        Parameters:
+        - acc (float): Acceleration.
+        - steering (float): Steering angle.
+        - x_in (float): Current x-coordinate.
+        - y_in (float): Current y-coordinate.
+        - v_in (float): Current velocity.
+        - phi_in (float): Current heading angle.
+        - b_in (float): Current slip angle.
+
+        Returns:
+        - tuple[float, float, float, float, float]: Updated (x, y, v, phi, b).
+        """
         # Update positions
         x_next = x_in + v_in * cos(phi_in + b_in) * DT
         y_next = y_in + v_in * sin(phi_in + b_in) * DT
@@ -130,6 +201,15 @@ class Bicycle:
 
 
     def draw(self, screen):
+        """
+        Draws the bicycle and its past and possible future trajectories.
+
+        Parameters:
+        - screen (pygame.Surface): The Pygame surface to draw on.
+
+        Returns:
+        - None
+        """
         # Draw the bike
         points = [
             (self.x + self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
@@ -160,10 +240,29 @@ class Bicycle:
 
 
     def update_choices(self, count, other_bike):
+        """
+        Updates the available choices for the bicycle at regular intervals.
+
+        Parameters:
+        - count (int): Current simulation time step.
+        - other_bike (Bicycle): The opponent bicycle.
+
+        Returns:
+        - None
+        """
         if count % (self.action_interval * self.mpc_horizon) == 0:
             self.new_choices(other_bike)
 
     def update_action(self, count):
+        """
+        Updates the bicycle's action and moves it forward in time.
+
+        Parameters:
+        - count (int): Current simulation time step.
+
+        Returns:
+        - None
+        """
         # Periodically compute actions
         if count % (self.action_interval * self.mpc_horizon) == 0:
             # self.new_choices()
@@ -181,6 +280,15 @@ class Bicycle:
         self.check_lap_completion()
 
     def build_arr(self, trajectories):
+        """
+        Builds a cost array for trajectory evaluation. Costs are calculated as weighted sums and combined.
+
+        Parameters:
+        - trajectories (list[Trajectory]): List of possible future trajectories.
+
+        Returns:
+        - None
+        """
         size = len(self.action_lst)**self.mpc_horizon
         cost_arr = np.zeros((size, size))
 
@@ -196,7 +304,6 @@ class Bicycle:
                 cost_arr[i, :] = cost_row
 
         # relative costs
-
         else:
             for i, traj in enumerate(trajectories):
                 cost_arr[i] = traj.total_relative_costs
@@ -205,9 +312,18 @@ class Bicycle:
                     cost_arr[i][other_traj.number] += traj.collision_weight
 
         self.cost_arr = cost_arr
-        # np.savez('B.npz', arr=self.cost_arr)
 
     def build_vector_arr(self, trajectories):
+        """
+        Constructs a cost array using vector-based cost evaluation. Costs are kept separate when calculating action
+         policies.
+
+        Parameters:
+        - trajectories (list[Trajectory]): List of possible future trajectories.
+
+        Returns:
+        - None
+        """
         size = len(self.action_lst) ** self.mpc_horizon
         safety_cost_arr = np.zeros((size, size))
         competitive_cost_arr = np.zeros((size, size))
@@ -237,7 +353,6 @@ class Bicycle:
                     safety_cost_arr[i][other_traj.number] += traj.collision_weight
 
         E = find_adjusted_costs(competitive_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
-        # E = find_adjusted_costs(safety_cost_arr, competitive_cost_arr, self.opponent.cost_arr.transpose())
 
         if E is None:
             print("no minima")
@@ -247,10 +362,13 @@ class Bicycle:
             self.cost_arr = competitive_cost_arr + E
             self.adjust_cnt += 1
 
-        np.savez('../samples/A1.npz', arr=competitive_cost_arr)
-        np.savez('../samples/A2.npz', arr=safety_cost_arr)
-
     def compute_action(self):
+        """
+        Computes the best action sequence to take based on cost calculations. Uses security policies.
+
+        Returns:
+        - None
+        """
         if self.is_vector_cost:
             self.build_vector_arr(self.choice_trajectories)
         else:
@@ -273,6 +391,13 @@ class Bicycle:
         self.update_stats()
 
     def update_stats(self):
+        """
+        Updates statistical metrics of the bicycle such as lap progress, collisions, and passes.
+
+        Returns:
+        - None
+        """
+
         # update stats
         self.choice_cnt += 1
 
@@ -303,6 +428,16 @@ class Bicycle:
             self.is_ahead = False
 
     def new_choices(self, other_bike=None):
+        """
+        Generates new possible trajectories based on action choices.
+
+        Parameters:
+        - other_bike (Bicycle, optional): The opponent bicycle for collision checking.
+
+        Returns:
+        - None
+        """
+
         # Precompute trajectories for visualization
         self.choice_trajectories = []
         self.action_choices = generate_combinations(self.action_lst, self.mpc_horizon)
@@ -349,12 +484,16 @@ class Bicycle:
 
     def check_lap_completion(self):
         """
-        Detects when the bike completes a lap by crossing 0 radians going clockwise.
+        Detects when the bicycle crosses the finish line to complete a lap.
+
+        Returns:
+        - None
         """
         current_angle = self.compute_angle()
 
         # Detect transition from just above 2π to just below 0
         if self.previous_angle > 1.8*pi:
+            # Use to adjust costs of trajectories since angle of progress resets after 2pi
             self.is_crossing_finish = True
             if current_angle < 0.5 * pi:
                 self.laps_completed += 1

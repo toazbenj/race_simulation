@@ -1,9 +1,48 @@
+"""
+Cost Adjustment and Potential Function Optimization
+
+This module provides functions for adjusting cost matrices to enforce potential function constraints 
+and ensure a correct global minimum in decision-making models.
+
+Key Features:
+- **Cost Adjustment:** Modifies cost matrices to satisfy potential function constraints.
+- **Potential Function Calculation:** Computes a potential function from cost matrices.
+- **Exact Potential Verification:** Validates whether a potential function meets exact potential conditions.
+- **Global Minimum Enforcement Check:** Ensures a global minimum is correctly enforced in cost matrices.
+- **Pareto Optimality Filtering:** Identifies Pareto-optimal decisions that are not strictly dominated.
+- **Convex Optimization with CVXPY:** Solves optimization problems to find minimal cost adjustments.
+
+Modules Used:
+- numpy: For numerical operations and matrix calculations.
+- cvxpy: To perform convex optimization for error minimization.
+
+Functions:
+- `cost_adjustment(A, B, global_min_position)`: Adjusts cost matrices to satisfy exact potential constraints.
+- `potential_function(A, B, global_min_position)`: Computes a potential function from cost matrices.
+- `is_valid_exact_potential(A, B, phi)`: Checks if a given potential function satisfies exact conditions.
+- `is_global_min_enforced(phi, global_min_position)`: Ensures the global minimum is correctly enforced.
+- `pareto_optimal(A1, B1, column)`: Identifies Pareto-optimal rows in two cost matrices.
+- `find_adjusted_costs(A1, B1, C2)`: Determines the best cost adjustments using convex optimization.
+
+Entry Point:
+- This module can be imported for cost adjustment in decision-making algorithms or used independently for testing.
+"""
+
 import numpy as np
 import cvxpy as cp
 
-
 def cost_adjustment(A, B, global_min_position):
-    """Adjusts the cost matrices to ensure potential function constraints"""
+    """
+    Adjusts the cost matrices to enforce potential function constraints through convex optimization.
+
+    Parameters:
+    - A (np.ndarray): Cost matrix for player 1.
+    - B (np.ndarray): Cost matrix for player 2.
+    - global_min_position (tuple[int, int]): Coordinates (row, column) of the desired global minimum.
+
+    Returns:
+    - np.ndarray: Adjusted error matrix E that satisfies the potential function conditions.
+    """
 
     # Compute initial potential function
     phi_initial = potential_function(A, B, global_min_position)
@@ -52,7 +91,17 @@ def cost_adjustment(A, B, global_min_position):
 
 
 def potential_function(A, B, global_min_position):
-    """Computes a global potential function for given cost matrices"""
+    """
+    Computes a potential function for given cost matrices.
+
+    Parameters:
+    - A (np.ndarray): Cost matrix for player 1.
+    - B (np.ndarray): Cost matrix for player 2.
+    - global_min_position (tuple[int, int]): Coordinates (row, column) of the desired global minimum.
+
+    Returns:
+    - np.ndarray: Computed potential function matrix.
+    """
     m, n = A.shape
     phi = np.zeros((m, n))
 
@@ -71,10 +120,20 @@ def potential_function(A, B, global_min_position):
 
 
 def is_valid_exact_potential(A, B, phi):
-    """Checks if the exact potential condition is met"""
+    """
+    Checks if the given potential function satisfies the exact potential condition.
+
+    Parameters:
+    - A (np.ndarray): Cost matrix for player 1.
+    - B (np.ndarray): Cost matrix for player 2.
+    - phi (np.ndarray): Potential function matrix.
+
+    Returns:
+    - bool: True if the exact potential condition is satisfied, False otherwise.
+    """
+
     m, n = A.shape
     epsilon = 1e-6
-    # something is wrong here:
 
     for i in range(1, m):
         for j in range(n):
@@ -90,7 +149,17 @@ def is_valid_exact_potential(A, B, phi):
 
 
 def is_global_min_enforced(phi, global_min_position):
-    """Checks if the global minimum is enforced"""
+    """
+    Checks if the global minimum is correctly enforced in the potential function.
+
+    Parameters:
+    - phi (np.ndarray): Potential function matrix.
+    - global_min_position (tuple[int, int]): Coordinates (row, column) of the global minimum.
+
+    Returns:
+    - bool: True if the global minimum is enforced, False otherwise.
+    """
+
     m, n = phi.shape
     if phi[global_min_position[0], global_min_position[1]] != 0:
         return False
@@ -105,8 +174,17 @@ def is_global_min_enforced(phi, global_min_position):
 
 def pareto_optimal(A1, B1, column):
     """
-    Find Pareto-optimal rows where no other row is strictly better in both A1 and B1.
+    Identifies Pareto-optimal rows in two cost matrices where no other row is strictly better.
+
+    Parameters:
+    - A1 (np.ndarray): Cost matrix for player 1.
+    - B1 (np.ndarray): Cost matrix for player 2.
+    - column (int): The column index for evaluating Pareto optimality.
+
+    Returns:
+    - np.ndarray: Indices of Pareto-optimal rows.
     """
+
     num_rows = A1.shape[0]
     pareto_indices = []
 
@@ -126,6 +204,18 @@ def pareto_optimal(A1, B1, column):
 
 
 def find_adjusted_costs(A1, B1, C2):
+    """
+    Determines the best cost adjustment matrix E using convex optimization.
+
+    Parameters:
+    - A1 (np.ndarray): Cost matrix for player 1.
+    - B1 (np.ndarray): Cost matrix for player 2.
+    - C2 (np.ndarray): Cost matrix for the second player's strategy.
+
+    Returns:
+    - np.ndarray: Adjusted cost matrix E, or None if no valid adjustment is found.
+    """
+
     player2_sec_policy = np.argmin(np.max(C2, axis=0), axis=0)
 
     # find worst case safety actions and avoid

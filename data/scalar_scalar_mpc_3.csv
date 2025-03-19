@@ -1,0 +1,11 @@
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed
+1,0,1,1,20,0.4,0.6,False,True,3,11,0,0,62,-73,0,0,4.3520286408586326e-80,3.298237614602676e-66,11,41
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed
+1,0,1,1,20,0.4,0.6,False,True,3,11,0,0,62,-73,0,0,4.3520286408586326e-80,3.298237614602676e-66,11,41
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed
+1,0,0,0,20,0.0,1.0,False,True,4,10,0,0,4021961,-4021972,0,0,1.92942389411416e-214,1.1307468434672393e-210,14,50
+2,0,0,0,20,1.0,0.0,True,False,4,5,0,3,-1525,1514,0,184000,1.6562716014720711e-298,5.964418473125786e-291,8,50
+3,0,1,0,20,0.4,0.6,False,True,10,10,0,0,250751,-250761,0,0,3.056667128469121e-147,3.3442375177965645e-128,15,50

@@ -450,3 +450,100 @@ Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportio
 25,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
 26,0,0,0,1,0.0,1.0,False,True,0,0,0,0,0,0,0,0,0,0,0
 27,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,1,0,10,0.6,0.4,False,True,3,10,0,1,-30,-24,0,25000,5.956180567641645e-200,1.7822414160222265e-101,0
+2,0,0,0,9,0.0,1.0,False,True,3,10,0,0,1801,-1835,0,0,0.0,0.0,0
+3,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+4,0,0,0,2,0.0,1.0,False,True,0,0,0,0,222,-240,0,0,0.0,0.0,0
+5,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+6,0,0,0,10,1.0,0.0,True,False,9,5,1,0,-3054,3025,41000,0,0.0,0.0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,1,0,10,0.6,0.4,False,True,3,10,0,1,-30,-24,0,25000,5.956180567641645e-200,1.7822414160222265e-101,0
+2,0,0,0,2,0.0,1.0,False,True,0,0,0,0,150,-168,0,0,0.0,0.0,0
+3,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+4,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+5,0,0,0,10,0.0,1.0,False,True,4,10,1,0,4925,-4957,41000,0,1.4205295008327448e-139,2.514429658246757e-199,0
+6,0,0,0,4,1.0,0.0,True,False,1,2,0,0,-1420,1395,0,0,0.0,0.0,0
+7,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+8,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,1,1,10,0.8,0.2,False,True,9,10,0,0,123,-789,0,0,7.181063261249265e-101,2.4760610857835938e-80,0
+2,0,0,0,4,0.0,1.0,False,True,1,2,0,0,478,-506,0,0,0.0,0.0,0
+3,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+4,0,0,0,1,0.0,1.0,False,True,0,0,0,0,0,0,0,0,0,0,0
+5,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+6,0,0,0,3,1.0,0.0,True,False,1,1,0,0,-986,960,0,0,0.0,0.0,0
+7,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+8,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+9,0,0,0,10,1.0,0.0,True,False,10,10,0,0,26,-65,0,0,7.801970451944582e-301,3.766156985987107e-307,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,0,0,3,1.0,0.0,True,False,1,1,0,0,-212,186,0,0,0.0,0.0,0
+2,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+3,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+4,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+5,0,0,0,1,0.0,1.0,False,True,0,0,0,0,0,0,0,0,0,0,0
+6,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+7,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+8,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+9,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+10,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+11,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+12,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+13,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+14,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+2,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+3,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+4,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+5,0,0,0,1,0.0,1.0,False,True,0,0,0,0,0,0,0,0,0,0,0
+6,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+7,0,1,0,10,0.3,0.7,False,True,9,10,3,0,1321,-1386,189000,0,2.8022674482779934e-200,8.793542477388238e-96,0
+8,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+9,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 39
+1,0,0,0,2,0.0,1.0,False,True,0,0,0,0,126,-149,0,0,0.0,0.0,0
+2,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+3,0,0,0,10,1.0,0.0,True,False,9,10,0,0,-727,55,0,0,0.0,0.0,0
+4,0,0,0,10,0.0,1.0,False,True,5,10,0,0,4601,-4633,0,0,0.0,0.0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,0,0,1,1.0,0.0,True,False,0,0,0,0,0,0,0,0,0,0,0
+2,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 40
+1,0,1,0,12,0.5,0.5,False,True,9,11,0,1,-524,481,0,250000,1.2558583320438602e-136,1.7822414160222265e-101,0
+2,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+3,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 41
+1,0,1,1,35,0.23,0.77,False,True,12,16,0,0,4684,-4699,0,0,1.746663223522625e-88,2.4186904981291213e-73,16
+2,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+3,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+4,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+5,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+6,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+7,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+8,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+9,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+10,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+11,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+12,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+13,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+14,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+15,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+16,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+17,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+18,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+19,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+20,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+21,0,0,0,0,0,0,True,True,0,0,0,0,0,0,0,0,0,0,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 41
+1,0,1,2,134,0.06,0.94,False,True,41,73,6,0,77808,-77881,2560000,0,5.511940650917686e-85,2.4186904981346314e-73,0

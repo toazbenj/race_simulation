@@ -80,7 +80,7 @@ class Course:
 
                 distance = math.sqrt((rand_x2 - rand_x1) ** 2 + (rand_y2 - rand_y1) ** 2)
 
-                if distance > 2*COLLISION_RADIUS:
+                if distance > 3*COLLISION_RADIUS:
                     break
 
             # Snap points to the centerline

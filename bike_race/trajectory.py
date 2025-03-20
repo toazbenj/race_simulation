@@ -361,7 +361,6 @@ class Trajectory:
 
         return is_overlap
 
-
     def relative_trajectory_sensing(self, other_traj):
         """
         Computes relative cost values between competing trajectories.
@@ -380,6 +379,7 @@ class Trajectory:
         other_angle = self.angel(other_end_pos[0], other_end_pos[1])
 
         if self.bike.previous_angle > 1.8*pi and angle < 0.25 * pi:
+        # if angle > 1.8 * pi:
             angle += 2*pi
 
         # negative is good, incentive

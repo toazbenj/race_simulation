@@ -25,7 +25,7 @@ BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
 NUM_RACES = 100
-RACE_DURATION = 1500  # Number of frames per race
+RACE_DURATION = 10000  # Number of frames per race
 # Seed setting
 SEED = 41
 IS_RANDOM_START=True
@@ -54,8 +54,9 @@ DT = 0.05
 STEERING_INCREMENT = radians(1)
 ACCELERATION_INCREMENT = 3
 STEER_LIMIT = radians(20)
-# best combos: interval = 75, horizon = 2; interval = 40, mpc = 3
-ACTION_INTERVAL = 75
+# best combos: interval = 70, horizon = 1;
+# interval = 50, horizon = 2; interval = 40, mpc = 3
+ACTION_INTERVAL = 50
 MPC_HORIZON = 2
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -67,14 +68,13 @@ LF = 1
 # how close bike center points are in pixels to count as collision
 COLLISION_RADIUS = 45
 
-
 # Trajectory
 # cost weights
-COLLISION_WEIGHT = 750
-DISTANCE_WEIGHT = -1/1000
-BOUNDS_WEIGHT = 1000
-RELATIVE_PROGRESS_WEIGHT = 100
+COLLISION_WEIGHT = 7.5
+DISTANCE_WEIGHT = -1/10
+BOUNDS_WEIGHT = 100
+RELATIVE_PROGRESS_WEIGHT = 1
 # magnitude of collision badness
-PROXIMITY_WEIGHT = 100
+PROXIMITY_WEIGHT = 0.1
 # lower numbers = more spread
-DANGER_SPREAD = 5.5
+DANGER_SPREAD = 6

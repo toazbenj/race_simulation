@@ -68,6 +68,18 @@ def training_step(batch_size, replay_buffer):
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
+# Enable GPU usage in TensorFlow
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        # Set memory growth to avoid taking up all GPU memory
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print(f"Using GPU: {gpus}")
+    except RuntimeError as e:
+        print(e)
+else:
+    print("No GPU detected, using CPU instead.")
 
 # Initialize the environment
 env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=False)

@@ -113,20 +113,21 @@ optimizer = tf.keras.optimizers.Nadam(learning_rate=1e-2)
 loss_fn = tf.keras.losses.MeanSquaredError()
 
 # 🏁 **Training Loop**
-for episode in range(500):
+episodes = 100
+for episode in range(episodes):
     obs, info = env.reset()
     episode_reward = 0  # Track total reward for this episode
 
-    for step in range(500):
-        epsilon = max(1 - episode / 500, 0.01)
+    for step in range(1500):
+        epsilon = max(1 - episode / episodes, 0.01)
         obs, reward, done, truncated, info = play_one_step(env, obs, epsilon, replay_buffer)
         episode_reward += reward  # Accumulate the actual reward
 
         if done or truncated:
             break
 
-    print(f"\rEpisode: {episode + 1}, Steps: {step + 1}, eps: {epsilon:.3f}", end="")
-    rewards.append(episode_reward)
+        print(f"\rEpisode: {episode + 1}, Steps: {step + 1}, eps: {epsilon:.3f}", end="")
+        rewards.append(episode_reward)
 
     if episode_reward >= best_score:
         best_weights = model.get_weights()

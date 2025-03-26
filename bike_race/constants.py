@@ -1,4 +1,5 @@
 from math import radians
+import numpy as np
 
 # Main
 # Screen dimensions
@@ -25,15 +26,22 @@ BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
 NUM_RACES = 100
-RACE_DURATION = 10000  # Number of frames per race
+RACE_DURATION = 1500  # Number of frames per race
 # Seed setting
 SEED = 41
 IS_RANDOM_START=True
 FRAME_RATE = 60
 
+# Opponent Cost Weights
+NUM_THETA_INTERVALS = 5
+PROGRESS_RANGE = np.linspace(0, 20, NUM_THETA_INTERVALS)
+BOUNDS_RANGE = np.linspace(0, 200, NUM_THETA_INTERVALS)
+COLLISION_RANGE = np.linspace(0, 2, NUM_THETA_INTERVALS)
+
 # Course
 # Data output path
-WRITE_FILE = "../data2/test.csv"
+RACE_DATA = "../data2/test.csv"
+COST_DATA = "../data/cost_test.csv"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
@@ -56,8 +64,8 @@ ACCELERATION_INCREMENT = 3
 STEER_LIMIT = radians(20)
 # best combos: interval = 70, horizon = 1;
 # interval = 50, horizon = 2; interval = 40, mpc = 3
-ACTION_INTERVAL = 50
-MPC_HORIZON = 2
+ACTION_INTERVAL = 70
+MPC_HORIZON = 1
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 # how large the bike appears on screen
@@ -69,12 +77,14 @@ LF = 1
 COLLISION_RADIUS = 45
 
 # Trajectory
-# cost weights
-COLLISION_WEIGHT = 7.5
+# relative cost weights
+COLLISION_WEIGHT_1 = 7.5
+BOUNDS_WEIGHT_1 = 100
+RELATIVE_PROGRESS_WEIGHT_1 = 1
+
+COLLISION_WEIGHT_2 = 7.5
+BOUNDS_WEIGHT_2 = 100
+RELATIVE_PROGRESS_WEIGHT_2 = 1
+
+# absolute cost weights
 DISTANCE_WEIGHT = -1/10
-BOUNDS_WEIGHT = 100
-RELATIVE_PROGRESS_WEIGHT = 1
-# magnitude of collision badness
-PROXIMITY_WEIGHT = 0.1
-# lower numbers = more spread
-DANGER_SPREAD = 6

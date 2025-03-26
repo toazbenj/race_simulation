@@ -69,7 +69,7 @@ def generate_combinations(numbers, num_picks):
 
 class Bicycle:
     def __init__(self, course, x=300, y=300, v=5, color=BLUE, phi=radians(90), b=0, velocity_limit=15,
-                 is_vector_cost=False, is_relative_cost=False, opponent=None):
+                 is_vector_cost=False, is_relative_cost=False, opponent=None, theta_a=1, theta_b=1, theta_c=1):
         """
             Initializes a Bicycle object to simulate movement on a racetrack.
 
@@ -116,6 +116,17 @@ class Bicycle:
 
         self.course = course
 
+        # Cost data
+        self.action_space_size = len(ACTION_LST) ** MPC_HORIZON
+        self.A =  np.zeros((self.action_space_size,self.action_space_size))
+        self.B =  np.zeros((self.action_space_size,self.action_space_size))
+        self.C =  np.zeros((self.action_space_size,self.action_space_size))
+        self.action_index = 0
+        self.state = np.zeros(5)
+        self.theta_a = theta_a
+        self.theta_b = theta_b
+        self.theta_c = theta_c
+
         self.new_choices()
         self.is_vector_cost = is_vector_cost
         self.is_relative_cost = is_relative_cost
@@ -141,6 +152,8 @@ class Bicycle:
         self.laps_completed = 0
         self.previous_angle = self.compute_angle()  # Initial angle
         self.is_crossing_finish = False
+
+
 
     def compute_angle(self):
         """
@@ -197,6 +210,7 @@ class Bicycle:
 
         b_next = atan2(self.lr * tan(steering), self.lr + self.lf)
 
+        self.state = np.array([x_next, y_next, v_next, phi_next, b_next])
         return x_next, y_next, v_next, phi_next, b_next
 
 
@@ -307,9 +321,12 @@ class Bicycle:
         else:
             for i, traj in enumerate(trajectories):
                 cost_arr[i] = traj.total_relative_costs
+                self.A[i] = traj.relative_arc_length_costs
+                self.B[i] = traj.bounds_cost
 
                 for other_traj in traj.intersecting_trajectories:
-                    cost_arr[i][other_traj.number] += traj.collision_weight
+                    cost_arr[i][other_traj.number] += traj.theta_c
+                    self.C[i][other_traj.number] += traj.theta_c
 
         self.cost_arr = cost_arr
 
@@ -374,9 +391,9 @@ class Bicycle:
         else:
             self.build_arr(self.choice_trajectories)
 
-        action_index = np.argmin(np.max(self.cost_arr, axis=1))
+        self.action_index = np.argmin(np.max(self.cost_arr, axis=1))
 
-        chosen_traj = self.choice_trajectories[action_index]
+        chosen_traj = self.choice_trajectories[self.action_index]
         chosen_traj.color = self.color
         chosen_traj.is_displaying = False
         chosen_traj.is_chosen = True
@@ -386,7 +403,7 @@ class Bicycle:
             self.past_trajectories[-1].update()
         self.past_trajectories.append(chosen_traj)
         self.choice_trajectories.remove(chosen_traj)
-        self.chosen_action_sequence = self.action_choices[action_index]
+        self.chosen_action_sequence = self.action_choices[self.action_index]
 
         self.update_stats()
 
@@ -444,7 +461,8 @@ class Bicycle:
 
         count = 0
         for action_sequence in self.action_choices:
-            traj = Trajectory(bike=self, course=self.course, color=YELLOW)
+            traj = Trajectory(bike=self, course=self.course, color=YELLOW,
+                              theta_a=self.theta_a, theta_b=self.theta_b, theta_c=self.theta_c)
             x_temp, y_temp, v_temp, phi_temp, b_temp = self.x, self.y, self.v, self.phi, self.b
             for action in action_sequence:
                 acc = action[0] * ACCELERATION_INCREMENT

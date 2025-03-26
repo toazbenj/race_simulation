@@ -547,3 +547,6 @@ Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportio
  
 Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 41
 1,0,1,2,134,0.06,0.94,False,True,41,73,6,0,77808,-77881,2560000,0,5.511940650917686e-85,2.4186904981346314e-73,0
+ 
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Adjustment Count P2,Seed: 41
+1,0,1,1,15,0.4,0.6,False,True,3,11,0,0,6,-6,0,0,0.0,0.0,0

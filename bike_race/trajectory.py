@@ -126,7 +126,7 @@ def intersect(line1, line2):
 
 
 class Trajectory:
-    def __init__(self,  course, bike, color, number=0):
+    def __init__(self,  course, bike, color, number=0, theta_a=1, theta_b=1, theta_c=1):
         """
         Initializes a trajectory object that tracks a bicycle's movement.
 
@@ -149,7 +149,11 @@ class Trajectory:
         self.collision_cost = 0
         self.bounds_cost = 0
         self.distance_cost = 0
-        self.collision_weight = COLLISION_WEIGHT
+
+        # cost weights
+        self.theta_a = theta_a
+        self.theta_b = theta_b
+        self.theta_c = theta_c
 
         self.color = color
         self.course = course
@@ -206,7 +210,7 @@ class Trajectory:
         """
         other_traj = self.bike.opponent.past_trajectories[-1]
 
-        self.collision_cost += COLLISION_WEIGHT
+        self.collision_cost += self.theta_c
         self.total_absolute_cost = self.bounds_cost + self.distance_cost + self.collision_cost
         self.total_relative_costs = self.relative_arc_length_costs + self.trajectory_proximity_costs + self.bounds_cost
 
@@ -232,7 +236,7 @@ class Trajectory:
         self.min_y = min(self.min_y, y)
         self.max_y = max(self.max_y, y)
 
-        self.bounds_cost += BOUNDS_WEIGHT * self.check_bounds(x, y)
+        self.bounds_cost += self.theta_b * self.check_bounds(x, y)
         if self.bounds_cost > 0:
             self.color = RED
 
@@ -394,13 +398,13 @@ class Trajectory:
         relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed) -
                                (angle + 2*pi * self.bike.laps_completed))
 
-        self.relative_arc_length_costs[other_traj.number] = relative_arc_length * RELATIVE_PROGRESS_WEIGHT
-        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * RELATIVE_PROGRESS_WEIGHT
+        self.relative_arc_length_costs[other_traj.number] = relative_arc_length * self.theta_a
+        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * self.theta_a
 
         # proximity
-        distance = sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2)
-        self.trajectory_proximity_costs[other_traj.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
-        other_traj.trajectory_proximity_costs[self.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
+        # distance = sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2)
+        # self.trajectory_proximity_costs[other_traj.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
+        # other_traj.trajectory_proximity_costs[self.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
 
         other_traj.total_relative_costs = (other_traj.relative_arc_length_costs
                                            + other_traj.trajectory_proximity_costs

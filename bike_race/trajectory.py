@@ -41,9 +41,8 @@ Entry Point:
 - This module is designed to be imported and utilized within a larger racing simulation.
 """
 
-from math import atan2, pi, sqrt
+from math import atan2, pi
 import pygame
-import numpy as np
 from constants import *
 
 def bounding_box(points):
@@ -126,7 +125,7 @@ def intersect(line1, line2):
 
 
 class Trajectory:
-    def __init__(self,  course, bike, color, number=0, theta_a=1, theta_b=1, theta_c=1):
+    def __init__(self,  course, bike, color, number=0):
         """
         Initializes a trajectory object that tracks a bicycle's movement.
 
@@ -144,38 +143,22 @@ class Trajectory:
         self.min_y = 10000
         self.max_y = -10000
 
-        self.points = []
-        self.total_absolute_cost = 0
-        self.collision_cost = 0
-        self.bounds_cost = 0
-        self.distance_cost = 0
-
-        # cost weights
-        self.theta_a = theta_a
-        self.theta_b = theta_b
-        self.theta_c = theta_c
-
         self.color = color
         self.course = course
         self.bike = bike
         self.length = 0
+
+        self.points = []
+        self.intersecting_trajectories = []
+        self.collision_cost = 0
+        self.bounds_cost = 0
+        self.relative_arc_length_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
 
         self.is_displaying = False
         self.is_chosen = False
         self.is_collision_checked = False
         self.is_relative_checked = False
         self.number = number
-
-        self.intersecting_trajectories = []
-        self.trajectory_proximity_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
-        self.trajectory_overlap_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
-        self.relative_arc_length_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
-
-        self.proximity_outcome_cost  = 0
-        self.relative_arc_length_outcome_cost = 0
-
-        self.total_relative_costs = np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
-        self.point_count = 0
 
 
     def draw(self, screen):
@@ -201,24 +184,6 @@ class Trajectory:
 
             screen.blit(num_text, (text_x, text_y))
 
-    def update(self):
-        """
-        Updates the trajectory's cost values based on interactions with the opponent.
-
-        Returns:
-        - None
-        """
-        other_traj = self.bike.opponent.past_trajectories[-1]
-
-        self.collision_cost += self.theta_c
-        self.total_absolute_cost = self.bounds_cost + self.distance_cost + self.collision_cost
-        self.total_relative_costs = self.relative_arc_length_costs + self.trajectory_proximity_costs + self.bounds_cost
-
-        self.relative_arc_length_outcome_cost = self.relative_arc_length_costs[other_traj.number]
-        self.proximity_outcome_cost = self.trajectory_proximity_costs[other_traj.number]
-
-        # print(self.relative_arc_length_outcome_cost, self.proximity_outcome_cost)
-
     def add_point(self, x, y):
         """
         Adds a new point to the trajectory and updates relevant cost metrics.
@@ -236,16 +201,11 @@ class Trajectory:
         self.min_y = min(self.min_y, y)
         self.max_y = max(self.max_y, y)
 
-        self.bounds_cost += self.theta_b * self.check_bounds(x, y)
+        self.bounds_cost += self.check_bounds(x, y)
         if self.bounds_cost > 0:
             self.color = RED
 
         self.length = self.calc_angle_distance(x, y)
-        self.distance_cost += DISTANCE_WEIGHT * self.length
-
-        # collision cost added in bike class as result of interactions
-        self.total_absolute_cost = round(self.bounds_cost + self.distance_cost, 2)
-
         self.points.append((round(x, 2), round(y, 2)))
 
     def get_bounding_box(self):
@@ -289,9 +249,9 @@ class Trajectory:
         - float: Angle in radians, normalized between [0, 2π).
         """
         # Calculate angular position in radians
-        theta = atan2(y - self.course.center_y, x - self.course.center_x)
-        theta = (theta + 2 * pi) % (2 * pi)  # Normalize to [0, 2π)
-        return theta
+        angle = atan2(y - self.course.center_y, x - self.course.center_x)
+        angle = (angle + 2 * pi) % (2 * pi)  # Normalize to [0, 2π)
+        return angle
 
     def calc_angle_distance(self, x, y):
         """
@@ -398,17 +358,5 @@ class Trajectory:
         relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed) -
                                (angle + 2*pi * self.bike.laps_completed))
 
-        self.relative_arc_length_costs[other_traj.number] = relative_arc_length * self.theta_a
-        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length * self.theta_a
-
-        # proximity
-        # distance = sqrt((end_pos[0]-other_end_pos[0])**2+(end_pos[1]-other_end_pos[1])**2)
-        # self.trajectory_proximity_costs[other_traj.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
-        # other_traj.trajectory_proximity_costs[self.number] = np.exp(-DANGER_SPREAD*distance) * PROXIMITY_WEIGHT
-
-        other_traj.total_relative_costs = (other_traj.relative_arc_length_costs
-                                           + other_traj.trajectory_proximity_costs
-                                           + other_traj.bounds_cost )
-        self.total_relative_costs = (self.relative_arc_length_costs
-                                           + self.trajectory_proximity_costs
-                                           + self.bounds_cost )
+        self.relative_arc_length_costs[other_traj.number] = relative_arc_length
+        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length

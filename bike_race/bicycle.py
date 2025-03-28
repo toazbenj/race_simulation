@@ -41,7 +41,6 @@ Entry Point:
 
 from math import cos, sin, tan, atan2, sqrt, pi
 import pygame
-import numpy as np
 from constants import *
 from cost_adjust_cvx import find_adjusted_costs
 from trajectory import Trajectory
@@ -69,7 +68,7 @@ def generate_combinations(numbers, num_picks):
 
 class Bicycle:
     def __init__(self, course, x=300, y=300, v=5, color=BLUE, phi=radians(90), b=0, velocity_limit=15,
-                 is_vector_cost=False, is_relative_cost=False, opponent=None, theta_a=1, theta_b=1, theta_c=1):
+                 is_vector_cost=False, opponent=None, theta_a=1, theta_b=1, theta_c=1):
         """
             Initializes a Bicycle object to simulate movement on a racetrack.
 
@@ -129,7 +128,6 @@ class Bicycle:
 
         self.new_choices()
         self.is_vector_cost = is_vector_cost
-        self.is_relative_cost = is_relative_cost
         self.opponent = opponent
         self.cost_arr = None
 
@@ -152,8 +150,6 @@ class Bicycle:
         self.laps_completed = 0
         self.previous_angle = self.compute_angle()  # Initial angle
         self.is_crossing_finish = False
-
-
 
     def compute_angle(self):
         """
@@ -210,7 +206,7 @@ class Bicycle:
 
         b_next = atan2(self.lr * tan(steering), self.lr + self.lf)
 
-        self.state = np.array([x_next, y_next, v_next, phi_next, b_next])
+        self.state = np.round(np.array([x_next, y_next, v_next, phi_next, b_next]), decimals=6)
         return x_next, y_next, v_next, phi_next, b_next
 
 
@@ -306,28 +302,16 @@ class Bicycle:
         size = len(self.action_lst)**self.mpc_horizon
         cost_arr = np.zeros((size, size))
 
-        # absolute costs
-        if not self.is_relative_cost:
-            for i, traj in enumerate(trajectories):
-                cost_row = np.zeros((1, size))
-                cost_row[0, :] = traj.total_absolute_cost
-
-                for other_traj in traj.intersecting_trajectories:
-                    cost_row[0][other_traj.number] += traj.collision_weight
-
-                cost_arr[i, :] = cost_row
-
         # relative costs
-        else:
-            for i, traj in enumerate(trajectories):
-                cost_arr[i] = traj.total_relative_costs
-                self.A[i] = traj.relative_arc_length_costs
-                self.B[i] = traj.bounds_cost
+        for i, traj in enumerate(trajectories):
+            # indicator functions not scaled by weight
+            self.A[i] = np.round(traj.relative_arc_length_costs, decimals=2)
+            self.B[i] = traj.bounds_cost
 
-                for other_traj in traj.intersecting_trajectories:
-                    cost_arr[i][other_traj.number] += traj.theta_c
-                    self.C[i][other_traj.number] += traj.theta_c
+            for other_traj in traj.intersecting_trajectories:
+                self.C[i][other_traj.number] += 1
 
+        cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
         self.cost_arr = cost_arr
 
     def build_vector_arr(self, trajectories):
@@ -345,29 +329,12 @@ class Bicycle:
         safety_cost_arr = np.zeros((size, size))
         competitive_cost_arr = np.zeros((size, size))
 
-        # absolute method
-        if not self.is_relative_cost:
-            for i, traj in enumerate(trajectories):
-                cost_row_distance = np.zeros((1, size))
-                cost_row_safety = np.zeros((1, size))
+        for i, traj in enumerate(trajectories):
+            competitive_cost_arr[i] = traj.relative_arc_length_costs
+            safety_cost_arr[i] = traj.trajectory_proximity_costs + traj.bounds_cost
 
-                cost_row_distance[0, :] = traj.distance_cost
-                cost_row_safety[0, :] = traj.bounds_cost
-
-                for other_traj in traj.intersecting_trajectories:
-                    cost_row_safety[0][other_traj.number] += traj.collision_weight
-
-                safety_cost_arr[i] = cost_row_safety
-                competitive_cost_arr[i] = cost_row_distance
-
-        # relative costs
-        else:
-            for i, traj in enumerate(trajectories):
-                competitive_cost_arr[i] = traj.relative_arc_length_costs
-                safety_cost_arr[i] = traj.trajectory_proximity_costs + traj.bounds_cost
-
-                for other_traj in traj.intersecting_trajectories:
-                    safety_cost_arr[i][other_traj.number] += traj.collision_weight
+            for other_traj in traj.intersecting_trajectories:
+                safety_cost_arr[i][other_traj.number] += traj.collision_weight
 
         E = find_adjusted_costs(competitive_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
 
@@ -398,9 +365,6 @@ class Bicycle:
         chosen_traj.is_displaying = False
         chosen_traj.is_chosen = True
 
-        # update costs of last trajectory after other players picked
-        if len(self.past_trajectories) > 0:
-            self.past_trajectories[-1].update()
         self.past_trajectories.append(chosen_traj)
         self.choice_trajectories.remove(chosen_traj)
         self.chosen_action_sequence = self.action_choices[self.action_index]
@@ -418,17 +382,16 @@ class Bicycle:
         # update stats
         self.choice_cnt += 1
 
-        if len(self.past_trajectories) > 1:
+        if len(self.past_trajectories) > 1 and len(self.opponent.past_trajectories) > 1:
+            other_traj = self.opponent.past_trajectories[-2]
             previous_traj = self.past_trajectories[-2]
-            self.progress_cnt += previous_traj.length
-            self.progress_cost += previous_traj.relative_arc_length_outcome_cost
-            self.proximity_cost += previous_traj.proximity_outcome_cost
 
+            self.progress_cnt += previous_traj.length
+            self.progress_cost += previous_traj.relative_arc_length_costs[other_traj.number]
             self.bounds_cost += previous_traj.bounds_cost
+
             if previous_traj.bounds_cost > 0:
                 self.out_bounds_cnt += 1
-
-            # print(previous_traj.relative_arc_length_outcome_cost, previous_traj.proximity_outcome_cost, previous_traj.bounds_cost)
 
         # negative means ahead
         is_ahead_conditions = ((self.previous_angle > self.opponent.previous_angle) and (self.laps_completed >= self.opponent.laps_completed))\
@@ -461,8 +424,7 @@ class Bicycle:
 
         count = 0
         for action_sequence in self.action_choices:
-            traj = Trajectory(bike=self, course=self.course, color=YELLOW,
-                              theta_a=self.theta_a, theta_b=self.theta_b, theta_c=self.theta_c)
+            traj = Trajectory(bike=self, course=self.course, color=YELLOW)
             x_temp, y_temp, v_temp, phi_temp, b_temp = self.x, self.y, self.v, self.phi, self.b
             for action in action_sequence:
                 acc = action[0] * ACCELERATION_INCREMENT

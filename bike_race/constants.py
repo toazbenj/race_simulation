@@ -2,6 +2,8 @@ from math import radians
 import numpy as np
 
 # Main
+IS_COST_DATA_CREATION_MODE = False
+
 # Screen dimensions
 WIDTH, HEIGHT = 1400, 850
 # Button sizes from bottom left corner
@@ -34,21 +36,16 @@ FRAME_RATE = 60
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 5
-PROGRESS_RANGE = np.linspace(0, 20, NUM_THETA_INTERVALS)
+PROGRESS_RANGE = np.linspace(1, 20, NUM_THETA_INTERVALS)
 BOUNDS_RANGE = np.linspace(0, 200, NUM_THETA_INTERVALS)
 COLLISION_RANGE = np.linspace(0, 2, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-RACE_DATA = "../data2/test.csv"
+RACE_DATA = "../data/stats_test.csv"
 COST_DATA = "../data/cost_test.csv"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
-
-# Relative costs based on performance relative to opponent
-# (vs just progress relative to track)
-P1_IS_RELATIVE_COST = True
-P2_IS_RELATIVE_COST = True
 
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
@@ -85,6 +82,3 @@ RELATIVE_PROGRESS_WEIGHT_1 = 1
 COLLISION_WEIGHT_2 = 7.5
 BOUNDS_WEIGHT_2 = 100
 RELATIVE_PROGRESS_WEIGHT_2 = 1
-
-# absolute cost weights
-DISTANCE_WEIGHT = -1/10

@@ -59,10 +59,12 @@ def play_with_policy(env, model, n_episodes=3, display=True):
 
             steering = pid(error, prev_error)
 
-            inputs = preprocess_inputs(crop, error)
-            gas = float(model.predict(inputs, verbose=0)[0][0])
-            brake = 0.0 if gas > 0.1 else 0.1
-            speed = max(0.0, speed + gas - brake)
+            gas_classes = model.predict(preprocess_inputs(crop, error), verbose=0)
+            gas_index = np.argmax(gas_classes)
+            gas = [0.0, 0.5, 1.0][gas_index]
+            print(gas)
+
+            brake = 0.0
 
             action = np.array([steering, gas, brake], dtype=np.float32)
             obs, reward, done, truncated, _ = env.step(action)
@@ -84,5 +86,9 @@ def play_with_policy(env, model, n_episodes=3, display=True):
     cv2.destroyAllWindows()
 
 # --- Create env and run ---
+seed = 42
 env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
+env.reset(seed=42)
+np.random.seed(42)
+tf.random.set_seed(42)
 play_with_policy(env, model, n_episodes=3, display=True)

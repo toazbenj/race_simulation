@@ -50,7 +50,7 @@ def build_model():
     concat = tf.keras.layers.Concatenate()([x1, x2])
     x = tf.keras.layers.Dense(64, activation="relu")(concat)
     x = tf.keras.layers.Dense(32, activation="relu")(x)
-    output = tf.keras.layers.Dense(1, activation="sigmoid")(x)
+    output = tf.keras.layers.Dense(3, activation="softmax")(x)  # 3 gas levels
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
     model.compile(optimizer="adam", loss="mse")
@@ -59,7 +59,7 @@ def build_model():
 def preprocess_inputs(crop, error):
     crop = crop.astype(np.float32) / 255.0
     crop = crop.reshape(1, 5, 200, 1)
-    return [crop, np.array([[error]], dtype=np.float32)]
+    return [crop, np.array([[error/100]], dtype=np.float32)]
 
 def epsilon_policy(crop, error, epsilon):
     if np.random.rand() < epsilon:
@@ -74,7 +74,7 @@ def train_step():
     batch = [replay_buffer[np.random.randint(len(replay_buffer))] for _ in range(batch_size)]
     crops, errors, speeds = zip(*batch)
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
-    X_err = np.array(errors).reshape(batch_size, 1)/100 # normalized
+    X_err = np.array(errors).reshape(batch_size, 1)
 
     target_preds = target_model.predict([X_img, X_err], verbose=0)
     model.train_on_batch([X_img, X_err], target_preds)
@@ -111,7 +111,10 @@ for ep in range(episodes):
         error = find_error(crop, prev_error)
 
         epsilon = get_epsilon(ep)
-        gas = epsilon_policy(crop, error, epsilon)
+        gas_classes = epsilon_policy(crop, error, epsilon)
+        gas_index = np.argmax(gas_classes)
+        gas = [0.0, 0.5, 1.0][gas_index]
+
         steering = pid(error, prev_error)
         brake = 0.0
 

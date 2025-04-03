@@ -50,7 +50,7 @@ def build_model():
     concat = tf.keras.layers.Concatenate()([x, x2])
     x = tf.keras.layers.Dense(64, activation="relu")(concat)
     x = tf.keras.layers.Dense(32, activation="relu")(x)
-    output = tf.keras.layers.Dense(1, activation="sigmoid")(x)
+    output = tf.keras.layers.Dense(3, activation="softmax")(x)  # 3 gas levels
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0003)
@@ -112,7 +112,10 @@ for ep in range(episodes):
         error = find_error(crop, prev_error)
 
         epsilon = get_epsilon(ep)
-        gas = epsilon_policy(crop, error, epsilon)
+        gas_classes = epsilon_policy(crop, error, epsilon)
+        gas_index = np.argmax(gas_classes)
+        gas = [0.0, 0.5, 1.0][gas_index]
+
         steering = pid(error, prev_error)
         brake = 0.0
 
@@ -137,7 +140,7 @@ for ep in range(episodes):
     if total_reward > best_score:
         best_score = total_reward
         best_weights = model.get_weights()
-        print(f"🔥 New best: {best_score:.2f}")
+        print(f"New best: {best_score:.2f}")
 
         if best_score > 100:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M")
@@ -147,12 +150,12 @@ for ep in range(episodes):
 
     # Recovery from collapse
     if ep > 10 and np.mean(rewards[-5:]) < 0:
-        print("⛑️ Performance drop — restoring best weights")
+        print("Performance drop — restoring best weights")
         model.set_weights(best_weights)
 
     # Target network sync
     if ep % 10 == 0:
-        print("🔁 Syncing target network")
+        print("Syncing target network")
         target_model.set_weights(model.get_weights())
 
 env.close()

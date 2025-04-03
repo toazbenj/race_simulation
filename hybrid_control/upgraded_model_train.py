@@ -27,7 +27,7 @@ def preprocess_frame(frame):
 
 def find_error(crop, prev_error):
     nz = cv2.findNonZero(crop)
-    mid = 96
+    mid = 100
     if nz is None:
         return prev_error
     if nz[:, 0, 0].max() == nz[:, 0, 0].min():
@@ -74,7 +74,7 @@ def train_step():
     batch = [replay_buffer[np.random.randint(len(replay_buffer))] for _ in range(batch_size)]
     crops, errors, speeds = zip(*batch)
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
-    X_err = np.array(errors).reshape(batch_size, 1)
+    X_err = np.array(errors).reshape(batch_size, 1)/100 # normalized
 
     target_preds = target_model.predict([X_img, X_err], verbose=0)
     model.train_on_batch([X_img, X_err], target_preds)

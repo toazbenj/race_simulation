@@ -35,8 +35,9 @@
 ## Usage
 
 To run the simulation:
-
-1. **Execute the Main Script within the bike_race folder**:
+1. **Edit the configuration file constants.py in the bike_race folder.**:
+   
+2. **Execute the Main Script within the bike_race folder**:
 
    ```bash
    python main.py
@@ -44,6 +45,6 @@ To run the simulation:
 
    This will launch the simulation window.
 
-2. **Interact with the Simulation**:
+3. **Interact with the Simulation**:
 
    You can skip to the next race using the big red skip button

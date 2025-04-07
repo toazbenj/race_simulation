@@ -36,7 +36,7 @@
 
 To run the simulation:
 
-1. **Execute the Main Script**:
+1. **Execute the Main Script within the bike_race folder**:
 
    ```bash
    python main.py

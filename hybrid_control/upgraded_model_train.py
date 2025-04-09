@@ -93,6 +93,7 @@ def train_step():
     with writer.as_default():
         tf.summary.scalar("Loss/train", loss, step=ep)
 
+    return loss
 
 # --- Setup ---
 model = build_model()
@@ -103,13 +104,14 @@ log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 writer = create_file_writer(log_dir)
 
 replay_buffer = deque(maxlen=2000)
-loss_fn = tf.keras.losses.MeanSquaredError()
 
 env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
 np.random.seed(42)
 tf.random.set_seed(42)
 env.reset(seed=42)
 
+patience_cnt = 0
+patience = 5
 episodes = 50
 batch_size = 64
 rewards = []
@@ -122,6 +124,9 @@ for ep in range(episodes):
     prev_error = 0
     speed = 0
     smoothed_reward = 0
+    current_loss = 1000
+    previous_loss = 1000
+    best_loss = 1000
 
     for step in range(1000):
         frame = env.render()
@@ -145,7 +150,7 @@ for ep in range(episodes):
         prev_error = error
 
         if len(replay_buffer) > 1000 and step % 4 == 0:
-            train_step()
+            current_loss = train_step()
 
             with writer.as_default():
                 for layer in model.layers:
@@ -165,30 +170,42 @@ for ep in range(episodes):
 
     print(f"Episode {ep+1} - Reward: {total_reward:.2f}")
     rewards.append(total_reward)
-
     with writer.as_default():
         tf.summary.scalar("Reward/Episode", total_reward, step=ep)
 
-    if total_reward > best_score:
-        best_score = total_reward
-        best_weights = model.get_weights()
-        print(f" - New best score: {best_score:.2f}")
-        if best_score > 300:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-            Path("models").mkdir(parents=True, exist_ok=True)
-            file_path = os.path.join("models", f"{timestamp}_upgraded_hybrid_dqn.h5")
-            keras.saving.save_model(model, file_path)
+    # if total_reward > best_score:
+    #     best_score = total_reward
+    #     best_weights = model.get_weights()
+    #     print(f" - New best score: {best_score:.2f}")
+    #
+    #     if best_score > 300:
+    #         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    #         Path("models").mkdir(parents=True, exist_ok=True)
+    #         file_path = os.path.join("models", f"{timestamp}_upgraded_hybrid_dqn.h5")
+    #         keras.saving.save_model(model, file_path)
 
-            # for layer in model.layers:
-            #     weights = layer.get_weights()
-            #     if weights:
-            #         print(f"Layer: {layer.name}")
-            #         for i, w in enumerate(weights):
-            #             print(f"  Weight {i}: shape={w.shape}")
-            #             print(w)  # or use print(w[:5]) to print the first few values
+    print(f'Loss: {current_loss:.2f}')
+    # early stopping
+    if patience_cnt > patience:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        Path("models").mkdir(parents=True, exist_ok=True)
+        file_path = os.path.join("models", f"{timestamp}_upgraded_hybrid_dqn.h5")
+        model.set_weights(best_weights)
+        keras.saving.save_model(model, file_path)
+        break
 
     if ep % 5 == 0:
         target_model.set_weights(model.get_weights())
+
+    if current_loss < best_loss:
+        best_weights = model.get_weights()
+        best_loss = current_loss
+
+    if current_loss > previous_loss:
+        patience_cnt += 1
+
+    previous_loss = current_loss
+
 
 env.close()
 writer.close()

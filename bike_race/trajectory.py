@@ -205,7 +205,7 @@ class Trajectory:
         if self.bounds_cost > 0:
             self.color = RED
 
-        self.length = self.calc_angle_distance(self.bike.x, self.bike.y, x, y)
+        self.length = self.angle_displacement(self.bike.x, self.bike.y, x, y)
         self.points.append((round(x, 2), round(y, 2)))
 
     def get_bounding_box(self):
@@ -253,7 +253,7 @@ class Trajectory:
         angle = (angle + 2 * pi) % (2 * pi)  # Normalize to [0, 2π)
         return angle
 
-    def calc_angle_distance(self, x1, y1, x2, y2):
+    def angle_displacement(self, x1, y1, x2, y2):
         """
          Calculates the difference in angle covered by the trajectory.
 

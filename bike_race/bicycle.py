@@ -484,7 +484,7 @@ class Bicycle:
 
     def check_lap_completion(self):
         """
-        Detects when the bicycle crosses the finish line to complete a lap.
+        Detects when the bicycle crosses the finish line to complete a lap. Increments lap counter.
 
         Returns:
         - None

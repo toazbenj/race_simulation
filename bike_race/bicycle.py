@@ -299,20 +299,16 @@ class Bicycle:
         Returns:
         - None
         """
-        size = len(self.action_lst)**self.mpc_horizon
-        cost_arr = np.zeros((size, size))
-
         # relative costs
         for i, traj in enumerate(trajectories):
             # indicator functions not scaled by weight
-            self.A[i] = np.round(traj.relative_arc_length_costs, decimals=2)
-            self.B[i] = traj.bounds_cost
+            self.A[i] = np.round(traj.relative_arc_length_costs, decimals=5)
+            self.B[i] = np.full(self.B.shape[0], traj.bounds_cost)
 
             for other_traj in traj.intersecting_trajectories:
                 self.C[i][other_traj.number] += 1
 
-        cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
-        self.cost_arr = cost_arr
+        self.cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
 
     def build_vector_arr(self, trajectories):
         """

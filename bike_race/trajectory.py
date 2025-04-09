@@ -205,7 +205,7 @@ class Trajectory:
         if self.bounds_cost > 0:
             self.color = RED
 
-        self.length = self.calc_angle_distance(x, y)
+        self.length = self.calc_angle_distance(self.bike.x, self.bike.y, x, y)
         self.points.append((round(x, 2), round(y, 2)))
 
     def get_bounding_box(self):
@@ -237,7 +237,7 @@ class Trajectory:
         else:
             return 1
 
-    def angel(self, x, y):
+    def angle(self, x, y):
         """
         Computes the angular position of a point on the racetrack.
 
@@ -253,7 +253,7 @@ class Trajectory:
         angle = (angle + 2 * pi) % (2 * pi)  # Normalize to [0, 2π)
         return angle
 
-    def calc_angle_distance(self, x, y):
+    def calc_angle_distance(self, x1, y1, x2, y2):
         """
          Calculates the difference in angle covered by the trajectory.
 
@@ -266,11 +266,11 @@ class Trajectory:
          """
 
         # Calculate angles down the track for both points
-        arc1 = self.angel(self.bike.x, self.bike.y)
-        arc2 = self.angel(x, y)
+        angle1 = self.angle(x1, y1)
+        angle2 = self.angle(x2, y2)
 
         # Calculate the absolute distance, handling wraparound
-        distance = abs(arc2 - arc1)
+        distance = abs(angle2 - angle1)
         return distance
 
     def trajectory_intersection(self, other_traj):
@@ -335,28 +335,33 @@ class Trajectory:
         Returns:
         - None
         """
-        # relative arc length
-        other_end_pos = other_traj.points[-1]
-        end_pos = self.points[-1]
 
-        angle = self.angel(end_pos[0], end_pos[1])
-        other_angle = self.angel(other_end_pos[0], other_end_pos[1])
+        def unwrap_angle_difference(start_angle, end_angle):
+            """Returns the signed minimal angular difference considering wraparound."""
+            delta = end_angle - start_angle
+            if delta < -pi:
+                delta += 2 * pi
+            elif delta > pi:
+                delta -= 2 * pi
+            return delta
 
-        if self.bike.previous_angle > 1.8*pi and angle < 0.25 * pi:
-        # if angle > 1.8 * pi:
-            angle += 2*pi
+        # Own trajectory angle delta
+        self_start_angle = self.angle(*self.points[0])
+        self_end_angle = self.angle(*self.points[-1])
+        self_delta = unwrap_angle_difference(self_start_angle, self_end_angle)
 
-        # negative is good, incentive
-        laps = self.bike.laps_completed
-        other_laps = other_traj.bike.laps_completed
+        # Other trajectory angle delta
+        other_start_angle = other_traj.angle(*other_traj.points[0])
+        other_end_angle = other_traj.angle(*other_traj.points[-1])
+        other_delta = unwrap_angle_difference(other_start_angle, other_end_angle)
 
-        if self.bike.is_crossing_finish:
-            laps += 1
-        if other_traj.bike.is_crossing_finish:
-            other_laps += 1
+        # Add prior state angle and completed laps
+        self_total_angle = self_delta + self.bike.previous_angle + 2 * pi * self.bike.laps_completed
+        other_total_angle = other_delta + other_traj.bike.previous_angle + 2 * pi * other_traj.bike.laps_completed
 
-        relative_arc_length = ((other_angle+ 2*pi * other_traj.bike.laps_completed) -
-                               (angle + 2*pi * self.bike.laps_completed))
+        # Relative arc-length difference
+        relative_arc_length = other_total_angle - self_total_angle
 
+        # Store cost bidirectionally
         self.relative_arc_length_costs[other_traj.number] = relative_arc_length
         other_traj.relative_arc_length_costs[self.number] = -relative_arc_length

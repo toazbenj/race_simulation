@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 import os
 import keras
+from tensorflow.summary import create_file_writer
 
 # --- PID Controller ---
 def pid(error, prev_error):
@@ -36,21 +37,51 @@ def find_error(canny_crop, prev_error):
 
 # --- DQN for throttle prediction ---
 def build_model():
+    # image_input = tf.keras.Input(shape=(5, 200, 1), name="canny_crop")
+    # x1 = tf.keras.layers.Conv2D(32, (3, 3), activation="relu")(image_input)
+    # x1 = tf.keras.layers.Flatten()(x1)
+    #
+    # error_input = tf.keras.Input(shape=(1,), name="error")
+    # x2 = tf.keras.layers.Dense(16, activation="relu")(error_input)
+    #
+    # concat = tf.keras.layers.Concatenate()([x1, x2])
+    # x = tf.keras.layers.Dense(64, activation="relu")(concat)
+    # x = tf.keras.layers.Dense(32, activation="relu")(x)
+    # output = tf.keras.layers.Dense(1, activation="sigmoid")(x)
+    #
+    # model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
+    # model.compile(optimizer="adam", loss="mse")
+    # return model
+
     image_input = tf.keras.Input(shape=(5, 200, 1), name="canny_crop")
-    x1 = tf.keras.layers.Conv2D(32, (3, 3), activation="relu")(image_input)
+
+    # Conv stack with downsampling + norm
+    x1 = tf.keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same")(image_input)
+    x1 = tf.keras.layers.BatchNormalization()(x1)
+    x1 = tf.keras.layers.MaxPooling2D(pool_size=(1, 2))(x1)
+
+    x1 = tf.keras.layers.Conv2D(64, (3, 3), activation="relu", padding="same")(x1)
+    x1 = tf.keras.layers.BatchNormalization()(x1)
+    x1 = tf.keras.layers.MaxPooling2D(pool_size=(1, 2))(x1)
+
     x1 = tf.keras.layers.Flatten()(x1)
 
+    # Process error input deeper
     error_input = tf.keras.Input(shape=(1,), name="error")
-    x2 = tf.keras.layers.Dense(16, activation="relu")(error_input)
+    x2 = tf.keras.layers.Dense(32, activation="relu")(error_input)
+    x2 = tf.keras.layers.BatchNormalization()(x2)
 
+    # Combine features
     concat = tf.keras.layers.Concatenate()([x1, x2])
-    x = tf.keras.layers.Dense(64, activation="relu")(concat)
-    x = tf.keras.layers.Dense(32, activation="relu")(x)
+    x = tf.keras.layers.Dense(128, activation="relu")(concat)
+    x = tf.keras.layers.Dropout(0.3)(x)
+    x = tf.keras.layers.Dense(64, activation="relu")(x)
     output = tf.keras.layers.Dense(1, activation="sigmoid")(x)
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
-    model.compile(optimizer="adam", loss="mse")
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0003), loss="mse")
     return model
+
 
 def preprocess_inputs(crop, error):
     crop = crop.astype(np.float32) / 255.0
@@ -62,6 +93,14 @@ def epsilon_policy(crop, error, epsilon):
         return np.random.uniform(0, 1)
     else:
         return float(model.predict(preprocess_inputs(crop, error), verbose=0)[0][0])
+
+
+
+
+# Create a log directory
+log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+writer = create_file_writer(log_dir)
+
 
 # --- Setup ---
 model = build_model()
@@ -85,7 +124,10 @@ def train_step():
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
     X_err = np.array(errors).reshape(batch_size, 1)
     y = np.array(speeds).reshape(batch_size, 1)
-    model.train_on_batch([X_img, X_err], y)
+    loss = model.train_on_batch([X_img, X_err], y)
+
+    with writer.as_default():
+        tf.summary.scalar("Loss/train", loss, step=ep)
 
 for ep in range(episodes):
     obs, _ = env.reset()
@@ -118,6 +160,9 @@ for ep in range(episodes):
     print(f"Episode {ep+1} - Reward: {total_reward:.2f}")
     rewards.append(total_reward)
 
+    with writer.as_default():
+        tf.summary.scalar("Reward/Episode", total_reward, step=ep)
+
     if total_reward > best_score :
         best_weights = model.get_weights()
         best_score = total_reward
@@ -131,4 +176,12 @@ for ep in range(episodes):
     if ep > 5 and len(replay_buffer) > batch_size:
         train_step()
 
+        # Log Conv2D layer weights as histograms
+        with writer.as_default():
+            for layer in model.layers:
+                weights = layer.get_weights()
+                if weights:
+                    tf.summary.histogram(f"{layer.name}/weights", weights[0], step=ep)
+
 env.close()
+writer.close()

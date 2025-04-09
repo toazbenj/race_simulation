@@ -37,20 +37,28 @@ def find_error(crop, prev_error):
 # --- Model ---
 def build_model():
     image_input = tf.keras.Input(shape=(5, 200, 1), name="canny_crop")
-    x1 = tf.keras.layers.Conv2D(32, (3, 3), padding="same", activation="relu")(image_input)
-    x1 = tf.keras.layers.MaxPooling2D()(x1)
-    x1 = tf.keras.layers.Conv2D(64, (3, 3), padding="same", activation="relu")(x1)
+    x1 = tf.keras.layers.Conv2D(32, (3, 3), padding="same", kernel_initializer="he_normal")(image_input)
     x1 = tf.keras.layers.BatchNormalization()(x1)
+    x1 = tf.keras.layers.LeakyReLU(alpha=0.1)(x1)
+    x1 = tf.keras.layers.MaxPooling2D()(x1)
+    x1 = tf.keras.layers.Conv2D(64, (3, 3), padding="same", kernel_initializer="he_normal")(x1)
+    x1 = tf.keras.layers.BatchNormalization()(x1)
+    x1 = tf.keras.layers.LeakyReLU(alpha=0.1)(x1)
     x1 = tf.keras.layers.Flatten()(x1)
     x1 = tf.keras.layers.Dropout(0.3)(x1)
 
     error_input = tf.keras.Input(shape=(1,), name="error")
     x2 = tf.keras.layers.Dense(16, activation="relu")(error_input)
+    x2 = tf.keras.layers.LeakyReLU(alpha=0.1)(x2)
 
     concat = tf.keras.layers.Concatenate()([x1, x2])
     x = tf.keras.layers.Dense(64, activation="relu")(concat)
+    x = tf.keras.layers.LeakyReLU(alpha=0.1)(x)
+
     x = tf.keras.layers.Dense(32, activation="relu")(x)
-    output = tf.keras.layers.Dense(3, activation="softmax")(x)  # 3 gas levels
+    x = tf.keras.layers.LeakyReLU(alpha=0.1)(x)
+
+    output = tf.keras.layers.Dense(2, activation="sigmoid")(x)  # binary output
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
     model.compile(optimizer="adam", loss="mse")
@@ -93,7 +101,7 @@ tf.random.set_seed(42)
 env.reset(seed=42)
 
 episodes = 100
-batch_size = 32
+batch_size = 64
 rewards = []
 best_score = -1000
 
@@ -111,9 +119,8 @@ for ep in range(episodes):
         error = find_error(crop, prev_error)
 
         epsilon = get_epsilon(ep)
-        gas_classes = epsilon_policy(crop, error, epsilon)
-        gas_index = np.argmax(gas_classes)
-        gas = [0.0, 0.5, 1.0][gas_index]
+        probability = epsilon_policy(crop, error, epsilon)
+        gas = int(probability >= 0.5)
 
         steering = pid(error, prev_error)
         brake = 0.0

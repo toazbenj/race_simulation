@@ -265,11 +265,9 @@ class Trajectory:
          - float: Distance traveled along the track.
          """
 
-        # Calculate angles down the track for both points
         angle1 = self.angle(x1, y1)
         angle2 = self.angle(x2, y2)
 
-        # Calculate the absolute distance, handling wraparound
         distance = abs(angle2 - angle1)
         return distance
 

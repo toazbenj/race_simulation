@@ -465,6 +465,7 @@ class Bicycle:
         Returns:
         - None
         """
+
         current_angle = self.compute_angle()
 
         # Detect transition from just above 2π to just below 0

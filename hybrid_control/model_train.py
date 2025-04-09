@@ -168,7 +168,7 @@ for ep in range(episodes):
         best_score = total_reward
         print(f" - New best score! {best_score:.2f}")
 
-        if best_score > 100:
+        if best_score > 300:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M")
             file_path = os.path.join("models", f"{timestamp}_hybrid_dqn_pid.h5")
             keras.saving.save_model(model, file_path)

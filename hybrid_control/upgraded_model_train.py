@@ -75,7 +75,7 @@ def epsilon_policy(crop, error, epsilon):
         return np.random.uniform(0, 1)
     else:
         proba =  float(model.predict(preprocess_inputs(crop, error), verbose=0)[0][0])
-        print("proba: ", proba)
+        # print("proba: ", proba)
         return proba
 
 def get_epsilon(ep, min_epsilon=0.05, decay_rate=0.03):
@@ -110,7 +110,7 @@ np.random.seed(42)
 tf.random.set_seed(42)
 env.reset(seed=42)
 
-episodes = 100
+episodes = 50
 batch_size = 64
 rewards = []
 best_score = -1000
@@ -156,6 +156,13 @@ for ep in range(episodes):
         if terminated or truncated:
             break
 
+        # frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        # frame_resized = cv2.resize(frame_bgr, (400, 400))
+        # cv2.imshow("Hybrid PID+DQN Agent", frame_resized)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     env.close()
+        #     cv2.destroyAllWindows()
+
     print(f"Episode {ep+1} - Reward: {total_reward:.2f}")
     rewards.append(total_reward)
 
@@ -166,11 +173,19 @@ for ep in range(episodes):
         best_score = total_reward
         best_weights = model.get_weights()
         print(f" - New best score: {best_score:.2f}")
-        if best_score > 100:
+        if best_score > 300:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M")
             Path("models").mkdir(parents=True, exist_ok=True)
             file_path = os.path.join("models", f"{timestamp}_upgraded_hybrid_dqn.h5")
             keras.saving.save_model(model, file_path)
+
+            # for layer in model.layers:
+            #     weights = layer.get_weights()
+            #     if weights:
+            #         print(f"Layer: {layer.name}")
+            #         for i, w in enumerate(weights):
+            #             print(f"  Weight {i}: shape={w.shape}")
+            #             print(w)  # or use print(w[:5]) to print the first few values
 
     if ep % 5 == 0:
         target_model.set_weights(model.get_weights())

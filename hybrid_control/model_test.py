@@ -50,7 +50,6 @@ def play_with_policy(env, model, n_episodes=3, display=True):
         total_reward = 0
         done = False
         prev_error = 0
-        speed = 0
 
         while not done:
             frame = env.render()
@@ -59,9 +58,8 @@ def play_with_policy(env, model, n_episodes=3, display=True):
 
             steering = pid(error, prev_error)
 
-            gas_classes = model.predict(preprocess_inputs(crop, error), verbose=0)
-            gas_index = np.argmax(gas_classes)
-            gas = [0.0, 0.5, 1.0][gas_index]
+            probability = model.predict(preprocess_inputs(crop, error), verbose=0)
+            gas = int(probability >= 0.5)
             print(gas)
 
             brake = 0.0

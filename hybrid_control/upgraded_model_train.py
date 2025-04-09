@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 import os
 import keras
+from tensorflow.summary import create_file_writer
 
 # --- PID Controller ---
 def pid(error, prev_error):
@@ -58,10 +59,10 @@ def build_model():
     x = tf.keras.layers.Dense(32, activation="relu")(x)
     x = tf.keras.layers.LeakyReLU(alpha=0.1)(x)
 
-    output = tf.keras.layers.Dense(2, activation="sigmoid")(x)  # binary output
+    output = tf.keras.layers.Dense(1, activation="sigmoid")(x)  # binary output
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
-    model.compile(optimizer="adam", loss="mse")
+    model.compile(optimizer="adam", loss="binary_crossentropy")
     return model
 
 def preprocess_inputs(crop, error):
@@ -73,7 +74,9 @@ def epsilon_policy(crop, error, epsilon):
     if np.random.rand() < epsilon:
         return np.random.uniform(0, 1)
     else:
-        return float(model.predict(preprocess_inputs(crop, error), verbose=0)[0][0])
+        proba =  float(model.predict(preprocess_inputs(crop, error), verbose=0)[0][0])
+        print("proba: ", proba)
+        return proba
 
 def get_epsilon(ep, min_epsilon=0.05, decay_rate=0.03):
     return max(min_epsilon, np.exp(-decay_rate * ep))
@@ -85,12 +88,19 @@ def train_step():
     X_err = np.array(errors).reshape(batch_size, 1)
 
     target_preds = target_model.predict([X_img, X_err], verbose=0)
-    model.train_on_batch([X_img, X_err], target_preds)
+    loss = model.train_on_batch([X_img, X_err], target_preds)
+
+    with writer.as_default():
+        tf.summary.scalar("Loss/train", loss, step=ep)
+
 
 # --- Setup ---
 model = build_model()
 target_model = tf.keras.models.clone_model(model)
 target_model.set_weights(model.get_weights())
+
+log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+writer = create_file_writer(log_dir)
 
 replay_buffer = deque(maxlen=2000)
 loss_fn = tf.keras.losses.MeanSquaredError()
@@ -137,11 +147,20 @@ for ep in range(episodes):
         if len(replay_buffer) > 1000 and step % 4 == 0:
             train_step()
 
+            with writer.as_default():
+                for layer in model.layers:
+                    weights = layer.get_weights()
+                    if weights:
+                        tf.summary.histogram(f"{layer.name}/weights", weights[0], step=ep)
+
         if terminated or truncated:
             break
 
     print(f"Episode {ep+1} - Reward: {total_reward:.2f}")
     rewards.append(total_reward)
+
+    with writer.as_default():
+        tf.summary.scalar("Reward/Episode", total_reward, step=ep)
 
     if total_reward > best_score:
         best_score = total_reward
@@ -157,3 +176,4 @@ for ep in range(episodes):
         target_model.set_weights(model.get_weights())
 
 env.close()
+writer.close()

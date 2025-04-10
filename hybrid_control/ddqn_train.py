@@ -8,6 +8,7 @@ from pathlib import Path
 import keras
 from tensorflow.summary import create_file_writer
 import os
+import matplotlib.pyplot as plt
 
 def pid(error, prev_error):
     Kp, Ki, Kd = 0.02, 0.03, 0.2
@@ -69,22 +70,23 @@ target_model.set_weights(model.get_weights())
 log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 writer = create_file_writer(log_dir)
 
-replay_buffer = deque(maxlen=5000)
+replay_buffer = deque(maxlen=20000)
 env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
 np.random.seed(42)
 tf.random.set_seed(42)
 env.reset(seed=42)
 
-episodes = 100
-batch_size = 64
+episodes = 20
 rewards = []
 best_score = -1000
 gas_levels = [0.0, 0.5, 1.0]
+losses = []
 
 # gas, break
 action_lst = [(1,0.2),(1,0),(0, 0.2),(0,0)]
 
 def train_step(ep):
+    batch_size = min(64, len(replay_buffer) // 10)
     batch = [replay_buffer[np.random.randint(len(replay_buffer))] for _ in range(batch_size)]
     crops, errors, action_idxs = zip(*batch)
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
@@ -100,6 +102,7 @@ def train_step(ep):
         targets[i, action] = q_values_next[i, action]
 
     loss = model.train_on_batch([X_img, X_err], targets)
+    losses.append(loss)
     with writer.as_default():
         tf.summary.scalar("Loss/train", loss, step=ep)
 
@@ -119,12 +122,12 @@ for ep in range(episodes):
         action_index = np.argmax(q_values)
 
         # just gas
-        # gas = gas_levels[action_index]
-        # action = np.array([steering, gas, 0], dtype=np.float32)
+        gas = gas_levels[action_index]
+        action = np.array([steering, gas, 0], dtype=np.float32)
 
         # gas and break
-        pick = action_lst[action_index]
-        action = np.array([*pick, 0], dtype=np.float32)
+        # pick = action_lst[action_index]
+        # action = np.array([*pick, 0], dtype=np.float32)
 
         obs, reward, terminated, truncated, _ = env.step(action)
         smoothed_reward = 0.9 * smoothed_reward + 0.1 * float(reward)
@@ -162,3 +165,36 @@ for ep in range(episodes):
 
 env.close()
 writer.close()
+
+# ========== Plot and Save Curves ==========
+Path("images").mkdir(exist_ok=True)
+model_name = Path(log_dir).name
+timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+
+# Reward Plot
+plt.figure(figsize=(10, 5))
+plt.plot(rewards, label="Reward per Episode")
+plt.plot([max(rewards[:i+1]) for i in range(len(rewards))], linestyle='--', label="Max So Far")
+plt.xlabel("Episode")
+plt.ylabel("Reward")
+plt.title(f"Reward Curve – {model_name}")
+plt.grid(True)
+plt.legend()
+reward_path = f"images/{model_name}_reward_plot_{timestamp}.png"
+plt.savefig(reward_path)
+plt.close()
+
+# Loss Plot
+if losses:
+    plt.figure(figsize=(10, 5))
+    plt.plot(losses, label="Loss per Train Step")
+    plt.xlabel("Train Step")
+    plt.ylabel("Loss")
+    plt.title(f"Loss Curve – {model_name}")
+    plt.grid(True)
+    plt.legend()
+    loss_path = f"images/{model_name}_loss_plot_{timestamp}.png"
+    plt.savefig(loss_path)
+    plt.close()
+
+print(f"Saved plots to: {reward_path}")

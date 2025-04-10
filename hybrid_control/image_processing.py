@@ -47,14 +47,30 @@ green = green_mask(frame)
 gray = gray_scale(green)
 blur = blur_image(gray)
 canny = canny_edge_detector(blur)
-# cropped = canny[63:65, 24:73]
-cropped = canny[200:205, 200:400]
+
+# Define dynamic crop dimensions
+y_start, y_end = 270, 272
+x_start, x_end = 200, 400
+
+# Apply cropping
+cropped = canny[y_start:y_end, x_start:x_end]
+
+# Draw red rectangle using dynamic values
+frame_with_rect = frame.copy()
+cv2.rectangle(
+    frame_with_rect,
+    (x_start, y_start),
+    (x_end, y_end),
+    (255, 0, 0), 2  # Red box in BGR
+)
 
 
 # Plot steps
+# Draw red rectangle on original frame to indicate the crop area
 fig, axs = plt.subplots(1, 6, figsize=(18, 4))
-axs[0].imshow(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-axs[0].set_title("Original Crop")
+axs[0].imshow(cv2.cvtColor(frame_with_rect, cv2.COLOR_RGB2BGR))
+axs[0].set_title("Original + Crop Box")
+
 axs[1].imshow(cv2.cvtColor(green, cv2.COLOR_RGB2BGR))
 axs[1].set_title("Green Masked")
 axs[2].imshow(gray, cmap='gray')

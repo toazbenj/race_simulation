@@ -174,7 +174,7 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M")
 # Reward Plot
 plt.figure(figsize=(10, 5))
 plt.plot(rewards, label="Reward per Episode")
-plt.plot([max(rewards[:i+1]) for i in range(len(rewards))], linestyle='--', label="Max So Far")
+plt.plot([max(rewards[:i+1]) for i in range(len(rewards))], linestyle='--', label="Best Reward")
 plt.xlabel("Episode")
 plt.ylabel("Reward")
 plt.title(f"Reward Curve – {model_name}")

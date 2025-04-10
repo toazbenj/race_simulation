@@ -81,6 +81,9 @@ rewards = []
 best_score = -1000
 gas_levels = [0.0, 0.5, 1.0]
 
+# gas, break
+action_lst = [(1,0.2),(1,0),(0, 0.2),(0,0)]
+
 def train_step(ep):
     batch = [replay_buffer[np.random.randint(len(replay_buffer))] for _ in range(batch_size)]
     crops, errors, action_idxs = zip(*batch)
@@ -111,11 +114,17 @@ for ep in range(episodes):
         crop = preprocess_frame(frame)
         error = find_error(crop, prev_error)
 
+        steering = pid(error, prev_error)
         q_values = model.predict(preprocess_inputs(crop, error), verbose=0)[0]
         action_index = np.argmax(q_values)
-        gas = gas_levels[action_index]
-        steering = pid(error, prev_error)
-        action = np.array([steering, gas, 0], dtype=np.float32)
+
+        # just gas
+        # gas = gas_levels[action_index]
+        # action = np.array([steering, gas, 0], dtype=np.float32)
+
+        # gas and break
+        pick = action_lst[action_index]
+        action = np.array([*pick, 0], dtype=np.float32)
 
         obs, reward, terminated, truncated, _ = env.step(action)
         smoothed_reward = 0.9 * smoothed_reward + 0.1 * float(reward)

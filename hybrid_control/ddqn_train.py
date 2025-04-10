@@ -115,8 +115,7 @@ for ep in range(episodes):
         action_index = np.argmax(q_values)
         gas = gas_levels[action_index]
         steering = pid(error, prev_error)
-        brake = 0.0 if gas > 0.0 else 0.2
-        action = np.array([steering, gas, brake], dtype=np.float32)
+        action = np.array([steering, gas, 0], dtype=np.float32)
 
         obs, reward, terminated, truncated, _ = env.step(action)
         smoothed_reward = 0.9 * smoothed_reward + 0.1 * float(reward)

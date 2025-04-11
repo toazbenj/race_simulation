@@ -49,8 +49,8 @@ blur = blur_image(gray)
 canny = canny_edge_detector(blur)
 
 # Define dynamic crop dimensions
-y_start, y_end = 270, 272
-x_start, x_end = 200, 400
+y_start, y_end = 0, 350
+x_start, x_end = 0, 600
 
 # Apply cropping
 cropped = canny[y_start:y_end, x_start:x_end]

@@ -49,8 +49,8 @@ blur = blur_image(gray)
 canny = canny_edge_detector(blur)
 
 # Define dynamic crop dimensions
-y_start, y_end = 0, 350
-x_start, x_end = 0, 600
+y_start, y_end = 200, 205
+x_start, x_end = 200, 400
 
 # Apply cropping
 cropped = canny[y_start:y_end, x_start:x_end]
@@ -85,6 +85,8 @@ axs[5].set_title("Cropped")
 for ax in axs:
     ax.axis("off")
 plt.tight_layout()
-plt.show()
+# plt.show()
+
+plt.savefig("images/image_processing.png")
 
 env.close()

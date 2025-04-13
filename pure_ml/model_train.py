@@ -3,6 +3,8 @@ import keras
 import tensorflow as tf
 import numpy as np
 from collections import deque
+
+from keras.src.backend.jax.nn import softmax
 from matplotlib import pyplot as plt
 from pathlib import Path
 from datetime import datetime
@@ -93,7 +95,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation="relu"),
-    tf.keras.layers.Dense(n_outputs)  # Output probabilities for discrete actions
+    tf.keras.layers.Dense(n_outputs, activation='softmax')  # Output probabilities for discrete actions
 ])
 
 # Set up replay buffer

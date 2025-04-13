@@ -58,7 +58,7 @@ total_reward = 0
 min_speed = 0.2
 
 # --- Setup Matplotlib Live View ---
-fig, axs = plt.subplots(3, 1, figsize=(8, 8))
+fig, axs = plt.subplots(3, 1, figsize=(4, 8))
 plt.ion()
 plt.show(block=False)
 
@@ -121,3 +121,6 @@ env.close()
 cv2.destroyAllWindows()
 plt.close()
 print(f"Simulation complete. Total reward: {total_reward:.2f}")
+
+
+

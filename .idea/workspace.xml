@@ -4,42 +4,52 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7ff86516-deb2-4769-adf7-782403a14c27" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/race_simulation.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jupyter-settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/race_simulator.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/cost_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/stats_test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/hybrid_control/ddqn_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/ddqn_train.py" afterDir="false" />
+    <list default="true" id="7ff86516-deb2-4769-adf7-782403a14c27" name="Changes" comment="Image processing updates">
+      <change afterPath="$PROJECT_DIR$/hybrid_control/dqn_high_score.h5" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_control/model_test_gif.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pure_ml/model_test_gif.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/carracing_pid.gif" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/images/carracing_pid.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/model_plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/images/model_plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/models/ddqn_first_cut.h5" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/ddqn_first_cut.h5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/models/dqn_example.h5" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/ddqn_test_gif.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/models/dqn_high_score.h5" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/dqn_example.h5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/pid_canvas_output.gif" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/images/pid_canvas_output.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pure_ml/model_architecture.png" beforeDir="false" afterPath="$PROJECT_DIR$/pure_ml/images/model_architecture.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pure_ml/model_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/pure_ml/model_train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "toazbenj"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;toazbenj&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://toazbenj@github.com/toazbenj/race_simulation.git",
-    "accountId": "d41e8f5e-7b0e-4f1d-817c-8714a0e8118b"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/toazbenj/race_simulation.git&quot;,
+    &quot;accountId&quot;: &quot;467f78f4-6313-4535-b65d-d20488bf0535&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 0
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2vYGZeuiHfdXUKbTxY8fICvCMvu" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -47,10 +57,17 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.ddqn_test.executor": "Run",
+    "Python.ddqn_test_gif.executor": "Run",
+    "Python.image_processing.executor": "Run",
+    "Python.model_test_gif.executor": "Run",
+    "Python.pid_adapted.executor": "Run",
+    "Python.pid_gif.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "reinforcement__learning",
+    "last_opened_file_path": "C:/Users/toazb/Documents/ece480",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -59,11 +76,22 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control\models" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control\models" />
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control" />
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\pure_ml\images" />
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control\images" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-PY-243.23654.177" />
-        <option value="bundled-python-sdk-91d3a02ef49d-43b77aa2d136-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.23654.177" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PY-243.22562.220" />
+        <option value="bundled-python-sdk-0fc6c617c4bd-9a18a617cbe4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.22562.220" />
       </set>
     </attachedChunks>
   </component>
@@ -76,10 +104,26 @@
       <option name="presentableId" value="Default" />
       <updated>1744314652877</updated>
       <workItem from="1744314654195" duration="584000" />
+      <workItem from="1744379479535" duration="236000" />
+      <workItem from="1744472195478" duration="36000" />
+      <workItem from="1744482435600" duration="6724000" />
+      <workItem from="1744489444169" duration="9576000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Image processing updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="Image processing updates" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/race_simulation$ddqn_test_gif.coverage" NAME="ddqn_test_gif Coverage Results" MODIFIED="1744497998233" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
+    <SUITE FILE_PATH="coverage/race_simulation$image_processing.coverage" NAME="image_processing Coverage Results" MODIFIED="1744482956639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
+    <SUITE FILE_PATH="coverage/race_simulation$model_test_gif.coverage" NAME="model_test_gif Coverage Results" MODIFIED="1744494220730" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pure_ml" />
+    <SUITE FILE_PATH="coverage/race_simulation$ddqn_test.coverage" NAME="ddqn_test Coverage Results" MODIFIED="1744379115882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
+    <SUITE FILE_PATH="coverage/race_simulation$pid_adapted.coverage" NAME="pid_adapted Coverage Results" MODIFIED="1744492118624" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
+    <SUITE FILE_PATH="coverage/race_simulation$pid_gif.coverage" NAME="pid_gif Coverage Results" MODIFIED="1744493095255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
   </component>
 </project>

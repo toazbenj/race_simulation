@@ -5,14 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ff86516-deb2-4769-adf7-782403a14c27" name="Changes" comment="Image processing updates">
-      <change afterPath="$PROJECT_DIR$/hybrid_control/pid_gif.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pure_ml/model_train.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_control/dqn_high_score.h5" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hybrid_control/model_test_gif.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pure_ml/model_test_gif.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hybrid_control/Solving_OpenAI_CarRacing_v0_using_PID_controllers_.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/Solving_OpenAI_CarRacing_v0_using_PID_controllers_.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hybrid_control/ddqn_train.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/ddqn_train.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hybrid_control/image_processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/image_processing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hybrid_control/pid_adapted.py" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/pid_adapted.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/carracing_pid.gif" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/images/carracing_pid.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/model_plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/images/model_plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/models/ddqn_first_cut.h5" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/ddqn_first_cut.h5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/models/dqn_example.h5" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/ddqn_test_gif.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/models/dqn_high_score.h5" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/dqn_example.h5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hybrid_control/pid_canvas_output.gif" beforeDir="false" afterPath="$PROJECT_DIR$/hybrid_control/images/pid_canvas_output.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pure_ml/model_architecture.png" beforeDir="false" afterPath="$PROJECT_DIR$/pure_ml/images/model_architecture.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pure_ml/model_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/pure_ml/model_train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +58,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.ddqn_test.executor": "Run",
+    "Python.ddqn_test_gif.executor": "Run",
     "Python.image_processing.executor": "Run",
+    "Python.model_test_gif.executor": "Run",
     "Python.pid_adapted.executor": "Run",
     "Python.pid_gif.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -77,6 +83,8 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control\models" />
       <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control" />
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\pure_ml\images" />
+      <recent name="C:\Users\toazb\Documents\GitHub\race_simulation\hybrid_control\images" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -99,7 +107,7 @@
       <workItem from="1744379479535" duration="236000" />
       <workItem from="1744472195478" duration="36000" />
       <workItem from="1744482435600" duration="6724000" />
-      <workItem from="1744489444169" duration="3354000" />
+      <workItem from="1744489444169" duration="9576000" />
     </task>
     <servers />
   </component>
@@ -111,9 +119,11 @@
     <option name="LAST_COMMIT_MESSAGE" value="Image processing updates" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/race_simulation$ddqn_test_gif.coverage" NAME="ddqn_test_gif Coverage Results" MODIFIED="1744497998233" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
     <SUITE FILE_PATH="coverage/race_simulation$image_processing.coverage" NAME="image_processing Coverage Results" MODIFIED="1744482956639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
+    <SUITE FILE_PATH="coverage/race_simulation$model_test_gif.coverage" NAME="model_test_gif Coverage Results" MODIFIED="1744494220730" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pure_ml" />
     <SUITE FILE_PATH="coverage/race_simulation$ddqn_test.coverage" NAME="ddqn_test Coverage Results" MODIFIED="1744379115882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
     <SUITE FILE_PATH="coverage/race_simulation$pid_adapted.coverage" NAME="pid_adapted Coverage Results" MODIFIED="1744492118624" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
-    <SUITE FILE_PATH="coverage/race_simulation$pid_gif.coverage" NAME="pid_gif Coverage Results" MODIFIED="1744492392695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
+    <SUITE FILE_PATH="coverage/race_simulation$pid_gif.coverage" NAME="pid_gif Coverage Results" MODIFIED="1744493095255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/hybrid_control" />
   </component>
 </project>

@@ -30,7 +30,7 @@ BUTTON_HOVER = (255, 0, 0)
 NUM_RACES = 100
 RACE_DURATION = 1500  # Number of frames per race
 # Seed setting
-SEED = 42
+SEED = 41
 IS_RANDOM_START=True
 FRAME_RATE = 60
 
@@ -50,7 +50,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = False
+P2_IS_VECTOR_COST = True
 
 # Bicycle
 # Time step

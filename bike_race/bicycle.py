@@ -129,7 +129,7 @@ class Bicycle:
         self.new_choices()
         self.is_vector_cost = is_vector_cost
         self.opponent = opponent
-        self.cost_arr = None
+        self.composite_cost_arr = None
 
         # stats
         self.pass_cnt = 0
@@ -300,47 +300,31 @@ class Bicycle:
         - None
         """
         # relative costs
+        self.C = np.zeros_like(self.A)  # reset C
         for i, traj in enumerate(trajectories):
             # indicator functions not scaled by weight
             self.A[i] = np.round(traj.relative_arc_length_costs, decimals=5)
             self.B[i] = np.full(self.B.shape[0], traj.bounds_cost)
 
             for other_traj in traj.intersecting_trajectories:
+                # print(other_traj.number)
                 self.C[i][other_traj.number] += 1
 
-        self.cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
+        # print()
+        # print(self.C)
 
-    def build_vector_arr(self, trajectories):
-        """
-        Constructs a cost array using vector-based cost evaluation. Costs are kept separate when calculating action
-         policies.
+        if self.is_vector_cost:
+            E = find_adjusted_costs(self.A, self.B, self.C, self.opponent.composite_cost_arr)
 
-        Parameters:
-        - trajectories (list[Trajectory]): List of possible future trajectories.
-
-        Returns:
-        - None
-        """
-        size = len(self.action_lst) ** self.mpc_horizon
-        safety_cost_arr = np.zeros((size, size))
-        competitive_cost_arr = np.zeros((size, size))
-
-        for i, traj in enumerate(trajectories):
-            competitive_cost_arr[i] = traj.relative_arc_length_costs
-            safety_cost_arr[i] = traj.trajectory_proximity_costs + traj.bounds_cost
-
-            for other_traj in traj.intersecting_trajectories:
-                safety_cost_arr[i][other_traj.number] += traj.collision_weight
-
-        E = find_adjusted_costs(competitive_cost_arr, safety_cost_arr, self.opponent.cost_arr.transpose())
-
-        if E is None:
-            print("no minima")
-            self.cost_arr = competitive_cost_arr + safety_cost_arr
+            if E is None:
+                print("no minima")
+                self.composite_cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
+            else:
+                print("adjustment success")
+                self.composite_cost_arr = self.A + E
+                self.adjust_cnt += 1
         else:
-            print("adjustment success")
-            self.cost_arr = competitive_cost_arr + E
-            self.adjust_cnt += 1
+            self.composite_cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
 
     def compute_action(self):
         """
@@ -349,12 +333,10 @@ class Bicycle:
         Returns:
         - None
         """
-        if self.is_vector_cost:
-            self.build_vector_arr(self.choice_trajectories)
-        else:
-            self.build_arr(self.choice_trajectories)
 
-        self.action_index = np.argmin(np.max(self.cost_arr, axis=1))
+        self.build_arr(self.choice_trajectories)
+        self.action_index = np.argmin(np.max(self.composite_cost_arr, axis=1))
+        print(self.action_index)
 
         chosen_traj = self.choice_trajectories[self.action_index]
         chosen_traj.color = self.color

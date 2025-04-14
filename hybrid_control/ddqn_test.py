@@ -41,6 +41,7 @@ def preprocess_inputs(crop, error):
 
 def play_with_policy(env, model, n_episodes=3, display=True):
     gas_levels = [0.0, 0.5, 1.0]
+    action_lst = [(1, 0.2), (1, 0), (0.5, 0)]
 
     for episode in range(n_episodes):
         obs, _ = env.reset()
@@ -55,10 +56,11 @@ def play_with_policy(env, model, n_episodes=3, display=True):
 
             steering = pid(error, prev_error)
             q_values = model.predict(preprocess_inputs(crop, error), verbose=0)[0]
+            print(q_values)
             action_index = np.argmax(q_values)
-            gas = gas_levels[action_index]
+            gas, breaks  = action_lst[action_index]
 
-            action = np.array([steering, gas, 0], dtype=np.float32)
+            action = np.array([steering, gas, breaks], dtype=np.float32)
             obs, reward, done, truncated, _ = env.step(action)
             prev_error = error
             total_reward += reward

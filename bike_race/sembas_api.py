@@ -6,7 +6,6 @@ from time import sleep
 import json
 import torch
 
-
 def wait_until_open(client: socket.socket, max_attempts: int | None = 10, delay: float = 0.1):
     "Provides time for the server to begin before giving up."
     success = False
@@ -57,11 +56,13 @@ def send_response(client: socket.socket, cls: bool):
     bool_byte = int(cls).to_bytes(1, byteorder="big")
     client.sendall(bool_byte)
 
+
 def send_config(client: socket.socket, config: dict):
     config_json = json.dumps(config).encode("utf-8")
     length = len(config_json)
     client.sendall(struct.pack("!I", length))  # 4-byte length prefix
     client.sendall(config_json)
+
 
 def setup_socket_dict(config: dict, fail_on_refuse=False):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

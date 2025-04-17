@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib
+from action_graphing import *
 matplotlib.use('TkAgg')  # For Windows/Mac/Linux GUI support
 
 # --- Image Processing ---
@@ -49,6 +50,9 @@ def pid(error, previous_error):
     Kd = 0.2
     return Kp * error + Ki * (error + previous_error) + Kd * (error - previous_error)
 
+
+# main
+
 # --- Setup Environment ---
 env = gym.make("CarRacing-v3", render_mode="rgb_array")
 obs, _ = env.reset()
@@ -56,13 +60,16 @@ previous_error = 0
 speed = 0
 total_reward = 0
 min_speed = 0.2
+steps = 100
+action_lst = np.zeros((steps,3))
+reward_lst = []
 
 # --- Setup Matplotlib Live View ---
 fig, axs = plt.subplots(3, 1, figsize=(4, 8))
 plt.ion()
 plt.show(block=False)
 
-for step in range(5000):
+for step in range(steps):
     frame = env.render()
 
     error, canny, cropped = find_error(frame, previous_error)
@@ -88,10 +95,12 @@ for step in range(5000):
 
     speed = max(0.0, speed + gas - brake)
     action = np.array([steering, gas, brake], dtype=np.float32)
+    action_lst[step,:] = action
 
     obs, reward, terminated, truncated, _ = env.step(action)
     total_reward += reward
     previous_error = error
+    reward_lst.append(total_reward)
 
     # OpenCV Game View
     # frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -113,14 +122,15 @@ for step in range(5000):
     fig.canvas.draw()
     fig.canvas.flush_events()
 
-    # if cv2.waitKey(1) & 0xFF == ord('q') or terminated or truncated:
-    #     break
+    print(step)
 
 plt.ioff()
 env.close()
 cv2.destroyAllWindows()
 plt.close()
+
+action_lst[:,0] = action_lst[:,0]/max(np.max(action_lst[:,0]),np.abs(np.min(action_lst[:,0])))
+
+graph_actions(action_lst, 'pid')
+graph_reward(reward_lst, 'pid')
 print(f"Simulation complete. Total reward: {total_reward:.2f}")
-
-
-

@@ -66,9 +66,10 @@ def play_with_policy(env, model, n_episodes=3, display=True):
 
             steering = pid(error, prev_error)
 
-            probability = float(model.predict(preprocess_inputs(crop, error), verbose=0))
-            gas = int(probability >= 0.5)
-            print(probability)
+            probability = model.predict(preprocess_inputs(crop, error), verbose=0)
+            idx = np.argmax(probability)
+            print(idx)
+            gas = [0, 0.5, 1][idx]
 
             brake = 0.0
 

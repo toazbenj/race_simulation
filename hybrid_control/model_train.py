@@ -8,6 +8,7 @@ import os
 import keras
 from tensorflow.summary import create_file_writer
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 # --- PID Controller ---
 def pid(error, prev_error):
@@ -66,7 +67,10 @@ def preprocess_inputs(crop, error):
 
 def epsilon_policy(crop, error, epsilon):
     if np.random.rand() < epsilon:
-        return np.random.uniform(0, 1)
+        random_values = np.random.rand(3)
+        normalized_array = random_values / random_values.sum()
+        normalized_array = normalized_array.reshape(1, 3)
+        return normalized_array
     else:
         return float(model.predict(preprocess_inputs(crop, error), verbose=0)[0][0])
 
@@ -103,6 +107,8 @@ episodes = 350
 batch_size = 64
 rewards = []
 best_score = -1000
+gas_lst = [0, 0.5, 1]
+losses = []
 
 for ep in range(episodes):
     obs, _ = env.reset(seed=seed)
@@ -116,10 +122,12 @@ for ep in range(episodes):
         error = find_error(crop, prev_error)
 
         steering = pid(error, prev_error)
-        gas = epsilon_policy(crop, error, epsilon=max(0.1, 1 - ep/episodes))
-        brake = 0
+        probability = epsilon_policy(crop, error, epsilon=max(0.1, 1 - ep/episodes))
+        idx = np.argmax(probability)
+        # print(idx)
+        gas = gas_lst[idx]
 
-        speed = max(0.0, speed + gas - brake)
+        brake = 0
         action = np.array([steering, gas, brake], dtype=np.float32)
 
         obs, reward, terminated, truncated, _ = env.step(action)
@@ -148,8 +156,9 @@ for ep in range(episodes):
             file_path = os.path.join("models", f"{timestamp}_hybrid_dqn_pid.h5")
             keras.saving.save_model(model, file_path)
 
-    if ep > 5 and len(replay_buffer) > batch_size:
-        train_step()
+    if ep > 0 and len(replay_buffer) > batch_size:
+        loss = train_step()
+        losses.append(loss)
 
         # Log Conv2D layer weights as histograms
         with writer.as_default():

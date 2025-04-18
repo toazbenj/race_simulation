@@ -1,1 +1,3 @@
 hybrid_control/logs/fit/*
+logs/fit/*
+.idea/workspace.xml

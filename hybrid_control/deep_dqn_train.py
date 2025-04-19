@@ -39,11 +39,12 @@ def find_error(canny_crop, prev_error):
 def build_model():
     image_input = tf.keras.Input(shape=(5, 200, 1), name="canny_crop")
 
-        # Smaller Conv stack
     x1 = tf.keras.layers.Conv2D(16, (3, 3), padding="same", activation="relu")(image_input)
-    x1 = tf.keras.layers.MaxPooling2D()(x1)
-    x1 = tf.keras.layers.Conv2D(32, (3, 3), padding="same", activation="relu")(x1)
-    x1 = tf.keras.layers.MaxPooling2D()(x1)
+    x1 = tf.keras.layers.MaxPooling2D(pool_size=(1, 2))(x1)
+    x1 = tf.keras.layers.Conv2D(16, (3, 3), padding="same", activation="relu")(x1)
+    x1 = tf.keras.layers.MaxPooling2D(pool_size=(1, 2))(x1)
+    x1 = tf.keras.layers.Conv2D(16, (3, 3), padding="same", activation="relu")(x1)
+    x1 = tf.keras.layers.MaxPooling2D(pool_size=(1, 2))(x1)
     x1 = tf.keras.layers.Flatten()(x1)
 
     # Simpler error processing
@@ -52,7 +53,8 @@ def build_model():
 
     # Fuse and output Q-values for 3 gas levels
     concat = tf.keras.layers.Concatenate()([x1, x2])
-    x = tf.keras.layers.Dense(32, activation="relu")(concat)
+    x = tf.keras.layers.Dense(16, activation="relu")(concat)
+    x = tf.keras.layers.Dense(8, activation="relu")(x)
     output = tf.keras.layers.Dense(3, activation=None)(x)
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
@@ -111,27 +113,6 @@ rewards = []
 best_score = -1000
 gas_lst = [0, 0.5, 1]
 losses = []
-
-# Create a log directory
-log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-writer = create_file_writer(log_dir)
-
-# --- Setup ---
-model = build_model()
-replay_buffer = deque(maxlen=20000)
-loss_fn = tf.keras.losses.MeanSquaredError()
-
-env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
-seed = 3
-np.random.seed(seed)
-tf.random.set_seed(seed)
-env.reset(seed=seed)
-
-# --- Training ---
-episodes = 350
-batch_size = 64
-rewards = []
-best_score = -1000
 
 for ep in range(episodes):
     obs, _ = env.reset(seed=seed)

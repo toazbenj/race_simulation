@@ -105,7 +105,7 @@ tf.random.set_seed(seed)
 env.reset(seed=seed)
 
 # --- Training ---
-episodes = 50
+episodes = 200
 batch_size = 64
 rewards = []
 best_score = -1000
@@ -114,7 +114,7 @@ losses = []
 
 # Create a log directory
 log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-writer = create_file_writer(log_dir)
+writer = tf.summary.create_file_writer(log_dir)
 
 # --- Setup ---
 model = build_model()
@@ -128,7 +128,7 @@ tf.random.set_seed(seed)
 env.reset(seed=seed)
 
 # --- Training ---
-episodes = 350
+episodes = 10
 batch_size = 64
 rewards = []
 best_score = -1000

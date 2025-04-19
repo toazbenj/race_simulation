@@ -6,7 +6,6 @@ from collections import deque
 from datetime import datetime
 import os
 import keras
-from tensorflow.summary import create_file_writer
 import matplotlib.pyplot as plt
 from pathlib import Path
 
@@ -63,7 +62,7 @@ def build_model():
 def preprocess_inputs(crop, error):
     crop = crop.astype(np.float32) / 255.0
     crop = crop.reshape(1, 5, 200, 1)
-    return [crop, np.array([[error]], dtype=np.float32)]
+    return [crop, np.array([[error/100]], dtype=np.float32)]
 
 def epsilon_policy(crop, error, epsilon):
     if np.random.rand() < epsilon:
@@ -72,14 +71,17 @@ def epsilon_policy(crop, error, epsilon):
         normalized_array = normalized_array.reshape(1, 3)
         return normalized_array
     else:
-        return float(model.predict(preprocess_inputs(crop, error), verbose=0)[0][0])
+        return model.predict(preprocess_inputs(crop, error), verbose=0)
 
-def train_step():
+def train_step(ep):
     batch = [replay_buffer[np.random.randint(len(replay_buffer))] for _ in range(batch_size)]
-    crops, errors, speeds = zip(*batch)
+    crops, errors, speeds, rewards = zip(*batch)
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
     X_err = np.array(errors).reshape(batch_size, 1)
-    y = np.array(speeds).reshape(batch_size, 1)
+    y = np.zeros((batch_size, 3))
+    for i in range(batch_size):
+        action_idx = gas_lst.index(speeds[i])  # get correct class (0, 1, 2)
+        y[i, action_idx] = rewards[i]
     loss = model.train_on_batch([X_img, X_err], y)
 
     with writer.as_default():
@@ -89,11 +91,11 @@ def train_step():
 
 # Create a log directory
 log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-writer = create_file_writer(log_dir)
+writer = tf.summary.create_file_writer(log_dir)
 
 # --- Setup ---
 model = build_model()
-replay_buffer = deque(maxlen=20000)
+replay_buffer = deque(maxlen=5000)
 loss_fn = tf.keras.losses.MeanSquaredError()
 
 env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
@@ -103,7 +105,7 @@ tf.random.set_seed(seed)
 env.reset(seed=seed)
 
 # --- Training ---
-episodes = 350
+episodes = 200
 batch_size = 64
 rewards = []
 best_score = -1000
@@ -127,6 +129,10 @@ for ep in range(episodes):
         # print(idx)
         gas = gas_lst[idx]
 
+        # monitor
+        # if step % 300 == 0:
+        #     print(model.predict(preprocess_inputs(crop, error), verbose=0))
+
         brake = 0
         action = np.array([steering, gas, brake], dtype=np.float32)
 
@@ -134,7 +140,7 @@ for ep in range(episodes):
         total_reward += reward
 
         # Store experience
-        replay_buffer.append((crop, error, gas))
+        replay_buffer.append((crop, error, gas, reward))
         prev_error = error
 
         if terminated or truncated:
@@ -146,18 +152,18 @@ for ep in range(episodes):
     with writer.as_default():
         tf.summary.scalar("Reward/Episode", total_reward, step=ep)
 
-    if total_reward > best_score :
+    if total_reward > best_score:
         best_weights = model.get_weights()
         best_score = total_reward
         print(f" - New best score! {best_score:.2f}")
 
-        if best_score > 300:
+        if best_score >  300:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M")
             file_path = os.path.join("models", f"{timestamp}_hybrid_dqn_pid.h5")
             keras.saving.save_model(model, file_path)
 
-    if ep > 0 and len(replay_buffer) > batch_size:
-        loss = train_step()
+    if ep > 5 and len(replay_buffer) > batch_size:
+        loss = train_step(ep)
         losses.append(loss)
 
         # Log Conv2D layer weights as histograms

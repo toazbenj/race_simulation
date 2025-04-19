@@ -4,22 +4,6 @@ import numpy as np
 import cv2
 import os
 
-# --- Load model ---
-models_path = "models"
-latest_model = sorted(os.listdir(models_path))[-1]
-model_path = os.path.join(models_path, latest_model)
-
-print(f"Loading model from: {model_path}")
-model = tf.keras.models.load_model(model_path, compile=False)
-
-# for layer in model.layers:
-#     weights = layer.get_weights()
-#     if weights:
-#         print(f"Layer: {layer.name}")
-#         for i, w in enumerate(weights):
-#             print(f"  Weight {i}: shape={w.shape}")
-#             print(w)  # or use print(w[:5]) to print the first few values
-
 # --- PID Controller ---
 def pid(error, prev_error):
     Kp, Ki, Kd = 0.02, 0.03, 0.2
@@ -54,7 +38,7 @@ def preprocess_inputs(crop, error):
 # --- Run policy ---
 def play_with_policy(env, model, n_episodes=3, display=True):
     for episode in range(n_episodes):
-        obs, _ = env.reset()
+        obs, _ = env.reset(seed=3)
         total_reward = 0
         done = False
         prev_error = 0
@@ -63,12 +47,11 @@ def play_with_policy(env, model, n_episodes=3, display=True):
             frame = env.render()
             crop = preprocess_frame(frame)
             error = find_error(crop, prev_error)
-
             steering = pid(error, prev_error)
 
             probability = model.predict(preprocess_inputs(crop, error), verbose=0)
             idx = np.argmax(probability)
-            print(idx)
+            print(probability)
             gas = [0, 0.5, 1][idx]
 
             brake = 0.0
@@ -92,10 +75,20 @@ def play_with_policy(env, model, n_episodes=3, display=True):
     env.close()
     cv2.destroyAllWindows()
 
-# --- Create env and run ---
-seed = 42
-env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
-env.reset(seed=42)
-np.random.seed(42)
-tf.random.set_seed(42)
-play_with_policy(env, model, n_episodes=3, display=True)
+if __name__ == "__main__":
+    # --- Create env and run ---
+
+    # --- Load model ---
+    models_path = "models"
+    latest_model = sorted(os.listdir(models_path))[-1]
+    model_path = os.path.join(models_path, latest_model)
+
+    print(f"Loading model from: {model_path}")
+    model = tf.keras.models.load_model(model_path, compile=False)
+
+    seed = 3
+    env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
+    env.reset(seed=seed)
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
+    play_with_policy(env, model, n_episodes=3, display=True)

@@ -73,14 +73,14 @@ def epsilon_policy(crop, error, epsilon):
     else:
         return model.predict(preprocess_inputs(crop, error), verbose=0)
 
-def train_step(ep):
+def train_step(ep, action_lst):
     batch = [replay_buffer[np.random.randint(len(replay_buffer))] for _ in range(batch_size)]
-    crops, errors, speeds, rewards = zip(*batch)
+    crops, errors, actions, rewards = zip(*batch)
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
     X_err = np.array(errors).reshape(batch_size, 1)
     y = np.zeros((batch_size, 3))
     for i in range(batch_size):
-        action_idx = gas_lst.index(speeds[i])  # get correct class (0, 1, 2)
+        action_idx = action_lst.index(actions[i])  # get correct class (0, 1, 2)
         y[i, action_idx] = rewards[i]
     loss = model.train_on_batch([X_img, X_err], y)
 
@@ -105,7 +105,7 @@ tf.random.set_seed(seed)
 env.reset(seed=seed)
 
 # --- Training ---
-episodes = 200
+episodes = 20
 batch_size = 64
 rewards = []
 best_score = -1000
@@ -114,11 +114,11 @@ losses = []
 
 # Create a log directory
 log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-writer = create_file_writer(log_dir)
+writer = tf.summary.create_file_writer(log_dir)
 
 # --- Setup ---
 model = build_model()
-replay_buffer = deque(maxlen=20000)
+replay_buffer = deque(maxlen=5000)
 loss_fn = tf.keras.losses.MeanSquaredError()
 
 env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
@@ -132,6 +132,8 @@ episodes = 20
 batch_size = 64
 rewards = []
 best_score = -1000
+
+action_lst = [(1,0.2), (1,0), (0.5,0), (0.1, 0.2), (0.1, 0)]
 
 for ep in range(episodes):
     obs, _ = env.reset(seed=seed)
@@ -147,21 +149,15 @@ for ep in range(episodes):
         steering = pid(error, prev_error)
         probability = epsilon_policy(crop, error, epsilon=max(0.1, 1 - ep/episodes))
         idx = np.argmax(probability)
-        # print(idx)
-        gas = gas_lst[idx]
 
-        # monitor
-        # if step % 300 == 0:
-        #     print(model.predict(preprocess_inputs(crop, error), verbose=0))
-
-        brake = 0
-        action = np.array([steering, gas, brake], dtype=np.float32)
+        pick = action_lst[idx]
+        action = np.array([steering, *pick], dtype=np.float32)
 
         obs, reward, terminated, truncated, _ = env.step(action)
         total_reward += reward
 
         # Store experience
-        replay_buffer.append((crop, error, gas, reward))
+        replay_buffer.append((crop, error, action, reward))
         prev_error = error
 
         if terminated or truncated:
@@ -184,7 +180,7 @@ for ep in range(episodes):
             keras.saving.save_model(model, file_path)
 
     if ep > 5 and len(replay_buffer) > batch_size:
-        loss = train_step(ep)
+        loss = train_step(ep, action_lst)
         losses.append(loss)
 
         # Log Conv2D layer weights as histograms

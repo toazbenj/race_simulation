@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def graph_actions(action_lst, model_name):
+    action_lst[:, 0] = action_lst[:, 0] / max(np.max(action_lst[:, 0]), np.abs(np.min(action_lst[:, 0])))
+
     steering = action_lst[:,0]
     gas = action_lst[:,1]
     brake = action_lst[:,2]
@@ -35,8 +37,9 @@ def graph_reward(reward_lst, model_name):
     plt.show()
 
 # Main
-action_lst = np.array([[1,1,1],[0,1,0],[1,-1,-1]])
-reward_lst = 10*[100]
+if __name__ == "__main__":
+    action_lst = np.array([[1,1,1],[0,1,0],[1,-1,-1]])
+    reward_lst = 10*[100]
 
-graph_actions(action_lst, "test")
-graph_reward(reward_lst, "test")
+    graph_actions(action_lst, "test")
+    graph_reward(reward_lst, "test")

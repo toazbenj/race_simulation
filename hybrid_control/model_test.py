@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import os
+from action_graphing import *
 
 # --- PID Controller ---
 def pid(error, prev_error):
@@ -37,13 +38,18 @@ def preprocess_inputs(crop, error):
 
 # --- Run policy ---
 def play_with_policy(env, model, n_episodes=3, display=True):
+
+
     for episode in range(n_episodes):
         obs, _ = env.reset(seed=3)
         total_reward = 0
         done = False
         prev_error = 0
+        steps = 350
+        action_lst = np.zeros((steps, 3))
+        reward_lst = []
 
-        while not done:
+        for step in range(steps):
             frame = env.render()
             crop = preprocess_frame(frame)
             error = find_error(crop, prev_error)
@@ -57,9 +63,12 @@ def play_with_policy(env, model, n_episodes=3, display=True):
             brake = 0.0
 
             action = np.array([steering, gas, brake], dtype=np.float32)
+            action_lst[step, :] = action
+
             obs, reward, done, truncated, _ = env.step(action)
             prev_error = error
             total_reward += reward
+            reward_lst.append(total_reward)
 
             if display:
                 frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -75,9 +84,9 @@ def play_with_policy(env, model, n_episodes=3, display=True):
     env.close()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    # --- Create env and run ---
+    return action_lst, reward_lst
 
+if __name__ == "__main__":
     # --- Load model ---
     models_path = "models"
     latest_model = sorted(os.listdir(models_path))[-1]
@@ -91,4 +100,8 @@ if __name__ == "__main__":
     env.reset(seed=seed)
     np.random.seed(seed)
     tf.random.set_seed(seed)
-    play_with_policy(env, model, n_episodes=3, display=True)
+    action_lst, reward_lst = play_with_policy(env, model, n_episodes=1, display=True)
+
+    graph_actions(action_lst, 'pid')
+    graph_reward(reward_lst, 'pid')
+    print(f"Simulation complete. Total reward: {reward_lst[-1]:.2f}")

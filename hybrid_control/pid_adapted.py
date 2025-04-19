@@ -129,8 +129,6 @@ env.close()
 cv2.destroyAllWindows()
 plt.close()
 
-action_lst[:,0] = action_lst[:,0]/max(np.max(action_lst[:,0]),np.abs(np.min(action_lst[:,0])))
-
 graph_actions(action_lst, 'pid')
 graph_reward(reward_lst, 'pid')
 print(f"Simulation complete. Total reward: {total_reward:.2f}")

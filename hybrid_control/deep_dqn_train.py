@@ -107,7 +107,7 @@ tf.random.set_seed(seed)
 env.reset(seed=seed)
 
 # --- Training ---
-episodes = 200
+episodes = 50
 batch_size = 64
 rewards = []
 best_score = -1000

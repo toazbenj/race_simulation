@@ -53,7 +53,7 @@ def build_model():
     # Fuse and output Q-values for 3 gas levels
     concat = tf.keras.layers.Concatenate()([x1, x2])
     x = tf.keras.layers.Dense(32, activation="relu")(concat)
-    output = tf.keras.layers.Dense(3, activation=None)(x)
+    output = tf.keras.layers.Dense(5, activation=None)(x)
 
     model = tf.keras.models.Model(inputs=[image_input, error_input], outputs=output)
     model.compile(optimizer="adam", loss="mse")
@@ -66,9 +66,9 @@ def preprocess_inputs(crop, error):
 
 def epsilon_policy(crop, error, epsilon):
     if np.random.rand() < epsilon:
-        random_values = np.random.rand(3)
+        random_values = np.random.rand(5)
         normalized_array = random_values / random_values.sum()
-        normalized_array = normalized_array.reshape(1, 3)
+        normalized_array = normalized_array.reshape(1, 5)
         return normalized_array
     else:
         return model.predict(preprocess_inputs(crop, error), verbose=0)
@@ -78,7 +78,7 @@ def train_step(ep, action_lst):
     crops, errors, actions, rewards = zip(*batch)
     X_img = np.array(crops).reshape(batch_size, 5, 200, 1)
     X_err = np.array(errors).reshape(batch_size, 1)
-    y = np.zeros((batch_size, 3))
+    y = np.zeros((batch_size, 5))
     for i in range(batch_size):
         action_idx = action_lst.index(actions[i])  # get correct class (0, 1, 2)
         y[i, action_idx] = rewards[i]
@@ -157,7 +157,7 @@ for ep in range(episodes):
         total_reward += reward
 
         # Store experience
-        replay_buffer.append((crop, error, action, reward))
+        replay_buffer.append((crop, error, pick, reward))
         prev_error = error
 
         if terminated or truncated:

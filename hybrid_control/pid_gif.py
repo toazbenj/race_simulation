@@ -115,7 +115,6 @@ for step in range(6000):  # Adjust frame count
     plt.tight_layout()
     fig.canvas.draw()
 
-    # ✅ Safe read from canvas using Agg
     w, h = fig.canvas.get_width_height()
     image = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
     image = image.reshape((h, w, 4))  # 4 channels = RGBA

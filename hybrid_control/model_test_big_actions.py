@@ -1,40 +1,10 @@
 import gymnasium as gym
-from gymnasium.wrappers import RecordVideo
 import tensorflow as tf
 import numpy as np
 import cv2
 import os
-import glob
-import io
-import base64
-from IPython.display import HTML
-from IPython import display as ipythondisplay
-
-# --- Load Model ---
-models_path = "good_models"
-latest_model = sorted(os.listdir(models_path))[-1]
-model_path = os.path.join(models_path, latest_model)
-print(f"Loading model from: {model_path}")
-model = tf.keras.models.load_model(model_path, compile=False)
-
-# --- Video Utils ---
-def show_video():
-    mp4list = glob.glob('video/*.mp4')
-    if len(mp4list) > 0:
-        mp4 = mp4list[0]
-        video = io.open(mp4, 'r+b').read()
-        encoded = base64.b64encode(video)
-        ipythondisplay.display(HTML(data=f'''
-        <video alt="simulation" autoplay loop controls style="height: 400px;">
-            <source src="data:video/mp4;base64,{encoded.decode('ascii')}" type="video/mp4" />
-        </video>'''))
-    else:
-        print("❌ Could not find video")
-
-def wrap_env(env):
-    if not os.path.exists('video'):
-        os.makedirs('video')
-    return RecordVideo(env, video_folder='video', episode_trigger=lambda ep: True)
+from action_graphing import *
+import imageio
 
 # --- PID Controller ---
 def pid(error, prev_error):
@@ -67,30 +37,40 @@ def preprocess_inputs(crop, error):
     crop = crop.reshape(1, 5, 200, 1)
     return [crop, np.array([[error/100]], dtype=np.float32)]
 
-# --- Run Agent ---
-def play_with_policy(env, model, n_episodes=1, display=False):
+# --- Run policy ---
+def play_with_policy(env, model, n_episodes=3, display=True):
+
+
     for episode in range(n_episodes):
-        obs, _ = env.reset()
+        obs, _ = env.reset(seed=3)
         total_reward = 0
         done = False
         prev_error = 0
+        steps = 2100
+        action_lst = np.zeros((steps, 3))
+        reward_lst = []
+        frames = []
 
-        while not done:
-            frame = obs
+        for step in range(steps):
+            frame = env.render()
             crop = preprocess_frame(frame)
             error = find_error(crop, prev_error)
-
             steering = pid(error, prev_error)
 
-            probability = float(model.predict(preprocess_inputs(crop, error), verbose=0))
-            gas = int(probability >= 0.5)
-            brake = 0.0
+            probability = model.predict(preprocess_inputs(crop, error), verbose=0)
+            idx = np.argmax(probability)
+            print(probability)
+            pick = [(1,0.2), (1,0), (0.5,0), (0.1, 0.2), (0.1, 0)][idx]
 
-            action = np.array([steering, gas, brake], dtype=np.float32)
-            obs, reward, terminated, truncated, _ = env.step(action)
+            action = np.array([steering, *pick], dtype=np.float32)
+            action_lst[step, :] = action
+
+            obs, reward, done, truncated, _ = env.step(action)
             prev_error = error
             total_reward += reward
-            done = terminated or truncated
+            reward_lst.append(total_reward)
+
+            frames.append(frame.copy())
 
             if display:
                 frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -106,19 +86,29 @@ def play_with_policy(env, model, n_episodes=1, display=False):
     env.close()
     cv2.destroyAllWindows()
 
-# --- Init Env ---
-seed = 42
-env = wrap_env(gym.make(
-    "CarRacing-v3",
-    render_mode="rgb_array",
-    lap_complete_percent=0.95,
-    domain_randomize=False,
-    continuous=True
-))
-env.reset(seed=seed)
-np.random.seed(seed)
-tf.random.set_seed(seed)
+    return action_lst, reward_lst, frames
 
-# --- Run & Show ---
-play_with_policy(env, model, n_episodes=1, display=False)
-show_video()
+if __name__ == "__main__":
+    # --- Load model ---
+    # models_path = "good_models"
+    # latest_model = sorted(os.listdir(models_path))[-1]
+    # model_path = os.path.join(models_path, latest_model)
+
+    model_path = 'good_models/big_action_deep_dqn_20250419_1550_hybrid_dqn_pid.h5'
+    print(f"Loading model from: {model_path}")
+    model = tf.keras.models.load_model(model_path, compile=False)
+
+    seed = 3
+    env = gym.make("CarRacing-v3", render_mode="rgb_array", lap_complete_percent=0.95, domain_randomize=False, continuous=True)
+    env.reset(seed=seed)
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
+    action_lst, reward_lst, frames = play_with_policy(env, model, n_episodes=1, display=True)
+
+    graph_actions(action_lst, 'big_action_deep_dqn')
+    graph_reward(reward_lst, 'big_action_deep_dqn')
+    print(f"Simulation complete. Total reward: {reward_lst[-1]:.2f}")
+
+    name = "big_action_deep_dqn.gif"
+    imageio.mimsave("images/"+name, frames, fps=15)
+    print("GIF saved as "+ name)

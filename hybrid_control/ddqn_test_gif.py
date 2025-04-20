@@ -4,11 +4,17 @@ import numpy as np
 import cv2
 import os
 import imageio
+import imageio
+from action_graphing import *
+
 
 # --- Load Model ---
-models_path = "models"
-latest_model = sorted(os.listdir(models_path))[-1]
-model_path = os.path.join(models_path, latest_model)
+# models_path = "models"
+# latest_model = sorted(os.listdir(models_path))[-1]
+# model_path = os.path.join(models_path, latest_model)
+
+model_path = 'good_models/ddqn_long_run.h5'
+
 print(f"Loading model from: {model_path}")
 model = tf.keras.models.load_model(model_path, compile=False)
 
@@ -45,7 +51,7 @@ def preprocess_inputs(crop, error):
 
 
 # --- Main ---
-seed = 42
+seed = 3
 env = gym.make(
     "CarRacing-v3",
     render_mode="rgb_array",
@@ -59,7 +65,9 @@ tf.random.set_seed(seed)
 
 gas_levels = [0.0, 0.5, 1.0]
 frames = []
-n_steps = 3000
+n_steps = 100
+action_lst = np.zeros((n_steps, 3))
+reward_lst = []
 
 obs, _ = env.reset()
 total_reward = 0
@@ -81,10 +89,23 @@ for step in range(n_steps):
     total_reward += reward
     prev_error = error
 
+    action_lst[step, :] = action
+    reward_lst.append(total_reward)
     frames.append(frame.copy())
 
+    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    frame_resized = cv2.resize(frame_bgr, (400, 400))
+    cv2.imshow("Hybrid PID+DQN Agent", frame_resized)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        env.close()
+        cv2.destroyAllWindows()
+
 env.close()
-gif_path = 'video/ddqn_test_gif.gif'
+gif_path = 'video/ddqn.gif'
 print(f"Saving GIF with {len(frames)} frames to: {gif_path}")
 imageio.mimsave(gif_path, frames[1:], fps=30)
 print("GIF saved.")
+
+graph_actions(action_lst, 'ddqn')
+graph_reward(reward_lst, 'ddqn')
+print(f"Simulation complete. Total reward: {reward_lst[-1]:.2f}")

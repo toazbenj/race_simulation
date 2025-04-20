@@ -91,10 +91,6 @@ def train_step(ep, action_lst):
 
     return loss
 
-# Create a log directory
-log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-writer = tf.summary.create_file_writer(log_dir)
-
 # --- Setup ---
 model = build_model()
 replay_buffer = deque(maxlen=5000)

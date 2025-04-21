@@ -46,7 +46,7 @@ def play_with_policy(env, model, n_episodes=3, display=True):
         total_reward = 0
         done = False
         prev_error = 0
-        steps = 2100
+        steps = 600
         action_lst = np.zeros((steps, 3))
         reward_lst = []
         frames = []
@@ -95,6 +95,7 @@ if __name__ == "__main__":
     # model_path = os.path.join(models_path, latest_model)
 
     model_path = 'good_models/big_action_deep_dqn_20250419_1550_hybrid_dqn_pid.h5'
+
     print(f"Loading model from: {model_path}")
     model = tf.keras.models.load_model(model_path, compile=False)
 
@@ -105,10 +106,10 @@ if __name__ == "__main__":
     tf.random.set_seed(seed)
     action_lst, reward_lst, frames = play_with_policy(env, model, n_episodes=1, display=True)
 
-    graph_actions(action_lst, 'big_action_deep_dqn')
-    graph_reward(reward_lst, 'big_action_deep_dqn')
+    graph_actions(action_lst, 'last_chance_ddqn')
+    graph_reward(reward_lst, 'last_chance_ddqn')
     print(f"Simulation complete. Total reward: {reward_lst[-1]:.2f}")
 
-    name = "big_action_deep_dqn.gif"
+    name = "last_chance_ddqn.gif"
     imageio.mimsave("images/"+name, frames, fps=15)
     print("GIF saved as "+ name)

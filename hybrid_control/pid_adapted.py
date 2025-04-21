@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib
 from action_graphing import *
-matplotlib.use('TkAgg')  # For Windows/Mac/Linux GUI support
+matplotlib.use('TkAgg')
 
 # --- Image Processing ---
 def green_mask(observation):

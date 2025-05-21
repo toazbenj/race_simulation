@@ -109,9 +109,9 @@ class Course:
         #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=10, opponent=self.bike1)
         # self.bike1.opponent = self.bike2
 
-        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST, velocity_limit=DEFENDER_SPEED,
-                             theta_a=weights1[0], theta_b=weights1[1], theta_c=weights1[2])
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=P2_IS_VECTOR_COST,
+        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
+                             velocity_limit=DEFENDER_SPEED, theta_a=weights1[0], theta_b=weights1[1], theta_c=weights1[2])
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=P2_IS_VECTOR_COST, is_cost_populating=True,
                              velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
                              theta_a=weights2[0], theta_b=weights2[1], theta_c=weights2[2])
         # bike must be initialized first before sharing information

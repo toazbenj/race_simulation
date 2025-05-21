@@ -68,7 +68,7 @@ def generate_combinations(numbers, num_picks):
 
 class Bicycle:
     def __init__(self, course, x=300, y=300, v=5, color=BLUE, phi=radians(90), b=0, velocity_limit=15,
-                 is_vector_cost=False, opponent=None, theta_a=1, theta_b=1, theta_c=1):
+                 is_vector_cost=False, is_cost_populating=False, opponent=None, theta_a=1, theta_b=1, theta_c=1):
         """
             Initializes a Bicycle object to simulate movement on a racetrack.
 
@@ -128,6 +128,7 @@ class Bicycle:
 
         self.new_choices()
         self.is_vector_cost = is_vector_cost
+        self.is_cost_populating = is_cost_populating
         self.opponent = opponent
         self.composite_cost_arr = None
 
@@ -291,7 +292,7 @@ class Bicycle:
 
     def build_arr(self, trajectories):
         """
-        Builds a cost array for trajectory evaluation. Costs are calculated as weighted sums and combined.
+        Builds a cost array for trajectory evaluation. Costs are calculated separately and combined in weighted sums.
 
         Parameters:
         - trajectories (list[Trajectory]): List of possible future trajectories.
@@ -299,25 +300,28 @@ class Bicycle:
         Returns:
         - None
         """
-        # relative costs
         self.C = np.zeros_like(self.A)  # reset C
         for i, traj in enumerate(trajectories):
             # indicator functions not scaled by weight
-            self.A[i] = np.round(traj.relative_arc_length_costs, decimals=5)
+            self.A[i] = np.round(traj.relative_progress_costs, decimals=5)
             self.B[i] = np.full(self.B.shape[0], traj.bounds_cost)
 
-            for other_traj in traj.intersecting_trajectories:
-                # print(other_traj.number)
-                self.C[i][other_traj.number] += 1
+            # decimal proximity cost
+            self.C[i] = np.round(traj.proximity_costs, decimals=5)
 
-        # print()
+            # # binary collision cost
+            # for other_traj in traj.intersecting_trajectories:
+            #     # print(other_traj.number)
+            #     self.C[i][other_traj.number] += 1
+
+        # print(self.color)
         # print(self.C)
 
         if self.is_vector_cost:
             E = find_adjusted_costs(self.A, self.B, self.C, self.opponent.composite_cost_arr)
 
             if E is None:
-                print("no minima")
+                # print("no minima")
                 self.composite_cost_arr = self.A * self.theta_a + self.B * self.theta_b + self.C * self.theta_c
             else:
                 print("adjustment success")
@@ -336,7 +340,7 @@ class Bicycle:
 
         self.build_arr(self.choice_trajectories)
         self.action_index = np.argmin(np.max(self.composite_cost_arr, axis=1))
-        print(self.action_index)
+        print("Action: " + str(self.action_index))
 
         chosen_traj = self.choice_trajectories[self.action_index]
         chosen_traj.color = self.color
@@ -365,7 +369,7 @@ class Bicycle:
             previous_traj = self.past_trajectories[-2]
 
             self.progress_cnt += previous_traj.length
-            self.progress_cost += previous_traj.relative_arc_length_costs[other_traj.number]
+            self.progress_cost += previous_traj.relative_progress_costs[other_traj.number]
             self.bounds_cost += previous_traj.bounds_cost
 
             if previous_traj.bounds_cost > 0:
@@ -416,29 +420,13 @@ class Bicycle:
             self.choice_trajectories.append(traj)
             count += 1
 
-        # check how far away the opponent is
-        is_in_range = True
-        if other_bike is not None:
-            is_in_range = sqrt((self.x - other_bike.x) ** 2 + (self.y - other_bike.y) ** 2) < self.action_interval * self.mpc_horizon
-
-        # allow traj to know possible collisions, absolute costs
-        if other_bike is not None and len(other_bike.choice_trajectories) > 0 and is_in_range:
-            for traj in self.choice_trajectories:
-                # if traj.is_collision_checked:
-                #     continue
-                for other_traj in other_bike.choice_trajectories:
-                    # if other_traj.is_collision_checked:
-                    #     continue
-                    other_traj.collision_checked = True
-                    traj.collision_checked = True
-                    traj.absolute_trajectory_sensing(other_traj, self.action_interval, self.mpc_horizon)
         # relative costs
-        if other_bike is not None and len(other_bike.choice_trajectories) > 0:
+        if other_bike is not None and len(other_bike.choice_trajectories) > 0 and self.is_cost_populating:
             for traj in self.choice_trajectories:
                 for other_traj in other_bike.choice_trajectories:
-                    # if other_traj.is_relative_checked:
-                    #     continue
                     traj.relative_trajectory_sensing(other_traj)
+                    traj.proximity_sensing(other_traj)
+        print()
 
     def check_lap_completion(self):
         """

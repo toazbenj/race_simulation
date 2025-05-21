@@ -32,7 +32,6 @@ Class:
   - `get_bounding_box()`: Retrieves the bounding box of the trajectory.
   - `check_bounds(new_x, new_y)`: Checks if a point is within the racecourse boundaries.
   - `angel(x, y)`: Computes the angular position of a point on the racetrack.
-  - `calc_arc_length_distance(x, y)`: Calculates the arc-length distance covered by the trajectory.
   - `trajectory_intersection(other_traj)`: Determines if two trajectories intersect.
   - `absolute_trajectory_sensing(other_traj, action_interval, mpc_horizon)`: Detects absolute trajectory overlaps.
   - `relative_trajectory_sensing(other_traj)`: Computes relative costs between competing trajectories.
@@ -123,6 +122,19 @@ def intersect(line1, line2):
     is_same_point = A == C or B == D or A == D or B == C
     return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D) or is_same_point
 
+def euclidean_distance(point1, point2):
+    return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+
+
+def min_point_to_point_distance(line1, line2):
+    min_dist = float('inf')
+    for p1 in line1:
+        for p2 in line2:
+            dist = euclidean_distance(p1, p2)
+            if dist < min_dist:
+                min_dist = dist
+    return min_dist
+
 
 class Trajectory:
     def __init__(self,  course, bike, color, number=0):
@@ -152,7 +164,8 @@ class Trajectory:
         self.intersecting_trajectories = []
         self.collision_cost = 0
         self.bounds_cost = 0
-        self.relative_arc_length_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
+        self.relative_progress_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
+        self.proximity_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
 
         self.is_displaying = False
         self.is_chosen = False
@@ -160,6 +173,8 @@ class Trajectory:
         self.is_relative_checked = False
         self.number = number
 
+        self.closest_boundary_distance = -1000
+        self.closest_opponent_distance = -1000
 
     def draw(self, screen):
         """
@@ -201,12 +216,40 @@ class Trajectory:
         self.min_y = min(self.min_y, y)
         self.max_y = max(self.max_y, y)
 
-        self.bounds_cost += self.check_bounds(x, y)
+        # self.bounds_cost += self.check_bounds(x, y)
+        new_bounds_cost = self.out_of_bounds_cost(x, y)
+        if new_bounds_cost > self.bounds_cost:
+            self.bounds_cost = new_bounds_cost
+
         if self.bounds_cost > 0:
             self.color = RED
 
         self.length = self.angle_displacement(self.bike.x, self.bike.y, x, y)
         self.points.append((round(x, 2), round(y, 2)))
+
+    def out_of_bounds_cost(self, x, y):
+        dx = x - WIDTH/2
+        dy = y - HEIGHT/2
+        dist = np.sqrt(dx ** 2 + dy ** 2)
+
+        # distance off track
+        # if dist < INNER_RADIUS:
+        #     # cost = abs(INNER_RADIUS - dist) ** 2
+        #     cost = abs(INNER_RADIUS - dist)
+        #
+        # elif dist > OUTER_RADIUS:
+        #     # cost = abs(dist - OUTER_RADIUS) ** 2
+        #     cost = abs(dist - OUTER_RADIUS)
+        # else:
+        #     cost = 0
+        # distance from center line
+
+        radius = (OUTER_RADIUS + INNER_RADIUS) / 2
+        distance_to_perimeter = abs(dist - radius)
+
+        cost = 1 - np.exp(-(2/BOUNDS_SPREAD * distance_to_perimeter) ** 2)
+
+        return cost
 
     def get_bounding_box(self):
         """
@@ -358,8 +401,20 @@ class Trajectory:
         other_total_angle = other_delta + other_traj.bike.previous_angle + 2 * pi * other_traj.bike.laps_completed
 
         # Relative arc-length difference
-        relative_arc_length = other_total_angle - self_total_angle
+        angle_difference = other_total_angle - self_total_angle
 
         # Store cost bidirectionally
-        self.relative_arc_length_costs[other_traj.number] = relative_arc_length
-        other_traj.relative_arc_length_costs[self.number] = -relative_arc_length
+        self.relative_progress_costs[other_traj.number] = angle_difference
+        other_traj.relative_progress_costs[self.number] = -angle_difference
+
+    def proximity_sensing(self, other_traj):
+        minimum_distance = min_point_to_point_distance(self.points, other_traj.points)
+
+        cost = 0
+        if minimum_distance < PROXIMITY_SPREAD:
+            # cost = (threshold - minimum_distance) ** 2
+            # cost = abs(threshold - minimum_distance)
+            cost =  np.exp(-(2 * 1 / PROXIMITY_SPREAD * minimum_distance))
+
+        self.proximity_costs[other_traj.number] = cost
+        other_traj.proximity_costs[self.number] = cost

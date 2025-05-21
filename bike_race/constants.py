@@ -6,6 +6,7 @@ IS_COST_DATA_CREATION_MODE = False
 
 # Screen dimensions
 WIDTH, HEIGHT = 1400, 850
+
 # Button sizes from bottom left corner
 BUTTON_X = 20
 BUTTON_Y = HEIGHT - 60
@@ -28,7 +29,7 @@ BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
 NUM_RACES = 100
-RACE_DURATION = 1500  # Number of frames per race
+RACE_DURATION = 3000  # Number of frames per race, base 1500
 # Seed setting
 SEED = 41
 IS_RANDOM_START=True
@@ -75,10 +76,17 @@ COLLISION_RADIUS = 45
 
 # Trajectory
 # relative cost weights
-COLLISION_WEIGHT_1 = 7.5
-BOUNDS_WEIGHT_1 = 100
-RELATIVE_PROGRESS_WEIGHT_1 = 1
+prox_weight = 1
+bounds_weight = 1
+progress_weight = 1
 
-COLLISION_WEIGHT_2 = 7.5
-BOUNDS_WEIGHT_2 = 100
-RELATIVE_PROGRESS_WEIGHT_2 = 1
+PROXIMITY_SPREAD = 50
+BOUNDS_SPREAD = 100
+
+PROXIMITY_WEIGHT1 = prox_weight
+BOUNDS_WEIGHT_1 = bounds_weight
+RELATIVE_PROGRESS_WEIGHT_1 = progress_weight
+
+PROXIMITY_WEIGHT_2 = prox_weight
+BOUNDS_WEIGHT_2 = bounds_weight
+RELATIVE_PROGRESS_WEIGHT_2 = progress_weight

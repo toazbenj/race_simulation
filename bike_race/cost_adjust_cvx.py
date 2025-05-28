@@ -241,9 +241,13 @@ def find_adjusted_costs(A1, B1, C2):
 
             # print(is_min, is_exact)
             if is_min and is_exact and (np.linalg.norm(E) < np.linalg.norm(E_star)):
-                print("Pos: ", min_position)
-                print('Security Policy: ', np.argmin(np.max(A1+E, axis=1)))
+                # print("Pos: ", min_position)
+                # print('Security Policy: ', np.argmin(np.max(A1+E, axis=1)))
                 E_star = E
+
+            if is_min and is_exact:
+                print("Pos: ", int(min_position[0]))
+                print('Security Policy: ', np.argmin(np.max(A1+E, axis=1)))
 
     if np.any(np.isinf(E_star)):
         return None

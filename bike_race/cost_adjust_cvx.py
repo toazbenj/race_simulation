@@ -224,8 +224,9 @@ def find_adjusted_costs(A1, B1, C2):
 
     # add operation that selects only pareto optimal indices
     pareto_indices = pareto_optimal(A1,B1, player2_sec_policy)
-    print(pareto_indices)
+    # print(pareto_indices)
     pareto_safe_indices = np.intersect1d(safe_row_indices, pareto_indices)
+    print("Pareto safe indicies: " + str(pareto_safe_indices))
 
     # find error matrices to make each combination of indices the global min of potential function
     E_star = np.ones_like(A1) * np.inf
@@ -240,8 +241,8 @@ def find_adjusted_costs(A1, B1, C2):
 
             # print(is_min, is_exact)
             if is_min and is_exact and (np.linalg.norm(E) < np.linalg.norm(E_star)):
-                # print("Pos: ", min_position)
-                # print('P2 Sec: ', np.argmin(np.max(A1+E, axis=1)))
+                print("Pos: ", min_position)
+                print('Security Policy: ', np.argmin(np.max(A1+E, axis=1)))
                 E_star = E
 
     if np.any(np.isinf(E_star)):

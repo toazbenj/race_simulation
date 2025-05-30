@@ -260,9 +260,14 @@ def find_adjusted_costs(A1, B1, C1, D2):
 
             # print(is_min, is_exact)
             if is_min and is_exact and (np.linalg.norm(E) < np.linalg.norm(E_star)):
+
+                player1_sec = np.argmin(np.max(A1 + E, axis=1))
+
                 print("Minimum position: ", min_position)
-                print('P2 Sec: ', np.argmin(np.max(A1 + E, axis=1)))
-                E_star = E
+                print('P2 Sec: ', player1_sec)
+
+                if min_position[0] == player1_sec:
+                    E_star = E
 
     if np.any(np.isinf(E_star)):
         return None

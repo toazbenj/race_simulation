@@ -65,14 +65,19 @@ def main():
                         randomize_start=IS_RANDOM_START, seed=seed_lst[race])
 
         for _ in range(RACE_DURATION):
+            skip_requested = False
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR,
+                                          BUTTON_HOVER):
+                        skip_requested = True
 
-            # Check if the skip button is clicked
-            if course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER):
-                break  # Skip to next race
+            if skip_requested:
+                break
 
             # Update the simulation
             course.update()

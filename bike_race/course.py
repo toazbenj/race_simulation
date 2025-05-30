@@ -35,13 +35,17 @@ import math
 
 import pygame
 from math import atan2, pi, sqrt, ceil
+
+from numpy.matrixlib.defmatrix import matrix
+
 from bicycle import Bicycle
 import random
 import csv
 from constants import *
 
 class Course:
-    def __init__(self, center_x, center_y, outer_radius=300, inner_radius=125, randomize_start=False, seed=42):
+    def __init__(self, center_x, center_y, weights1, weights2, race_number, outer_radius=300, inner_radius=125,
+                 randomize_start=False, seed=42):
         """
         Initializes the racecourse with specified track dimensions and randomization options.
 
@@ -56,7 +60,7 @@ class Course:
         Returns:
         - None
         """
-
+        self.race_number = race_number
         self.count = 0
         self.center_x = center_x
         self.center_y = center_y
@@ -80,7 +84,7 @@ class Course:
 
                 distance = math.sqrt((rand_x2 - rand_x1) ** 2 + (rand_y2 - rand_y1) ** 2)
 
-                if distance > 2*COLLISION_RADIUS:
+                if distance > 3*COLLISION_RADIUS:
                     break
 
             # Snap points to the centerline
@@ -105,10 +109,11 @@ class Course:
         #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=10, opponent=self.bike1)
         # self.bike1.opponent = self.bike2
 
-        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_relative_cost=P1_IS_RELATIVE_COST,
-                             is_vector_cost=P1_IS_VECTOR_COST, velocity_limit=DEFENDER_SPEED)
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_relative_cost=P2_IS_RELATIVE_COST,
-                             is_vector_cost=P2_IS_VECTOR_COST, velocity_limit=ATTACKER_SPEED, opponent=self.bike1)
+        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
+                             velocity_limit=DEFENDER_SPEED, theta_a=weights1[0], theta_b=weights1[1], theta_c=weights1[2])
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=P2_IS_VECTOR_COST, is_cost_populating=True,
+                             velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
+                             theta_a=weights2[0], theta_b=weights2[1], theta_c=weights2[2])
         # bike must be initialized first before sharing information
         self.bike1.opponent = self.bike2
 
@@ -209,9 +214,12 @@ class Course:
         self.bike1.update_action(self.count)
         self.bike2.update_action(self.count)
 
+        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
+            self.save_costs(self.count / (ACTION_INTERVAL* MPC_HORIZON))
+
         self.count += 1
 
-    def save_stats(self, race_number, seed):
+    def save_stats(self, seed):
         """
         Saves race statistics, such as passes, collisions, and performance metrics, to a CSV file.
 
@@ -223,10 +231,9 @@ class Course:
         - None
         """
 
-        with open(WRITE_FILE, mode='a', newline='') as file:
+        with open(RACE_DATA, mode='a', newline='') as file:
             writer = csv.writer(file)
-            if race_number == 0:
-                writer.writerow([' '])
+            if self.race_number == 0:
                 writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
                                  'Choices',
                                  'Proportion Ahead P1', 'Proportion Ahead P2',
@@ -235,7 +242,6 @@ class Course:
                                  'Out of Bounds P1', 'Out of Bounds P2',
                                  'Progress Cost P1', 'Progress Cost P2',
                                  'Bounds Cost P1', 'Bounds Cost P2',
-                                 'Proximity Cost P1', 'Proximity Cost P2',
                                  'Adjustment Count P2', f'Seed: {seed}'])
 
             try:
@@ -248,7 +254,7 @@ class Course:
             # how many times a single collision is registered (how hard the hit was)
             collision_amount = 200
             # P1 always ahead, pass count -1 since counts as a pass
-            writer.writerow([race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
+            writer.writerow([self.race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
                              ceil(self.bike1.collision_cnt/collision_amount), self.bike1.choice_cnt,
                              p1_ahead, p2_ahead,
                              self.bike1.is_ahead, self.bike2.is_ahead,
@@ -256,5 +262,64 @@ class Course:
                              self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt,
                              round(self.bike1.progress_cost), round(self.bike2.progress_cost),
                              self.bike1.bounds_cost, self.bike2.bounds_cost,
-                             self.bike1.proximity_cost, self.bike2.proximity_cost,
                              self.bike2.adjust_cnt])
+
+
+    def save_costs(self, decision_number):
+        """
+        Save scalar and full 2D matrix features into CSV, expanding headers for both dimensions.
+        """
+
+        with open(COST_DATA, mode='a', newline='') as file:
+            writer = csv.writer(file)
+
+            if decision_number==0 and self.race_number==0:
+                # Scalar features header
+                header = [
+                    'Theta_a1', 'Theta_b1', 'Theta_c1',
+                    'Theta_a2', 'Theta_b2', 'Theta_c2',
+                    'action1', 'Action_space1',
+                    'action2', 'Action_space2'
+                ]
+
+                # For bike1 matrices: A, B, C (assuming they are 2D arrays)
+                header += self.matrix_print(self.bike1.A, 'A1')
+                header += self.matrix_print(self.bike1.B, 'B1')
+                header += self.matrix_print(self.bike1.C, 'C1')
+
+                # For bike2 matrices: A, B, C
+                header += self.matrix_print(self.bike2.A, 'A2')
+                header += self.matrix_print(self.bike2.B, 'B2')
+                header += self.matrix_print(self.bike2.C, 'C2')
+
+
+                # For state vectors (assuming these are 2D arrays; if 1D, adjust accordingly)
+                state_dict = {1:'x', 2:'y', 3:'v', 4:'phi', 5:'b'}
+                header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
+                header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
+
+                writer.writerow(header)
+
+            # --- Build row data ---
+            row = [
+                self.bike1.theta_a, self.bike1.theta_b, self.bike1.theta_c,
+                self.bike2.theta_a, self.bike2.theta_b, self.bike2.theta_c,
+                self.bike1.action_index, self.bike1.action_space_size,
+                self.bike2.action_index, self.bike2.action_space_size,
+            ]
+
+            # Append full matrix data by flattening in row-major order:
+            row += self.bike1.A.flatten().tolist()
+            row += self.bike1.B.flatten().tolist()
+            row += self.bike1.C.flatten().tolist()
+            row += self.bike2.A.flatten().tolist()
+            row += self.bike2.B.flatten().tolist()
+            row += self.bike2.C.flatten().tolist()
+            row += self.bike1.state.flatten().tolist()
+            row += self.bike2.state.flatten().tolist()
+
+            writer.writerow(row)
+
+    def matrix_print(self, matrix, name):
+        line = [f'{name}_{i}_{j}' for i in range(1,matrix.shape[0]+1) for j in range(1,matrix.shape[1]+1)]
+        return line

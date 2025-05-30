@@ -31,13 +31,13 @@ Entry Point:
 import numpy as np
 import cvxpy as cp
 
-def cost_adjustment(A, B, global_min_position):
+def cost_adjustment(A1, D2, global_min_position):
     """
     Adjusts the cost matrices to enforce potential function constraints through convex optimization.
 
     Parameters:
-    - A (np.ndarray): Cost matrix for player 1.
-    - B (np.ndarray): Cost matrix for player 2.
+    - A1 (np.ndarray): Cost matrix for player 1.
+    - D2 (np.ndarray): Cost matrix for player 2.
     - global_min_position (tuple[int, int]): Coordinates (row, column) of the desired global minimum.
 
     Returns:
@@ -45,18 +45,18 @@ def cost_adjustment(A, B, global_min_position):
     """
 
     # Compute initial potential function
-    phi_initial = potential_function(A, B, global_min_position)
+    phi_initial = potential_function(A1, D2, global_min_position)
 
-    if is_valid_exact_potential(A, B, phi_initial) and \
+    if is_valid_exact_potential(A1, D2, phi_initial) and \
             is_global_min_enforced(phi_initial, global_min_position):
-        E = np.zeros_like(A)
+        E = np.zeros_like(A1)
         return E
 
     # Convex optimization to find Ea
-    m, n = A.shape
+    m, n = A1.shape
     E = cp.Variable((m, n))
     phi = cp.Variable((m, n))
-    A_prime = A + E
+    A_prime = A1 + E
     constraints = []
 
     # Constraint 1: Ensure global minimum position is zero
@@ -78,7 +78,7 @@ def cost_adjustment(A, B, global_min_position):
 
     for k in range(m):
         for l in range(1, n):
-            delta_B = B[k, l] - B[k, l - 1]
+            delta_B = D2[k, l] - D2[k, l - 1]
             delta_phi = phi[k, l] - phi[k, l - 1]
             constraints.append(delta_B == delta_phi)
 
@@ -172,7 +172,7 @@ def is_global_min_enforced(phi, global_min_position):
     return True
 
 
-def pareto_optimal(A1, B1, column):
+def pareto_optimal(A1, B1, C1, column):
     """
     Identifies Pareto-optimal rows in two cost matrices where no other row is strictly better.
 
@@ -193,8 +193,26 @@ def pareto_optimal(A1, B1, column):
         for j in range(num_rows):
             if i != j:
                 # Check if row j dominates row i
-                if (A1[j][column] <= A1[i][column] and B1[j][column] <= B1[i][column]) and (
-                        A1[j][column] < A1[i][column] or B1[j][column] < B1[i][column]):
+
+                # if (A1[j][column] <= A1[i][column] and B1[j][column] <= B1[i][column]) and (
+                #         A1[j][column] < A1[i][column] or B1[j][column] < B1[i][column]):
+                #     dominated = True
+                #     break
+
+                dominates = (
+                        A1[j][column] <= A1[i][column] and
+                        B1[j][column] <= B1[i][column] and
+                        C1[j][column] <= C1[i][column]
+                )
+                strictly_better = (
+                        A1[j][column] < A1[i][column] or
+                        B1[j][column] < B1[i][column] or
+                        C1[j][column] < C1[i][column]
+                )
+
+                # print(f"dominates: {dominated}, strictly better: {strictly_better}")
+
+                if dominates and strictly_better:
                     dominated = True
                     break
         if not dominated:
@@ -203,27 +221,28 @@ def pareto_optimal(A1, B1, column):
     return np.array(pareto_indices)
 
 
-def find_adjusted_costs(A1, B1, C2):
+def find_adjusted_costs(A1, B1, C1, D2):
     """
     Determines the best cost adjustment matrix E using convex optimization.
 
     Parameters:
     - A1 (np.ndarray): Cost matrix for player 1.
-    - B1 (np.ndarray): Cost matrix for player 2.
-    - C2 (np.ndarray): Cost matrix for the second player's strategy.
+    - B1 (np.ndarray): Cost matrix for player 1.
+    - C1 (np.ndarray): Cost matrix for the second player's strategy.
 
     Returns:
     - np.ndarray: Adjusted cost matrix E, or None if no valid adjustment is found.
     """
 
-    player2_sec_policy = np.argmin(np.max(C2, axis=0), axis=0)
+    player2_sec_policy = np.argmin(np.max(D2, axis=0), axis=0)
 
     # find worst case safety actions and avoid
     safe_row_indices = np.where((~np.any(B1 == np.max(B1), axis=1)) &
-                                (~np.any(A1 == np.max(A1), axis=1)))[0]
+                                (~np.any(A1 == np.max(A1), axis=1)) &
+                                (~np.any(C1 == np.max(C1), axis=1)))[0]
 
     # add operation that selects only pareto optimal indices
-    pareto_indices = pareto_optimal(A1,B1, player2_sec_policy)
+    pareto_indices = pareto_optimal(A1, B1, C1, player2_sec_policy)
     # print(pareto_indices)
     pareto_safe_indices = np.intersect1d(safe_row_indices, pareto_indices)
     print("Pareto safe indicies: " + str(pareto_safe_indices))
@@ -232,26 +251,28 @@ def find_adjusted_costs(A1, B1, C2):
     E_star = np.ones_like(A1) * np.inf
     for i in pareto_safe_indices:
         min_position = (i, player2_sec_policy)
-        E = cost_adjustment(A1, C2, min_position)
+        E = cost_adjustment(A1, D2, min_position)
 
         if E is not None:
-            phi = potential_function(E + A1, C2, min_position)
+            phi = potential_function(E + A1, D2, min_position)
             is_min = is_global_min_enforced(phi, min_position)
-            is_exact = is_valid_exact_potential(A1 + E, C2, phi)
+            is_exact = is_valid_exact_potential(A1 + E, D2, phi)
 
             # print(is_min, is_exact)
             if is_min and is_exact and (np.linalg.norm(E) < np.linalg.norm(E_star)):
-                # print("Pos: ", min_position)
-                # print('Security Policy: ', np.argmin(np.max(A1+E, axis=1)))
-                E_star = E
 
-            if is_min and is_exact:
-                print("Pos: ", int(min_position[0]))
-                print('Security Policy: ', np.argmin(np.max(A1+E, axis=1)))
+                player1_sec = np.argmin(np.max(A1 + E, axis=1))
+
+                print("Minimum position: ", min_position)
+                print('P2 Sec: ', player1_sec)
+
+                if min_position[0] == player1_sec:
+                    E_star = E
 
     if np.any(np.isinf(E_star)):
         return None
     else:
+        # print(E_star+A1)
         return E_star
 
 

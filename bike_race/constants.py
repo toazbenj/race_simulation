@@ -1,6 +1,8 @@
 from math import radians
 import numpy as np
 
+# test
+
 # Main
 IS_COST_DATA_CREATION_MODE = False
 

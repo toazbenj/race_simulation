@@ -1,0 +1,2 @@
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Adjustment Count P2,Seed: 41
+1,0,1,1,40,0.6,0.4,False,True,4,12,38,39,-1,1,0.34376590505624693,5.671558952770415,11

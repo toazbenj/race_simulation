@@ -2,7 +2,7 @@ from math import radians
 import numpy as np
 
 # Main
-IS_COST_DATA_CREATION_MODE = True
+IS_COST_DATA_CREATION_MODE = False
 
 # Screen dimensions
 WIDTH, HEIGHT = 1400, 850
@@ -43,15 +43,15 @@ COLLISION_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-RACE_DATA = "../data/stats_test.csv"
-COST_DATA = "../data/gpr_data.csv"
+RACE_DATA = "./data/race_stats.csv"
+COST_DATA = "./data/cost_stats.csv"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = False
+P2_IS_VECTOR_COST = True
 
 # Bicycle
 # Time step
@@ -72,21 +72,20 @@ BIKE_SIZE = 20
 LR = 1
 LF = 1
 # how close bike center points are in pixels to count as collision
-COLLISION_RADIUS = 45
+COLLISION_RADIUS = 25
 
-# Trajectory
-# relative cost weights
-prox_weight = 0.5
-bounds_weight = 0.5
+# Trajectory cost weights
 progress_weight = 1
+bounds_weight = 1
+prox_weight = 0.5
 
 PROXIMITY_SPREAD = 40
-BOUNDS_SPREAD = 180
+BOUNDS_SPREAD = 205
 
-PROXIMITY_WEIGHT1 = prox_weight
-BOUNDS_WEIGHT_1 = bounds_weight
 RELATIVE_PROGRESS_WEIGHT_1 = progress_weight
+BOUNDS_WEIGHT_1 = bounds_weight
+PROXIMITY_WEIGHT_1 = prox_weight
 
-PROXIMITY_WEIGHT_2 = prox_weight
-BOUNDS_WEIGHT_2 = bounds_weight
 RELATIVE_PROGRESS_WEIGHT_2 = progress_weight
+BOUNDS_WEIGHT_2 = bounds_weight
+PROXIMITY_WEIGHT_2 = prox_weight

@@ -6,7 +6,7 @@ import itertools
 
 def main():
     random.seed(SEED)
-    seed_lst = [random.randint(1, 1000) for _ in range(NUM_THETA_INTERVALS**3)]
+    seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]
 
     weights_lst1 = []
     if IS_COST_DATA_CREATION_MODE:
@@ -15,11 +15,11 @@ def main():
         # Convert to NumPy array
         weights_lst1 = np.array(combinations)
     else:
-        weights_1 = np.array([PROXIMITY_WEIGHT1, BOUNDS_WEIGHT_1, RELATIVE_PROGRESS_WEIGHT_1])
+        weights_1 = np.array([RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1])
 
-    weights_2 = np.array([PROXIMITY_WEIGHT_2, BOUNDS_WEIGHT_2, RELATIVE_PROGRESS_WEIGHT_2])
+    weights_2 = np.array([RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2])
 
-    for race in range(NUM_THETA_INTERVALS**3):
+    for race in range(NUM_RACES):
         if IS_COST_DATA_CREATION_MODE:
             weights_1 = weights_lst1[race]
 

@@ -166,9 +166,6 @@ class Bicycle:
         # Compute angle normally (CCW) using atan2
         angle = atan2(dy, dx)
 
-        # Convert to clockwise by inverting and shifting
-        # angle = -angle  # Invert the direction to make it clockwise
-
         # Normalize angle to the range [0, 2π]
         if angle < 0:
             angle += 2 * pi  # Ensures all angles stay positive in [0, 2π]
@@ -372,8 +369,10 @@ class Bicycle:
             self.progress_cost += previous_traj.relative_progress_costs[other_traj.number]
             self.bounds_cost += previous_traj.bounds_cost
 
-            if previous_traj.bounds_cost > 0:
-                self.out_bounds_cnt += 1
+            # if previous_traj.bounds_cost > 0:
+            #     self.out_bounds_cnt += 1
+
+            self.out_bounds_cnt += previous_traj.out_bounds_cnt
 
         # negative means ahead
         is_ahead_conditions = ((self.previous_angle > self.opponent.previous_angle) and (self.laps_completed >= self.opponent.laps_completed))\

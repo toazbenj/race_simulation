@@ -43,6 +43,28 @@ import random
 import csv
 from constants import *
 
+
+def compute_angle(x, y, center_x, center_y):
+    """
+    Computes the bicycle's angle relative to the center of the track in a clockwise direction,
+    starting from far right
+
+    Returns:
+    - float: Angle in radians normalized between [0, 2π].
+    """
+    dx = x - center_x
+    dy = y - center_y
+
+    # Compute angle normally (CCW) using atan2
+    angle = atan2(dy, dx)
+
+    # Normalize angle to the range [0, 2π]
+    if angle < 0:
+        angle += 2 * pi  # Ensures all angles stay positive in [0, 2π]
+
+    return angle
+
+
 class Course:
     def __init__(self, center_x, center_y, weights1, weights2, race_number, outer_radius=300, inner_radius=125,
                  randomize_start=False, seed=42):
@@ -76,20 +98,33 @@ class Course:
         if randomize_start:
             # Generate random points in a wider area and snap them to the centerline
             while True:
-                rand_x1 = center_x + random.uniform(-outer_radius, outer_radius)
-                rand_y1 = center_y + random.uniform(-outer_radius, outer_radius)
+                x1 = center_x + random.uniform(-outer_radius, outer_radius)
+                y1 = center_y + random.uniform(-outer_radius, outer_radius)
 
-                rand_x2 = center_x + random.uniform(-outer_radius, outer_radius)
-                rand_y2 = center_y + random.uniform(-outer_radius, outer_radius)
+                x2 = center_x + random.uniform(-outer_radius, outer_radius)
+                y2 = center_y + random.uniform(-outer_radius, outer_radius)
 
-                distance = math.sqrt((rand_x2 - rand_x1) ** 2 + (rand_y2 - rand_y1) ** 2)
+                # Snap points to the centerline
+                x1, y1 = self.snap_to_centerline(x1, y1)
+                x2, y2 = self.snap_to_centerline(x2, y2)
 
-                if distance > 3*COLLISION_RADIUS:
+                # make sure player 1 is behind player 2
+                angle1 = compute_angle(x1, y1, self.center_x, self.center_y)
+                angle2 = compute_angle(x2, y2, self.center_x, self.center_y)
+
+                if angle1 < angle2:
+                    x1, x2 = x2, x1
+                    y1, y2 = y2, y1
+
+                # make sure they are close enough to interact, but not for spawn collision
+                distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+                max_distance = 2 * math.pi * self.centerline_radius/7
+                if (distance < max_distance) and (distance > 2 * COLLISION_RADIUS) and (abs(angle1-angle2) < math.pi):
                     break
-
-            # Snap points to the centerline
-            x1, y1 = self.snap_to_centerline(rand_x1, rand_y1)
-            x2, y2 = self.snap_to_centerline(rand_x2, rand_y2)
+            
+            # print(f'Spawn angles: {compute_angle(x1, y1, self.center_x, self.center_y)},\
+            #                       {compute_angle(x2, y2, self.center_x, self.center_y)}')
+            # print(f'Distance: {distance}')
 
         else:
             # Default start positions
@@ -261,7 +296,7 @@ class Course:
                              round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
                              self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt,
                              round(self.bike1.progress_cost), round(self.bike2.progress_cost),
-                             self.bike1.bounds_cost, self.bike2.bounds_cost,
+                             round(self.bike1.bounds_cost, 2), round(self.bike2.bounds_cost,2),
                              self.bike2.adjust_cnt])
 
 

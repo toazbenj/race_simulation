@@ -176,6 +176,8 @@ class Trajectory:
         self.closest_boundary_distance = -1000
         self.closest_opponent_distance = -1000
 
+        self.out_bounds_cnt = 0
+
     def draw(self, screen):
         """
         Draws the trajectory and its associated cost on the Pygame screen.
@@ -217,6 +219,7 @@ class Trajectory:
         self.max_y = max(self.max_y, y)
 
         # self.bounds_cost += self.check_bounds(x, y)
+        self.out_bounds_cnt |= self.check_bounds(x,y)
         new_bounds_cost = self.out_of_bounds_cost(x, y)
         if new_bounds_cost > self.bounds_cost:
             self.bounds_cost = new_bounds_cost

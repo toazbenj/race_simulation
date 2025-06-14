@@ -277,6 +277,7 @@ class Course:
                                  'Out of Bounds P1', 'Out of Bounds P2',
                                  'Progress Cost P1', 'Progress Cost P2',
                                  'Bounds Cost P1', 'Bounds Cost P2',
+                                 'Proximity Cost P1', 'Proximity Cost P2',
                                  'Adjustment Count P2', f'Seed: {seed}'])
 
             try:
@@ -295,8 +296,9 @@ class Course:
                              self.bike1.is_ahead, self.bike2.is_ahead,
                              round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
                              self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt,
-                             round(self.bike1.progress_cost), round(self.bike2.progress_cost),
+                             round(self.bike1.progress_cost, 2), round(self.bike2.progress_cost, 2),
                              round(self.bike1.bounds_cost, 2), round(self.bike2.bounds_cost,2),
+                             round(self.bike1.proximity_cost, 2), round(self.bike2.proximity_cost, 2),
                              self.bike2.adjust_cnt])
 
 

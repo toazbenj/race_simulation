@@ -367,12 +367,11 @@ class Bicycle:
 
             self.progress_cnt += previous_traj.length
             self.progress_cost += previous_traj.relative_progress_costs[other_traj.number]
-            self.bounds_cost += previous_traj.bounds_cost
-
-            # if previous_traj.bounds_cost > 0:
-            #     self.out_bounds_cnt += 1
 
             self.out_bounds_cnt += previous_traj.out_bounds_cnt
+            self.bounds_cost += previous_traj.bounds_cost
+            
+            self.proximity_cost += previous_traj.proximity_costs[other_traj.number]
 
         # negative means ahead
         is_ahead_conditions = ((self.previous_angle > self.opponent.previous_angle) and (self.laps_completed >= self.opponent.laps_completed))\

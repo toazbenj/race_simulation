@@ -77,7 +77,7 @@ COLLISION_RADIUS = 25
 # Trajectory cost weights
 progress_weight = 1
 bounds_weight = 1
-prox_weight = 0.5
+prox_weight = 1
 
 PROXIMITY_SPREAD = 40
 BOUNDS_SPREAD = 205

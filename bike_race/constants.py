@@ -2,7 +2,7 @@ from math import radians
 import numpy as np
 
 # Main
-IS_COST_DATA_CREATION_MODE = False
+IS_COST_DATA_CREATION_MODE = True
 
 # Screen dimensions
 WIDTH, HEIGHT = 1400, 850
@@ -28,7 +28,7 @@ ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
-NUM_RACES = 100
+NUM_RACES = 1000
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 41
@@ -51,7 +51,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step

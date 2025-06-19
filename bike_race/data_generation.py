@@ -6,9 +6,9 @@ import itertools
 
 def main():
     random.seed(SEED)
-    seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]
-
+    seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]    
     weights_lst1 = []
+   
     if IS_COST_DATA_CREATION_MODE:
         # Cartesian product using itertools
         combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))

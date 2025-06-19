@@ -72,14 +72,14 @@ BIKE_SIZE = 20
 LR = 1
 LF = 1
 # how close bike center points are in pixels to count as collision
-COLLISION_RADIUS = 25
+COLLISION_RADIUS = 45
 
 # Trajectory cost weights
 progress_weight = 1
 bounds_weight = 1
 prox_weight = 1
 
-PROXIMITY_SPREAD = 40
+PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205
 
 RELATIVE_PROGRESS_WEIGHT_1 = progress_weight

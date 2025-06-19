@@ -152,6 +152,11 @@ class Course:
         # bike must be initialized first before sharing information
         self.bike1.opponent = self.bike2
 
+        self.p1_x_init = x1
+        self.p1_y_init = y1
+        self.p2_x_init = x2
+        self.p2_y_init = y2
+
     def draw_button(self, screen, text, x, y, width, height, base_color, hover_color):
         """
         Draws a button on the Pygame screen and detects if it was clicked.
@@ -278,6 +283,10 @@ class Course:
                                  'Progress Cost P1', 'Progress Cost P2',
                                  'Bounds Cost P1', 'Bounds Cost P2',
                                  'Proximity Cost P1', 'Proximity Cost P2',
+                                 'Initial X Position P1', 'Initial Y Position P1',
+                                 'Initial X Position P1', 'Initial Y Position P1',
+                                 'Initial X Position P2', 'Initial Y Position P2',
+                                 'Initial X Position P2', 'Initial Y Position P2',
                                  'Adjustment Count P2', f'Seed: {seed}'])
 
             try:
@@ -299,6 +308,8 @@ class Course:
                              round(self.bike1.progress_cost, 2), round(self.bike2.progress_cost, 2),
                              round(self.bike1.bounds_cost, 2), round(self.bike2.bounds_cost,2),
                              round(self.bike1.proximity_cost, 2), round(self.bike2.proximity_cost, 2),
+                             round(self.p1_x_init), round(self.p1_y_init),
+                             round(self.p2_x_init), round(self.p2_y_init),
                              self.bike2.adjust_cnt])
 
 

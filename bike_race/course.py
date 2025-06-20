@@ -284,8 +284,6 @@ class Course:
                                  'Bounds Cost P1', 'Bounds Cost P2',
                                  'Proximity Cost P1', 'Proximity Cost P2',
                                  'Initial X Position P1', 'Initial Y Position P1',
-                                 'Initial X Position P1', 'Initial Y Position P1',
-                                 'Initial X Position P2', 'Initial Y Position P2',
                                  'Initial X Position P2', 'Initial Y Position P2',
                                  'Adjustment Count P2', f'Seed: {seed}'])
 

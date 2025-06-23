@@ -258,11 +258,11 @@ class Course:
         self.bike2.update_collisions()
 
         if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
-            self.save_costs(self.count / (ACTION_INTERVAL* MPC_HORIZON))
+            self.save_costs()
 
         self.count += 1
 
-    def save_stats(self, seed):
+    def save_stats(self):
         """
         Saves race statistics, such as passes, collisions, and performance metrics, to a CSV file.
 
@@ -276,19 +276,6 @@ class Course:
 
         with open(RACE_DATA, mode='a', newline='') as file:
             writer = csv.writer(file)
-            if self.race_number == 0:
-                writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
-                                 'Choices',
-                                 'Proportion Ahead P1', 'Proportion Ahead P2',
-                                 'Win P1', 'Win P2',
-                                 'Progress P1', 'Progress P2',
-                                 'Out of Bounds P1', 'Out of Bounds P2',
-                                 'Progress Cost P1', 'Progress Cost P2',
-                                 'Bounds Cost P1', 'Bounds Cost P2',
-                                 'Proximity Cost P1', 'Proximity Cost P2',
-                                 'Initial X Position P1', 'Initial Y Position P1',
-                                 'Initial X Position P2', 'Initial Y Position P2',
-                                 'Adjustment Count P2', f'Seed: {seed}'])
 
             try:
                 p1_ahead = round(self.bike1.ahead_cnt/self.bike1.choice_cnt,2)
@@ -313,43 +300,37 @@ class Course:
                              round(self.bike1.proximity_cost, 2), round(self.bike2.proximity_cost, 2),
                              round(self.p1_x_init), round(self.p1_y_init),
                              round(self.p2_x_init), round(self.p2_y_init),
+                             self.bike1.theta_a, self.bike1.theta_b, self.bike1.theta_c,
+                             self.bike2.theta_a, self.bike2.theta_b, self.bike2.theta_c,
                              self.bike2.adjust_cnt])
 
+    def write_race_stats_header(self, seed):
+        with open(RACE_DATA, mode='a', newline='') as file:
 
-    def save_costs(self, decision_number):
+            writer = csv.writer(file)
+            writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
+                                'Choices',
+                                'Proportion Ahead P1', 'Proportion Ahead P2',
+                                'Win P1', 'Win P2',
+                                'Progress P1', 'Progress P2',
+                                'Out of Bounds P1', 'Out of Bounds P2',
+                                'Progress Cost P1', 'Progress Cost P2',
+                                'Bounds Cost P1', 'Bounds Cost P2',
+                                'Proximity Cost P1', 'Proximity Cost P2',
+                                'Initial X Position P1', 'Initial Y Position P1',
+                                'Initial X Position P2', 'Initial Y Position P2',
+                                'Theta_a1', 'Theta_b1', 'Theta_c1',
+                                'Theta_a2', 'Theta_b2', 'Theta_c2',
+                                'Adjustment Count P2', f'Seed: {seed}'])
+
+
+    def save_costs(self):
         """
         Save scalar and full 2D matrix features into CSV, expanding headers for both dimensions.
         """
 
         with open(COST_DATA, mode='a', newline='') as file:
             writer = csv.writer(file)
-
-            if decision_number==0 and self.race_number==0:
-                # Scalar features header
-                header = [
-                    'Theta_a1', 'Theta_b1', 'Theta_c1',
-                    'Theta_a2', 'Theta_b2', 'Theta_c2',
-                    'action1', 'Action_space1',
-                    'action2', 'Action_space2'
-                ]
-
-                # For bike1 matrices: A, B, C (assuming they are 2D arrays)
-                header += self.matrix_print(self.bike1.A, 'A1')
-                header += self.matrix_print(self.bike1.B, 'B1')
-                header += self.matrix_print(self.bike1.C, 'C1')
-
-                # For bike2 matrices: A, B, C
-                header += self.matrix_print(self.bike2.A, 'A2')
-                header += self.matrix_print(self.bike2.B, 'B2')
-                header += self.matrix_print(self.bike2.C, 'C2')
-
-
-                # For state vectors (assuming these are 2D arrays; if 1D, adjust accordingly)
-                state_dict = {1:'x', 2:'y', 3:'v', 4:'phi', 5:'b'}
-                header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
-                header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
-
-                writer.writerow(header)
 
             # --- Build row data ---
             row = [
@@ -370,6 +351,36 @@ class Course:
             row += self.bike2.state.flatten().tolist()
 
             writer.writerow(row)
+
+    def write_cost_stats_header(self):
+        with open(COST_DATA, mode='a', newline='') as file:
+            writer = csv.writer(file)
+
+            # Scalar features header
+            header = [
+                'Theta_a1', 'Theta_b1', 'Theta_c1',
+                'Theta_a2', 'Theta_b2', 'Theta_c2',
+                'action1', 'Action_space1',
+                'action2', 'Action_space2'
+            ]
+
+                        # For bike1 matrices: A, B, C (assuming they are 2D arrays)
+            header += self.matrix_print(self.bike1.A, 'A1')
+            header += self.matrix_print(self.bike1.B, 'B1')
+            header += self.matrix_print(self.bike1.C, 'C1')
+
+            # For bike2 matrices: A, B, C
+            header += self.matrix_print(self.bike2.A, 'A2')
+            header += self.matrix_print(self.bike2.B, 'B2')
+            header += self.matrix_print(self.bike2.C, 'C2')
+
+            # For state vectors (assuming these are 2D arrays; if 1D, adjust accordingly)
+            state_dict = {1:'x', 2:'y', 3:'v', 4:'phi', 5:'b'}
+            header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
+            header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
+
+            writer.writerow(header)
+
 
     def matrix_print(self, matrix, name):
         line = [f'{name}_{i}_{j}' for i in range(1,matrix.shape[0]+1) for j in range(1,matrix.shape[1]+1)]

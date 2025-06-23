@@ -7,36 +7,36 @@ import itertools
 def main():
     random.seed(SEED)
     seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]    
-    weights_lst1 = []
-   
-    if IS_COST_DATA_CREATION_MODE:
-        # Cartesian product using itertools
-        combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
-        # Convert to NumPy array
-        weights_lst1 = np.array(combinations)
-    else:
-        weights_1 = np.array([RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1])
 
-    weights_2 = np.array([RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2])
+    combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
+    weights_lst = np.array(combinations)
+    weights = [RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2]
 
-    for race in range(NUM_RACES):
-        if IS_COST_DATA_CREATION_MODE:
-            weights_1 = weights_lst1[race]
+    # initialize to write headers, then overwrite later
+    center_x, center_y = WIDTH // 2, HEIGHT // 2
+    course = Course(center_x, center_y, weights, weights, 
+                    0, inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                    randomize_start=IS_RANDOM_START, seed=seed_lst[0])
+    course.write_race_stats_header(seed=SEED)
+    course.write_cost_stats_header()
 
-        print(f"Starting Race {race + 1}")
+    for combination in weights_lst:
+        for race in range(NUM_RACES):
 
-        # Initialize a new course with bikes in random positions
-        center_x, center_y = WIDTH // 2, HEIGHT // 2
-        course = Course(center_x, center_y, weights_1, weights_2, race,
-                        inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                        randomize_start=IS_RANDOM_START, seed=seed_lst[race])
+            print(f"Starting Race {race + 1}")
 
-        for _ in range(RACE_DURATION):
-            # Update the simulation
-            course.update()
+            # Initialize a new course with bikes in random positions
+            center_x, center_y = WIDTH // 2, HEIGHT // 2
+            course = Course(center_x, center_y, combination, [RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2], 
+                            race, inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                            randomize_start=IS_RANDOM_START, seed=seed_lst[race])
 
-        course.save_stats(SEED)
-        print(f"Race {race + 1} finished!")
+            for _ in range(RACE_DURATION):
+                # Update the simulation
+                course.update()
+
+            course.save_stats()
+            print(f"Race {race + 1} finished!")
 
 
 if __name__ == "__main__":

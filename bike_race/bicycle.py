@@ -240,13 +240,6 @@ class Bicycle:
             # print(f"Trajectory {i}: Cost = {traj.cost}, Points = {traj.points[0]}, {traj.points[-1]}")
             traj.draw(screen)
 
-        # check where opponent is, determine collision in every frame
-        x2, y2 = self.opponent.x, self.opponent.y
-        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
-        if distance < self.collision_radius:
-            self.collision_cnt += 1
-
-
     def update_choices(self, count, other_bike):
         """
         Updates the available choices for the bicycle at regular intervals.
@@ -260,6 +253,13 @@ class Bicycle:
         """
         if count % (self.action_interval * self.mpc_horizon) == 0:
             self.new_choices(other_bike)
+
+    def update_collisions(self):
+        # check where opponent is, determine collision in every frame
+        x2, y2 = self.opponent.x, self.opponent.y
+        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
+        if distance < self.collision_radius:
+            self.collision_cnt += 1
 
     def update_action(self, count):
         """

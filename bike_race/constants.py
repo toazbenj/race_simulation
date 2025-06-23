@@ -62,8 +62,8 @@ ACCELERATION_INCREMENT = 3
 STEER_LIMIT = radians(20)
 # best combos: interval = 70, horizon = 1;
 # interval = 50, horizon = 2; interval = 40, mpc = 3
-ACTION_INTERVAL = 70
-MPC_HORIZON = 1
+ACTION_INTERVAL = 40
+MPC_HORIZON = 3
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 # how large the bike appears on screen

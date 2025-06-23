@@ -254,6 +254,9 @@ class Course:
         self.bike1.update_action(self.count)
         self.bike2.update_action(self.count)
 
+        self.bike1.update_collisions()
+        self.bike2.update_collisions()
+
         if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
             self.save_costs(self.count / (ACTION_INTERVAL* MPC_HORIZON))
 
@@ -296,6 +299,8 @@ class Course:
 
             # how many times a single collision is registered (how hard the hit was)
             collision_amount = 200
+
+            print(self.bike1.collision_cnt)
             # P1 always ahead, pass count -1 since counts as a pass
             writer.writerow([self.race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
                              ceil(self.bike1.collision_cnt/collision_amount), self.bike1.choice_cnt,

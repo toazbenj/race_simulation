@@ -28,7 +28,7 @@ ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
-NUM_RACES = 1000
+NUM_RACES = 3
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 41
@@ -37,9 +37,9 @@ FRAME_RATE = 60
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 10
-PROGRESS_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
-BOUNDS_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
-COLLISION_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
+PROGRESS_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
+BOUNDS_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
+COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
@@ -51,7 +51,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step
@@ -79,7 +79,7 @@ progress_weight = 1
 bounds_weight = 1
 prox_weight = 1
 
-PROXIMITY_SPREAD = 45
+PROXIMITY_SPREAD = 40
 BOUNDS_SPREAD = 205
 
 RELATIVE_PROGRESS_WEIGHT_1 = progress_weight

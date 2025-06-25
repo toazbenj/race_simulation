@@ -413,7 +413,7 @@ class Bicycle:
                 for _ in range(self.action_interval):
                     x_temp, y_temp, v_temp, phi_temp, b_temp = self.dynamics(acc, steering, x_temp, y_temp, v_temp, phi_temp, b_temp)
                     traj.add_point(x_temp, y_temp)
-
+            
             traj.number = count
             self.choice_trajectories.append(traj)
             count += 1

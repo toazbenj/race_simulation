@@ -28,7 +28,7 @@ ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
-NUM_RACES = 100
+NUM_RACES = 50
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 41
@@ -62,8 +62,8 @@ ACCELERATION_INCREMENT = 3
 STEER_LIMIT = radians(20)
 # best combos: interval = 70, horizon = 1;
 # interval = 50, horizon = 2; interval = 40, mpc = 3
-ACTION_INTERVAL = 40
-MPC_HORIZON = 3
+ACTION_INTERVAL = 70
+MPC_HORIZON = 1
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 # how large the bike appears on screen

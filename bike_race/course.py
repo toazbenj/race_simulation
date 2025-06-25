@@ -287,7 +287,7 @@ class Course:
             # how many times a single collision is registered (how hard the hit was)
             collision_amount = 200
 
-            print(self.bike1.collision_cnt)
+            # print(self.bike1.collision_cnt)
             # P1 always ahead, pass count -1 since counts as a pass
             writer.writerow([self.race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
                              ceil(self.bike1.collision_cnt/collision_amount), self.bike1.choice_cnt,

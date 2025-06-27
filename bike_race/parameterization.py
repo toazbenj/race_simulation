@@ -1,8 +1,9 @@
 from math import radians
 import numpy as np
-from sembas_api import setup_socket_dict
+from bike_race.course import Course
+import sembas_api as api
 
-params = {
+PARAM_DEFAULTS = {
     "IS_COST_DATA_CREATION_MODE": False,
     "WIDTH": 1400,
     "HEIGHT": 850,
@@ -23,7 +24,7 @@ params = {
         "YELLOW": (255, 255, 0),
         "ORANGE": (255, 130, 80),
         "BUTTON_COLOR": (200, 0, 0),
-        "BUTTON_HOVER": (255, 0, 0)
+        "BUTTON_HOVER": (255, 0, 0),
     },
     "NUM_RACES": 100,
     "RACE_DURATION": 1500,
@@ -46,7 +47,17 @@ params = {
     "STEER_LIMIT": radians(20),
     "ACTION_INTERVAL": 70,
     "MPC_HORIZON": 2,
-    "ACTION_LST": [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)],
+    "ACTION_LST": [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 0),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ],
     "BIKE_SIZE": 20,
     "LR": 1,
     "LF": 1,
@@ -56,7 +67,61 @@ params = {
     "RELATIVE_PROGRESS_WEIGHT_1": 1,
     "COLLISION_WEIGHT_2": 7.5,
     "BOUNDS_WEIGHT_2": 100,
-    "RELATIVE_PROGRESS_WEIGHT_2": 1
+    "RELATIVE_PROGRESS_WEIGHT_2": 1,
 }
 
-setup_socket_dict(params)
+# setup_socket_dict(params)
+
+bounds = np.array(
+    [
+        [0.0, 5.0],
+        [0.0, 5.0],
+        [0.0, 5.0],
+        [0.0, 5.0],
+        [0.0, 5.0],
+        [0.0, 5.0],
+    ]
+)
+
+import data_generation
+from constants import *
+
+
+def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
+    # Initialize a new course with bikes in random positions
+    center_x, center_y = WIDTH // 2, HEIGHT // 2
+    course = Course(
+        center_x,
+        center_y,
+        weights_1,
+        weights_2,
+        race,
+        inner_radius=INNER_RADIUS,
+        outer_radius=OUTER_RADIUS,
+        randomize_start=IS_RANDOM_START,
+        seed=seed,
+    )
+
+    i = 0
+    # for _ in range(RACE_DURATION):
+    while i < RACE_DURATION and course.bike1.collision_cnt == 0:
+        # Update the simulation
+        course.update()
+
+    return course.bike1.collision_cnt == 0
+
+
+def main():
+
+    # (LOW, HIGH)
+    session = api.SembasSession(bounds.T)
+
+    race = 0
+    while True:
+        x = session.receive_request()
+
+        result = run_race(x[:3], x[3:], race)
+
+        session.send_response(result)
+
+        race += 1

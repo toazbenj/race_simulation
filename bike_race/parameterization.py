@@ -1,7 +1,8 @@
 from math import radians
 import numpy as np
-from bike_race.course import Course
+from course import Course
 import sembas_api as api
+from constants import *
 
 PARAM_DEFAULTS = {
     "IS_COST_DATA_CREATION_MODE": False,
@@ -70,21 +71,23 @@ PARAM_DEFAULTS = {
     "RELATIVE_PROGRESS_WEIGHT_2": 1,
 }
 
-# setup_socket_dict(params)
+# bounds = np.array(
+#     [
+#         [0.0, 5.0],
+#         [0.0, 5.0],
+#         [0.0, 5.0],
+#         [0.0, 5.0],
+#         [0.0, 5.0],
+#         [0.0, 5.0],
+#     ]
+# )
 
 bounds = np.array(
     [
-        [0.0, 5.0],
-        [0.0, 5.0],
-        [0.0, 5.0],
-        [0.0, 5.0],
-        [0.0, 5.0],
-        [0.0, 5.0],
+        [1.0, 5.0],
+        [1.0, 5.0],
     ]
 )
-
-import data_generation
-from constants import *
 
 
 def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
@@ -107,7 +110,8 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
     while i < RACE_DURATION and course.bike1.collision_cnt == 0:
         # Update the simulation
         course.update()
-
+        i += 1
+        
     return course.bike1.collision_cnt == 0
 
 
@@ -115,13 +119,21 @@ def main():
 
     # (LOW, HIGH)
     session = api.SembasSession(bounds.T)
+    # session = api.SembasSession(bounds)
 
     race = 0
     while True:
+        print('=======================================================')
+        print(race)
+    
         x = session.receive_request()
+        # result = run_race(x[:3], x[3:], race)
 
-        result = run_race(x[:3], x[3:], race)
+        result = run_race([1.0, 1.0, float(x[0])], [1.0, 1.0, float(x[1])], race)
 
         session.send_response(result)
-
         race += 1
+
+
+
+main()

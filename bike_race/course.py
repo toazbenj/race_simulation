@@ -60,6 +60,8 @@ class Course:
         Returns:
         - None
         """
+        self.is_data_recording = False
+
         self.race_number = race_number
         self.count = 0
         self.center_x = center_x
@@ -214,7 +216,7 @@ class Course:
         self.bike1.update_action(self.count)
         self.bike2.update_action(self.count)
 
-        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
+        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0 and self.is_data_recording:
             self.save_costs(self.count / (ACTION_INTERVAL* MPC_HORIZON))
 
         self.count += 1

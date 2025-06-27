@@ -79,7 +79,7 @@ progress_weight = 1
 bounds_weight = 1
 prox_weight = 1
 
-PROXIMITY_SPREAD = 40
+PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205
 
 RELATIVE_PROGRESS_WEIGHT_1 = progress_weight

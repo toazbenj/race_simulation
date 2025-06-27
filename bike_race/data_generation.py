@@ -10,7 +10,7 @@ def main():
 
     combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
     weights_lst = np.array(combinations)
-    weights = [RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2]
+    weights = [RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1]
 
     # initialize to write headers, then overwrite later
     center_x, center_y = WIDTH // 2, HEIGHT // 2
@@ -27,7 +27,7 @@ def main():
 
             # Initialize a new course with bikes in random positions
             center_x, center_y = WIDTH // 2, HEIGHT // 2
-            course = Course(center_x, center_y, combination, [RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2], 
+            course = Course(center_x, center_y, weights, combination, 
                             race, inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
                             randomize_start=IS_RANDOM_START, seed=seed_lst[race])
 

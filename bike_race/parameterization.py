@@ -111,7 +111,7 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
         # Update the simulation
         course.update()
         i += 1
-        
+
     return course.bike1.collision_cnt == 0
 
 
@@ -124,16 +124,13 @@ def main():
     race = 0
     while True:
         print('=======================================================')
-        print(race)
+        print(f'Start race{race}')
     
         x = session.receive_request()
         # result = run_race(x[:3], x[3:], race)
 
         result = run_race([1.0, 1.0, float(x[0])], [1.0, 1.0, float(x[1])], race)
-
         session.send_response(result)
         race += 1
-
-
 
 main()

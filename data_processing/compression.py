@@ -3,8 +3,8 @@ import time
 import os
 
 # Load your CSV once
-csv_path = '/home/bentoaz/Downloads/cost_stats_vec.csv'
-feather_path = '/home/bentoaz/Downloads/cost_stats_vec.feather'
+csv_path = '/home/bentoaz/Downloads/version 1/Weighted Sum Attacker - Varying Defender Weights and Spawnpoints/cost_stats.csv'
+feather_path = '/home/bentoaz/Downloads/version 1/Weighted Sum Attacker - Varying Defender Weights and Spawnpoints/cost_stats.feather'
 
 df = pd.read_csv(csv_path)
 

@@ -3,6 +3,7 @@ import numpy as np
 from course import Course
 import sembas_api as api
 from constants import *
+from matplotlib import pyplot as plt
 
 PARAM_DEFAULTS = {
     "IS_COST_DATA_CREATION_MODE": False,
@@ -122,13 +123,14 @@ def main():
     # session = api.SembasSession(bounds)
 
     race = 0
-    while True:
+    for i in range(100):
         print('=======================================================')
-        print(f'Start race{race}')
-    
+        print(f'Starting race {race}')
+
+        plt.pause(1.0)
         x = session.receive_request()
         # result = run_race(x[:3], x[3:], race)
-
+        
         result = run_race([1.0, 1.0, float(x[0])], [1.0, 1.0, float(x[1])], race)
         session.send_response(result)
         race += 1

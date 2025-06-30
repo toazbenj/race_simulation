@@ -4,6 +4,7 @@ from course import Course
 import sembas_api as api
 from constants import *
 from matplotlib import pyplot as plt
+import json
 
 PARAM_DEFAULTS = {
     "IS_COST_DATA_CREATION_MODE": False,
@@ -122,17 +123,39 @@ def main():
     session = api.SembasSession(bounds.T)
     # session = api.SembasSession(bounds)
 
+    requests = []
+    results = []
+    phase = []
+
     race = 0
     for i in range(100):
-        print('=======================================================')
-        print(f'Starting race {race}')
+        print("=======================================================")
+        print(f"Starting race {race}")
 
-        plt.pause(1.0)
+        cur_phase = session.expect_phase()
         x = session.receive_request()
         # result = run_race(x[:3], x[3:], race)
-        
+
         result = run_race([1.0, 1.0, float(x[0])], [1.0, 1.0, float(x[1])], race)
         session.send_response(result)
         race += 1
+
+        requests.append(x.tolist())
+        results.append(result)
+        phase.append(cur_phase)
+
+        plt.pause(0.01)
+
+    with open("results.json", "w") as f:
+        # Unfortunately it isn't known which requests fall on a
+        # boundary. That information is known on SEMBAS (in rust). However, you can
+        # assume the points during the BE (boundary exploration phase) are
+        # near the boundary. We can discuss how to look at the boundary
+        # requests later.
+        json.dump(
+            {"requests": requests, "results": results, "phase": phase},
+            f,
+        )
+
 
 main()

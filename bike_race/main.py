@@ -44,6 +44,12 @@ def main():
     combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
     weights_lst = np.array(combinations)
 
+    # initialize to write headers, then overwrite later
+    center_x, center_y = WIDTH // 2, HEIGHT // 2
+    course = Course(center_x, center_y, combinations[0], combinations[0], 
+                    0, inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                    randomize_start=IS_RANDOM_START, seed=seed_lst[0])
+    course.write_race_stats_header(seed=SEED)
     course.write_race_stats_header(seed=SEED)
     course.write_cost_stats_header()
 
@@ -86,7 +92,7 @@ def main():
                 pygame.display.flip()
                 clock.tick(FRAME_RATE)  # Limit frame rate
 
-            course.save_stats(SEED)
+            course.save_stats()
             print(f"Race {race + 1} finished!")
 
 

@@ -48,7 +48,7 @@ def main():
         # Convert to NumPy array
         weights_lst1 = np.array(combinations)
     else:
-        weights_1 = np.array([PROXIMITY_WEIGHT1, BOUNDS_WEIGHT_1, RELATIVE_PROGRESS_WEIGHT_1])
+        weights_1 = np.array([PROXIMITY_WEIGHT_1, BOUNDS_WEIGHT_1, RELATIVE_PROGRESS_WEIGHT_1])
 
     weights_2 = np.array([PROXIMITY_WEIGHT_2, BOUNDS_WEIGHT_2, RELATIVE_PROGRESS_WEIGHT_2])
 

@@ -1,7 +1,7 @@
 import json
 import matplotlib.pyplot as plt
 
-def plot_requests_with_results(json_path):
+def plot_requests_with_results(json_path, plt_path):
     # Load JSON from file
     with open(json_path, 'r') as f:
         data = json.load(f)
@@ -16,11 +16,13 @@ def plot_requests_with_results(json_path):
     # Plot
     plt.figure(figsize=(6, 6))
     plt.scatter(x, y, c=colors, edgecolor='black')
-    plt.title("Sembas Samples")
-    plt.xlabel("X")
-    plt.ylabel("Y")
-    plt.grid(True)
-    plt.show()
+    plt.title("Sembas Samples - Successful Passes")
+    plt.xlabel("Bounds Weight")
+    plt.ylabel("Proximity Weight")
+    plt.grid(False)
+    # plt.show()
+
+    plt.savefig(plt_path)
 
 # Example usage
-plot_requests_with_results("data/results.json")
+plot_requests_with_results("data/results_passes_100.json", "data/sembas_results.png")

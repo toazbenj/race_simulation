@@ -11,7 +11,7 @@ def plot_requests_with_results(json_path, plt_path):
 
     x = [pt[0] for pt in coords]
     y = [pt[1] for pt in coords]
-    colors = ['blue' if res else 'red' for res in results]
+    colors = ['red' if res else 'blue' for res in results]
 
     # Plot
     plt.figure(figsize=(6, 6))

@@ -53,7 +53,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step
@@ -79,7 +79,7 @@ COLLISION_RADIUS = 45
 # Trajectory
 # relative cost weights
 prox_weight = 1
-bounds_weight = 0.5
+bounds_weight = 1
 progress_weight = 1
 
 PROXIMITY_SPREAD = 45

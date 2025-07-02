@@ -6,93 +6,14 @@ from constants import *
 from matplotlib import pyplot as plt
 import json
 
-PARAM_DEFAULTS = {
-    "IS_COST_DATA_CREATION_MODE": False,
-    "WIDTH": 1400,
-    "HEIGHT": 850,
-    "BUTTON_X": 20,
-    "BUTTON_Y": 790,
-    "BUTTON_W": 150,
-    "BUTTON_H": 40,
-    "INNER_RADIUS": 250,
-    "OUTER_RADIUS": 400,
-    "COLORS": {
-        "GRAY": (169, 169, 169),
-        "GREEN": (0, 255, 0),
-        "DARK_GREEN": (0, 150, 0),
-        "WHITE": (255, 255, 255),
-        "BLACK": (0, 0, 0),
-        "RED": (255, 0, 0),
-        "BLUE": (0, 0, 255),
-        "YELLOW": (255, 255, 0),
-        "ORANGE": (255, 130, 80),
-        "BUTTON_COLOR": (200, 0, 0),
-        "BUTTON_HOVER": (255, 0, 0),
-    },
-    "NUM_RACES": 100,
-    "RACE_DURATION": 1500,
-    "SEED": 41,
-    "IS_RANDOM_START": True,
-    "FRAME_RATE": 60,
-    "NUM_THETA_INTERVALS": 5,
-    "PROGRESS_RANGE": np.linspace(1, 20, 5).tolist(),
-    "BOUNDS_RANGE": np.linspace(0, 200, 5).tolist(),
-    "COLLISION_RANGE": np.linspace(0, 2, 5).tolist(),
-    "RACE_DATA": "../data/stats_test.csv",
-    "COST_DATA": "../data/cost_test.csv",
-    "ATTACKER_SPEED": 22.5,
-    "DEFENDER_SPEED": 15,
-    "P1_IS_VECTOR_COST": False,
-    "P2_IS_VECTOR_COST": False,
-    "DT": 0.05,
-    "STEERING_INCREMENT": radians(1),
-    "ACCELERATION_INCREMENT": 3,
-    "STEER_LIMIT": radians(20),
-    "ACTION_INTERVAL": 70,
-    "MPC_HORIZON": 2,
-    "ACTION_LST": [
-        (-1, -1),
-        (-1, 0),
-        (-1, 1),
-        (0, -1),
-        (0, 0),
-        (0, 1),
-        (1, -1),
-        (1, 0),
-        (1, 1),
-    ],
-    "BIKE_SIZE": 20,
-    "LR": 1,
-    "LF": 1,
-    "COLLISION_RADIUS": 45,
-    "COLLISION_WEIGHT_1": 7.5,
-    "BOUNDS_WEIGHT_1": 100,
-    "RELATIVE_PROGRESS_WEIGHT_1": 1,
-    "COLLISION_WEIGHT_2": 7.5,
-    "BOUNDS_WEIGHT_2": 100,
-    "RELATIVE_PROGRESS_WEIGHT_2": 1,
-}
-
-# bounds = np.array(
-#     [
-#         [0.0, 5.0],
-#         [0.0, 5.0],
-#         [0.0, 5.0],
-#         [0.0, 5.0],
-#         [0.0, 5.0],
-#         [0.0, 5.0],
-#     ]
-# )
-
 bounds = np.array(
     [
-        [1.0, 5.0],
-        [1.0, 5.0],
+        [0.0, 5.0],
+        [0.0, 5.0],
     ]
 )
 
-
-def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
+def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42):
     # Initialize a new course with bikes in random positions
     center_x, center_y = WIDTH // 2, HEIGHT // 2
     course = Course(
@@ -109,26 +30,25 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
 
     i = 0
     # for _ in range(RACE_DURATION):
-    while i < RACE_DURATION and course.bike1.collision_cnt == 0:
+    while i < RACE_DURATION and course.bike1.collision_cnt != 0:
         # Update the simulation
         course.update()
         i += 1
 
-    return course.bike1.collision_cnt == 0
+    return course.bike1.collision_cnt != 0
 
 
 def main():
 
     # (LOW, HIGH)
     session = api.SembasSession(bounds.T)
-    # session = api.SembasSession(bounds)
 
     requests = []
     results = []
     phase = []
 
     race = 0
-    for i in range(100):
+    for i in range(10):
         print("=======================================================")
         print(f"Starting race {race}")
 

@@ -120,7 +120,7 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=0):
 def main():
 
     # (LOW, HIGH)
-    session = api.SembasSession(bounds.T)
+    session = api.SembasSession(bounds.T, plot_samples=True)
     # session = api.SembasSession(bounds)
 
     requests = []
@@ -143,8 +143,6 @@ def main():
         requests.append(x.tolist())
         results.append(result)
         phase.append(cur_phase)
-
-        plt.pause(0.01)
 
     with open("results.json", "w") as f:
         # Unfortunately it isn't known which requests fall on a

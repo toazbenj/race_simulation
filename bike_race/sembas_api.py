@@ -147,6 +147,7 @@ class SembasSession:
         bounds: tuple[torch.Tensor, torch.Tensor],
         max_attempts: int = None,
         plot_samples=False,
+        dim_names=None,
     ):
         print("Init")
         assert (
@@ -164,12 +165,24 @@ class SembasSession:
 
         self.plot_samples = plot_samples
         if plot_samples:
-            self._fig, self._ax = plt.subplots()
-            self._ax.set_title("Samples")
+            assert len(self.lo) <= 3, "Cannot visualize anything above 3 dimensions"
+            self._is3d = len(self.lo) == 3
+            if self._is3d:
+                self._fig = plt.figure()
+                self._ax = self._fig.add_subplot(111, projection="3d")
+                self._ax.set_zlim(self.lo[2], self.hi[2])
+                if dim_names is not None:
+                    self._ax.set_zlabel(dim_names[2])
+            else:
+                self._fig, self._ax = plt.subplots()
+                self._ax.set_ylabel("Angle")
+
             self._ax.set_xlim(self.lo[0], self.hi[0])
             self._ax.set_ylim(self.lo[1], self.hi[1])
-            self._ax.set_xlabel("Longitude")
-            self._ax.set_ylabel("Angle")
+            self._ax.set_title("Samples")
+            if dim_names is not None:
+                self._ax.set_xlabel(dim_names[0])
+                self._ax.set_ylabel(dim_names[1])
 
     @property
     def prev_known_phase(self):
@@ -212,6 +225,7 @@ class SembasSession:
         if self.plot_samples:
             self._ax.scatter(*self._prev_req, color="red" if cls else "blue")
             plt.pause(0.01)
+
         send_response(self.socket, cls)
         print("(Response Sent)")
         self._phase_retrieved = False

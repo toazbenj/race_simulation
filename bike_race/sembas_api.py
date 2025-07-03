@@ -21,6 +21,28 @@ def wait_until_open(
         i += 1
 
 
+def send_message(client: socket.socket, msg: str):
+    print(f"Sending msg {msg}")
+    data = f"{msg}\n".encode("utf-8")
+    client.sendall(data)
+
+
+def receive_message(client: socket.socket) -> str:
+    buffer = bytearray()
+    while True:
+        chunk = client.recv(1)
+        if not chunk:
+            raise ConnectionError("Socket closed while reading message")
+        if chunk == b"\n":
+            break
+
+        buffer.extend(chunk)
+
+    msg = buffer.decode("utf-8")
+    print(f"Recieved message {msg}")
+    return msg
+
+
 def setup_socket(ndim, max_attempts: int = None, fail_on_refuse=False):
     "Create the FUT's connection to SEMBAS"
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,8 +57,8 @@ def setup_socket(ndim, max_attempts: int = None, fail_on_refuse=False):
         ndim_packed = struct.pack("!q", ndim)
         client.sendall(ndim_packed)
 
-        msg = client.recv(1024).decode("utf-8")
-        if msg != "OK\n":
+        msg = receive_message(client)
+        if msg != "OK":
             raise Exception(
                 f"Invalid number of dimensions? Expected {ndim} and got N={msg[:-1]}"
             )
@@ -66,28 +88,6 @@ def send_response(client: socket.socket, cls: bool):
     "Sends a response to SEMBAS, i.e. the class of the input it requested."
     bool_byte = int(cls).to_bytes(1, byteorder="big")
     client.sendall(bool_byte)
-
-
-def send_message(client: socket.socket, msg: str):
-    print(f"Sending msg {msg}")
-    data = f"{msg}\n".encode("utf-8")
-    client.sendall(data)
-
-
-def receive_message(client: socket.socket) -> str:
-    buffer = bytearray()
-    while True:
-        chunk = client.recv(1)
-        if not chunk:
-            raise ConnectionError("Socket closed while reading message")
-        if chunk == b"\n":
-            break
-
-        buffer.extend(chunk)
-
-    msg = buffer.decode("utf-8")
-    print(f"Recieved message {msg}")
-    return msg
 
 
 class SembasSession:

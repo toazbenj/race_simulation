@@ -12,6 +12,7 @@ bounds = np.array(
     ]
 )
 
+
 def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42):
     # Initialize a new course with bikes in random positions
     center_x, center_y = WIDTH // 2, HEIGHT // 2
@@ -46,7 +47,11 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42)
     while i < RACE_DURATION and course.bike2.pass_cnt == 0:
         course.update()
         i += 1
-    return course.bike2.pass_cnt == 0
+    return (
+        course.bike2.pass_cnt == 0
+        and course.bike2.out_bounds_cnt == 0
+        and course.bike1.collision_cnt == 0
+    )
 
 
 def main():

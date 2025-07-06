@@ -12,7 +12,7 @@ bounds = np.array(
 )
 
 
-def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=41):
+def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42):
     # Initialize a new course with bikes in random positions
     center_x, center_y = WIDTH // 2, HEIGHT // 2
     course = Course(

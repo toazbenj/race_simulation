@@ -8,9 +8,7 @@ import json
 bounds = np.array(
     [
         [0.0, 10.0],
-        [0.0, 10.0],
-        [0.0, 10.0]
-    ]
+        [0.0, 10.0]    ]
 )
 
 
@@ -77,7 +75,7 @@ def main():
         x = session.receive_request()
         # result = run_race(x[:3], x[3:], race)
 
-        result = run_race([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])], race)
+        result = run_race([1.0, 1.0, 1.0], [1.0, float(x[0]), float(x[1])], race)
         session.send_response(result)
         race += 1
 

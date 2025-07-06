@@ -43,6 +43,28 @@ import random
 import csv
 from constants import *
 
+
+def compute_angle(x, y, center_x, center_y):
+    """
+    Computes the bicycle's angle relative to the center of the track in a clockwise direction,
+    starting from far right
+
+    Returns:
+    - float: Angle in radians normalized between [0, 2π].
+    """
+    dx = x - center_x
+    dy = y - center_y
+
+    # Compute angle normally (CCW) using atan2
+    angle = atan2(dy, dx)
+
+    # Normalize angle to the range [0, 2π]
+    if angle < 0:
+        angle += 2 * pi  # Ensures all angles stay positive in [0, 2π]
+
+    return angle
+
+
 class Course:
     def __init__(self, center_x, center_y, weights1, weights2, race_number, outer_radius=300, inner_radius=125,
                  randomize_start=False, seed=42):
@@ -60,8 +82,6 @@ class Course:
         Returns:
         - None
         """
-        self.is_data_recording = False
-
         self.race_number = race_number
         self.count = 0
         self.center_x = center_x
@@ -78,20 +98,33 @@ class Course:
         if randomize_start:
             # Generate random points in a wider area and snap them to the centerline
             while True:
-                rand_x1 = center_x + random.uniform(-outer_radius, outer_radius)
-                rand_y1 = center_y + random.uniform(-outer_radius, outer_radius)
+                x1 = center_x + random.uniform(-outer_radius, outer_radius)
+                y1 = center_y + random.uniform(-outer_radius, outer_radius)
 
-                rand_x2 = center_x + random.uniform(-outer_radius, outer_radius)
-                rand_y2 = center_y + random.uniform(-outer_radius, outer_radius)
+                x2 = center_x + random.uniform(-outer_radius, outer_radius)
+                y2 = center_y + random.uniform(-outer_radius, outer_radius)
 
-                distance = math.sqrt((rand_x2 - rand_x1) ** 2 + (rand_y2 - rand_y1) ** 2)
+                # Snap points to the centerline
+                x1, y1 = self.snap_to_centerline(x1, y1)
+                x2, y2 = self.snap_to_centerline(x2, y2)
 
-                if distance > 3*COLLISION_RADIUS:
+                # make sure player 1 is behind player 2
+                angle1 = compute_angle(x1, y1, self.center_x, self.center_y)
+                angle2 = compute_angle(x2, y2, self.center_x, self.center_y)
+
+                if angle1 < angle2:
+                    x1, x2 = x2, x1
+                    y1, y2 = y2, y1
+
+                # make sure they are close enough to interact, but not for spawn collision
+                distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+                max_distance = 2 * math.pi * self.centerline_radius/7
+                if (distance < max_distance) and (distance > 2 * COLLISION_RADIUS) and (abs(angle1-angle2) < math.pi):
                     break
-
-            # Snap points to the centerline
-            x1, y1 = self.snap_to_centerline(rand_x1, rand_y1)
-            x2, y2 = self.snap_to_centerline(rand_x2, rand_y2)
+            
+            # print(f'Spawn angles: {compute_angle(x1, y1, self.center_x, self.center_y)},\
+            #                       {compute_angle(x2, y2, self.center_x, self.center_y)}')
+            # print(f'Distance: {distance}')
 
         else:
             # Default start positions
@@ -118,6 +151,11 @@ class Course:
                              theta_a=weights2[0], theta_b=weights2[1], theta_c=weights2[2])
         # bike must be initialized first before sharing information
         self.bike1.opponent = self.bike2
+
+        self.p1_x_init = x1
+        self.p1_y_init = y1
+        self.p2_x_init = x2
+        self.p2_y_init = y2
 
     def draw_button(self, screen, text, x, y, width, height, base_color, hover_color):
         """
@@ -216,12 +254,15 @@ class Course:
         self.bike1.update_action(self.count)
         self.bike2.update_action(self.count)
 
-        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0 and self.is_data_recording:
-            self.save_costs(self.count / (ACTION_INTERVAL* MPC_HORIZON))
+        self.bike1.update_collisions()
+        self.bike2.update_collisions()
+
+        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
+            self.save_costs()
 
         self.count += 1
 
-    def save_stats(self, seed):
+    def save_stats(self):
         """
         Saves race statistics, such as passes, collisions, and performance metrics, to a CSV file.
 
@@ -235,16 +276,6 @@ class Course:
 
         with open(RACE_DATA, mode='a', newline='') as file:
             writer = csv.writer(file)
-            if self.race_number == 0:
-                writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
-                                 'Choices',
-                                 'Proportion Ahead P1', 'Proportion Ahead P2',
-                                 'Win P1', 'Win P2',
-                                 'Progress P1', 'Progress P2',
-                                 'Out of Bounds P1', 'Out of Bounds P2',
-                                 'Progress Cost P1', 'Progress Cost P2',
-                                 'Bounds Cost P1', 'Bounds Cost P2',
-                                 'Adjustment Count P2', f'Seed: {seed}'])
 
             try:
                 p1_ahead = round(self.bike1.ahead_cnt/self.bike1.choice_cnt,2)
@@ -255,6 +286,8 @@ class Course:
 
             # how many times a single collision is registered (how hard the hit was)
             collision_amount = 200
+
+            # print(self.bike1.collision_cnt)
             # P1 always ahead, pass count -1 since counts as a pass
             writer.writerow([self.race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
                              ceil(self.bike1.collision_cnt/collision_amount), self.bike1.choice_cnt,
@@ -262,45 +295,42 @@ class Course:
                              self.bike1.is_ahead, self.bike2.is_ahead,
                              round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
                              self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt,
-                             round(self.bike1.progress_cost), round(self.bike2.progress_cost),
-                             self.bike1.bounds_cost, self.bike2.bounds_cost,
+                             round(self.bike1.progress_cost, 2), round(self.bike2.progress_cost, 2),
+                             round(self.bike1.bounds_cost, 2), round(self.bike2.bounds_cost,2),
+                             round(self.bike1.proximity_cost, 2), round(self.bike2.proximity_cost, 2),
+                             round(self.p1_x_init), round(self.p1_y_init),
+                             round(self.p2_x_init), round(self.p2_y_init),
+                             self.bike1.theta_a, self.bike1.theta_b, self.bike1.theta_c,
+                             self.bike2.theta_a, self.bike2.theta_b, self.bike2.theta_c,
                              self.bike2.adjust_cnt])
 
+    def write_race_stats_header(self, seed):
+        with open(RACE_DATA, mode='a', newline='') as file:
 
-    def save_costs(self, decision_number):
+            writer = csv.writer(file)
+            writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
+                                'Choices',
+                                'Proportion Ahead P1', 'Proportion Ahead P2',
+                                'Win P1', 'Win P2',
+                                'Progress P1', 'Progress P2',
+                                'Out of Bounds P1', 'Out of Bounds P2',
+                                'Progress Cost P1', 'Progress Cost P2',
+                                'Bounds Cost P1', 'Bounds Cost P2',
+                                'Proximity Cost P1', 'Proximity Cost P2',
+                                'Initial X Position P1', 'Initial Y Position P1',
+                                'Initial X Position P2', 'Initial Y Position P2',
+                                'Theta_a1', 'Theta_b1', 'Theta_c1',
+                                'Theta_a2', 'Theta_b2', 'Theta_c2',
+                                'Adjustment Count P2', f'Seed: {seed}'])
+
+
+    def save_costs(self):
         """
         Save scalar and full 2D matrix features into CSV, expanding headers for both dimensions.
         """
 
         with open(COST_DATA, mode='a', newline='') as file:
             writer = csv.writer(file)
-
-            if decision_number==0 and self.race_number==0:
-                # Scalar features header
-                header = [
-                    'Theta_a1', 'Theta_b1', 'Theta_c1',
-                    'Theta_a2', 'Theta_b2', 'Theta_c2',
-                    'action1', 'Action_space1',
-                    'action2', 'Action_space2'
-                ]
-
-                # For bike1 matrices: A, B, C (assuming they are 2D arrays)
-                header += self.matrix_print(self.bike1.A, 'A1')
-                header += self.matrix_print(self.bike1.B, 'B1')
-                header += self.matrix_print(self.bike1.C, 'C1')
-
-                # For bike2 matrices: A, B, C
-                header += self.matrix_print(self.bike2.A, 'A2')
-                header += self.matrix_print(self.bike2.B, 'B2')
-                header += self.matrix_print(self.bike2.C, 'C2')
-
-
-                # For state vectors (assuming these are 2D arrays; if 1D, adjust accordingly)
-                state_dict = {1:'x', 2:'y', 3:'v', 4:'phi', 5:'b'}
-                header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
-                header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
-
-                writer.writerow(header)
 
             # --- Build row data ---
             row = [
@@ -321,6 +351,36 @@ class Course:
             row += self.bike2.state.flatten().tolist()
 
             writer.writerow(row)
+
+    def write_cost_stats_header(self):
+        with open(COST_DATA, mode='a', newline='') as file:
+            writer = csv.writer(file)
+
+            # Scalar features header
+            header = [
+                'Theta_a1', 'Theta_b1', 'Theta_c1',
+                'Theta_a2', 'Theta_b2', 'Theta_c2',
+                'action1', 'Action_space1',
+                'action2', 'Action_space2'
+            ]
+
+                        # For bike1 matrices: A, B, C (assuming they are 2D arrays)
+            header += self.matrix_print(self.bike1.A, 'A1')
+            header += self.matrix_print(self.bike1.B, 'B1')
+            header += self.matrix_print(self.bike1.C, 'C1')
+
+            # For bike2 matrices: A, B, C
+            header += self.matrix_print(self.bike2.A, 'A2')
+            header += self.matrix_print(self.bike2.B, 'B2')
+            header += self.matrix_print(self.bike2.C, 'C2')
+
+            # For state vectors (assuming these are 2D arrays; if 1D, adjust accordingly)
+            state_dict = {1:'x', 2:'y', 3:'v', 4:'phi', 5:'b'}
+            header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
+            header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
+
+            writer.writerow(header)
+
 
     def matrix_print(self, matrix, name):
         line = [f'{name}_{i}_{j}' for i in range(1,matrix.shape[0]+1) for j in range(1,matrix.shape[1]+1)]

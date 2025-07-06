@@ -33,7 +33,7 @@ BUTTON_HOVER = (255, 0, 0)
 NUM_RACES = 100
 RACE_DURATION = 2000  # Number of frames per race, base 1500
 # Seed setting
-SEED = 41
+SEED = 42
 IS_RANDOM_START=True
 FRAME_RATE = 60
 

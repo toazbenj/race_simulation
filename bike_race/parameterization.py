@@ -9,6 +9,7 @@ bounds = np.array(
     [
         [0.0, 10.0],
         [0.0, 10.0],
+        [0.0, 10.0]
     ]
 )
 
@@ -44,7 +45,11 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42)
     # return course.bike2.out_bounds_cnt == 0
 
     i = 0
-    while i < RACE_DURATION and course.bike2.pass_cnt == 0:
+    while i < RACE_DURATION and \
+            (course.bike2.pass_cnt == 0
+            and course.bike2.out_bounds_cnt == 0
+            and course.bike1.collision_cnt == 0):
+
         course.update()
         i += 1
     return (
@@ -72,7 +77,7 @@ def main():
         x = session.receive_request()
         # result = run_race(x[:3], x[3:], race)
 
-        result = run_race([1.0, 1.0, 1.0], [1.0, float(x[0]), float(x[1])], race)
+        result = run_race([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])], race)
         session.send_response(result)
         race += 1
 

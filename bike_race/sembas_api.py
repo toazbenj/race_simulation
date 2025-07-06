@@ -153,7 +153,7 @@ class SembasSession:
         assert (
             bounds[0].shape == bounds[1].shape and len(bounds[0].shape) == 1
         ), "Incorrect bounds shapes"
-        assert not plot_samples or plot_samples and bounds[0].shape[0] <= 2
+        assert not plot_samples or plot_samples and bounds[0].shape[0] <= 3
         self._ndim = bounds[0].shape[0]
         self.socket = setup_socket(ndim=self._ndim, max_attempts=max_attempts)
         self.lo, self.hi = bounds

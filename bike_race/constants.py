@@ -45,8 +45,8 @@ COLLISION_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-RACE_DATA = "./data/race_stats.csv"
-COST_DATA = "./data/cost_stats.csv"
+RACE_DATA = "../data/race_stats.csv"
+COST_DATA = "../data/cost_stats.csv"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 

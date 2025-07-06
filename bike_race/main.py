@@ -44,6 +44,7 @@ def main():
     combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
     weights_lst = np.array(combinations)
 
+    course = Course(0, 0, [0,0,0], [0,0,0], 1)
     course.write_race_stats_header(seed=SEED)
     course.write_cost_stats_header()
 

@@ -40,7 +40,7 @@ To run the simulation:
 2. **Execute the Main Script within the bike_race folder**:
 
    ```bash
-   python main.py
+   python3 main.py
    ```
 
    This will launch the simulation window.

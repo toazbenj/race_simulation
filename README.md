@@ -1,6 +1,6 @@
 # Race Simulation 
  
-![image](https://github.com/user-attachments/assets/20c42835-d007-4a02-a065-2173970bb711)
+![image](race_demo4.GIF)
 
 This repository contains the implementation for the simulated autonomous vehicle races featured in the paper: Vector Cost Bimatrix Games with Applications to Autonomous Racing. The code includes an object-oriented python GUI and data generator, which can be used in headless mode for improved performance. 
 

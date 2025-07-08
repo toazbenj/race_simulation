@@ -87,7 +87,7 @@ def main():
                 pygame.display.flip()
                 clock.tick(FRAME_RATE)  # Limit frame rate
 
-            course.save_stats(SEED)
+            course.save_stats()
             print(f"Race {race + 1} finished!")
 
 

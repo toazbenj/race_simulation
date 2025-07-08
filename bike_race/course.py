@@ -257,7 +257,7 @@ class Course:
         self.bike1.update_collisions()
         self.bike2.update_collisions()
 
-        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
+        if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
             self.save_costs()
 
         self.count += 1

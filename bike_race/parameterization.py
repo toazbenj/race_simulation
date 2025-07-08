@@ -69,7 +69,7 @@ def main():
     phase = []
 
     race = 0
-    for i in range(1000):
+    for i in range(NUM_RACES):
         print("=======================================================")
         print(f"Starting race {race}")
 

@@ -1,2 +1,18 @@
 Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Initial X Position P1,Initial Y Position P1,Initial X Position P2,Initial Y Position P2,Theta_a1,Theta_b1,Theta_c1,Theta_a2,Theta_b2,Theta_c2,Adjustment Count P2,Seed: 42
 Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Initial X Position P1,Initial Y Position P1,Initial X Position P2,Initial Y Position P2,Theta_a1,Theta_b1,Theta_c1,Theta_a2,Theta_b2,Theta_c2,Adjustment Count P2,Seed: 42
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Initial X Position P1,Initial Y Position P1,Initial X Position P2,Initial Y Position P2,Theta_a1,Theta_b1,Theta_c1,Theta_a2,Theta_b2,Theta_c2,Adjustment Count P2,Seed: 42
+Race Number,Passes P1,Passes P2,Collisions,Choices,Proportion Ahead P1,Proportion Ahead P2,Win P1,Win P2,Progress P1,Progress P2,Out of Bounds P1,Out of Bounds P2,Progress Cost P1,Progress Cost P2,Bounds Cost P1,Bounds Cost P2,Proximity Cost P1,Proximity Cost P2,Initial X Position P1,Initial Y Position P1,Initial X Position P2,Initial Y Position P2,Theta_a1,Theta_b1,Theta_c1,Theta_a2,Theta_b2,Theta_c2,Adjustment Count P2,Seed: 42
+1,0,1,1,22,0.45,0.55,False,True,1,10,0,0,13.87,-14.12,1.08,1.51,1.46,0.48,404,559,481,665,1.0,1.0,1.0,1.0,1.0,1.0,0
+2,0,0,0,22,1.0,0.0,True,False,3,4,0,0,-6.55,6.55,0.1,1.63,1.3,0.15,415,581,535,705,1.0,1.0,1.0,1.0,1.0,1.0,0
+3,0,0,0,22,1.0,0.0,True,False,9,10,0,2,-5.97,6.05,0.1,3.93,2.22,0.0,638,106,472,193,1.0,1.0,1.0,1.0,1.0,1.0,0
+4,0,0,0,22,1.0,0.0,True,False,9,8,0,0,-17.16,17.7,0.1,1.68,0.28,0.0,937,203,742,103,1.0,1.0,1.0,1.0,1.0,1.0,0
+5,0,0,0,22,1.0,0.0,True,False,9,10,0,0,-6.78,6.93,0.1,2.28,0.93,0.0,558,133,418,264,1.0,1.0,1.0,1.0,1.0,1.0,0
+6,0,0,0,22,1.0,0.0,True,False,9,10,0,0,-6.08,5.97,0.1,2.07,0.62,0.0,426,250,378,380,1.0,1.0,1.0,1.0,1.0,1.0,0
+7,0,0,0,22,1.0,0.0,True,False,9,10,0,0,-6.36,6.49,0.1,2.66,1.6,0.18,836,130,639,106,1.0,1.0,1.0,1.0,1.0,1.0,0
+8,0,0,0,22,1.0,0.0,True,False,9,10,0,0,-7.45,7.68,0.1,2.72,1.24,0.0,1016,350,878,153,1.0,1.0,1.0,1.0,1.0,1.0,0
+9,0,0,0,22,1.0,0.0,True,False,9,8,0,0,-17.16,17.7,0.1,1.68,0.28,0.0,937,203,742,103,1.0,1.0,1.0,1.0,1.0,1.0,0
+10,0,0,0,22,1.0,0.0,True,False,9,10,0,0,-8.18,8.51,0.1,1.89,1.2,0.0,808,119,554,135,1.0,1.0,1.0,1.0,1.0,1.0,0
+11,0,0,0,22,1.0,0.0,True,False,9,9,0,0,-7.2,7.35,0.1,3.86,2.05,0.42,801,116,653,103,1.0,1.0,1.0,1.0,1.0,1.0,0
+12,0,0,0,22,1.0,0.0,True,False,9,8,0,0,-17.16,17.7,0.1,1.68,0.28,0.0,937,203,742,103,1.0,1.0,1.0,1.0,1.0,1.0,0
+13,0,1,1,22,0.45,0.55,False,True,1,5,0,0,13.94,-14.19,1.08,1.51,1.47,0.48,762,744,882,694,1.0,1.0,1.0,1.0,1.0,1.0,0
+14,0,0,0,22,1.0,0.0,True,False,3,4,0,0,-5.37,5.52,0.07,3.5,1.24,0.16,649,746,830,723,1.0,1.0,1.0,1.0,1.0,1.0,0

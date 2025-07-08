@@ -69,7 +69,7 @@ def main():
     phase = []
 
     race = 0
-    for i in range(100):
+    for i in range(1000):
         print("=======================================================")
         print(f"Starting race {race}")
 
@@ -87,7 +87,7 @@ def main():
 
         plt.pause(0.01)
 
-    with open("results.json", "w") as f:
+    with open(SEMBAS_DATA, "w") as f:
         # Unfortunately it isn't known which requests fall on a
         # boundary. That information is known on SEMBAS (in rust). However, you can
         # assume the points during the BE (boundary exploration phase) are

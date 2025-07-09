@@ -5,7 +5,7 @@
 This repository contains the implementation for the simulated autonomous vehicle races featured in the paper: Vector Cost Bimatrix Games with Applications to Autonomous Racing. The code includes an object-oriented python GUI and data generator, which can be used in headless mode for improved performance. 
 
 Citation:
-
+```bash
 @misc{toaz2025vectorcostbimatrixgames,
       title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
       author={Benjamin R. Toaz and Shaunak D. Bopardikar},
@@ -15,6 +15,7 @@ Citation:
       primaryClass={cs.GT},
       url={https://arxiv.org/abs/2507.05171}, 
 }
+```
 
 ## Abstract
 

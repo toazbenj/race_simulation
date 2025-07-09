@@ -6,6 +6,16 @@ This repository contains the implementation for the simulated autonomous vehicle
 
 Citation:
 
+@misc{toaz2025vectorcostbimatrixgames,
+      title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
+      author={Benjamin R. Toaz and Shaunak D. Bopardikar},
+      year={2025},
+      eprint={2507.05171},
+      archivePrefix={arXiv},
+      primaryClass={cs.GT},
+      url={https://arxiv.org/abs/2507.05171}, 
+}
+
 ## Abstract
 
 We formulate a vector cost alternative to the scalarization method for weighting and

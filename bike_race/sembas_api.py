@@ -148,6 +148,7 @@ class SembasSession:
         max_attempts: int = None,
         plot_samples=False,
         dim_names=None,
+        color_override=None
     ):
         print("Init")
         assert (
@@ -183,6 +184,8 @@ class SembasSession:
             if dim_names is not None:
                 self._ax.set_xlabel(dim_names[0])
                 self._ax.set_ylabel(dim_names[1])
+
+        self.color_override = color_override
 
     @property
     def prev_known_phase(self):
@@ -221,9 +224,14 @@ class SembasSession:
         assert (
             self._step == self.STEP_RES
         ), "Must first receive request prior to response!"
-
+        
         if self.plot_samples:
-            self._ax.scatter(*self._prev_req, color="red" if cls else "blue")
+            if self.color_override:
+                color = self.color_override[0] if cls else self.color_override[1]
+            else:
+                color = "red" if cls else "blue"
+
+            self._ax.scatter(*self._prev_req, color=color)
             plt.pause(0.01)
 
         send_response(self.socket, cls)

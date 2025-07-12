@@ -31,6 +31,7 @@ Class Methods:
 - `save_stats`: Logs race performance data for later analysis.
 
 """
+
 import math
 
 import pygame
@@ -66,8 +67,18 @@ def compute_angle(x, y, center_x, center_y):
 
 
 class Course:
-    def __init__(self, center_x, center_y, weights1, weights2, race_number, outer_radius=300, inner_radius=125,
-                 randomize_start=False, seed=42):
+    def __init__(
+        self,
+        center_x,
+        center_y,
+        weights1,
+        weights2,
+        race_number,
+        outer_radius=300,
+        inner_radius=125,
+        randomize_start=False,
+        seed=42,
+    ):
         """
         Initializes the racecourse with specified track dimensions and randomization options.
 
@@ -118,10 +129,14 @@ class Course:
 
                 # make sure they are close enough to interact, but not for spawn collision
                 distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-                max_distance = 2 * math.pi * self.centerline_radius/7
-                if (distance < max_distance) and (distance > 2 * COLLISION_RADIUS) and (abs(angle1-angle2) < math.pi):
+                max_distance = 2 * math.pi * self.centerline_radius / 7
+                if (
+                    (distance < max_distance)
+                    and (distance > 2 * COLLISION_RADIUS)
+                    and (abs(angle1 - angle2) < math.pi)
+                ):
                     break
-            
+
             # print(f'Spawn angles: {compute_angle(x1, y1, self.center_x, self.center_y)},\
             #                       {compute_angle(x2, y2, self.center_x, self.center_y)}')
             # print(f'Distance: {distance}')
@@ -134,8 +149,8 @@ class Course:
             x2 = center_x + 100
             y2 = center_y + self.centerline_radius
 
-        phi1 = atan2(y1-center_y, x1-center_x) + pi/2
-        phi2 = atan2(y2-center_y, x2-center_x) + pi/2
+        phi1 = atan2(y1 - center_y, x1 - center_x) + pi / 2
+        phi2 = atan2(y2 - center_y, x2 - center_x) + pi / 2
 
         # Initialize bikes facing directly down the track
         # Note switched x,y phi for lead/follow switch
@@ -144,11 +159,31 @@ class Course:
         #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=10, opponent=self.bike1)
         # self.bike1.opponent = self.bike2
 
-        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
-                             velocity_limit=DEFENDER_SPEED, theta_a=weights1[0], theta_b=weights1[1], theta_c=weights1[2])
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=P2_IS_VECTOR_COST, is_cost_populating=True,
-                             velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
-                             theta_a=weights2[0], theta_b=weights2[1], theta_c=weights2[2])
+        self.bike1 = Bicycle(
+            self,
+            x=x1,
+            y=y1,
+            phi=phi1,
+            is_vector_cost=P1_IS_VECTOR_COST,
+            velocity_limit=DEFENDER_SPEED,
+            theta_a=weights1[0],
+            theta_b=weights1[1],
+            theta_c=weights1[2],
+        )
+        self.bike2 = Bicycle(
+            self,
+            x=x2,
+            y=y2,
+            phi=phi2,
+            color=GREEN,
+            is_vector_cost=P2_IS_VECTOR_COST,
+            is_cost_populating=True,
+            velocity_limit=ATTACKER_SPEED,
+            opponent=self.bike1,
+            theta_a=weights2[0],
+            theta_b=weights2[1],
+            theta_c=weights2[2],
+        )
         # bike must be initialized first before sharing information
         self.bike1.opponent = self.bike2
 
@@ -178,7 +213,11 @@ class Course:
         click = pygame.mouse.get_pressed()
 
         # Change color on hover
-        color = hover_color if x < mouse_pos[0] < x + width and y < mouse_pos[1] < y + height else base_color
+        color = (
+            hover_color
+            if x < mouse_pos[0] < x + width and y < mouse_pos[1] < y + height
+            else base_color
+        )
 
         pygame.draw.rect(screen, color, (x, y, width, height), border_radius=10)
 
@@ -189,7 +228,11 @@ class Course:
         screen.blit(text_surf, text_rect)
 
         # Check for click
-        if click[0] == 1 and x < mouse_pos[0] < x + width and y < mouse_pos[1] < y + height:
+        if (
+            click[0] == 1
+            and x < mouse_pos[0] < x + width
+            and y < mouse_pos[1] < y + height
+        ):
             return True  # Button clicked
 
         return False
@@ -207,7 +250,7 @@ class Course:
         """
         dx = x - self.center_x
         dy = y - self.center_y
-        distance = sqrt(dx ** 2 + dy ** 2)
+        distance = sqrt(dx**2 + dy**2)
 
         # Scale the point so it lands on the exact centerline radius
         if distance != 0:
@@ -228,10 +271,18 @@ class Course:
         - None
         """
         screen.fill(DARK_GREEN)
-        pygame.draw.circle(screen, GRAY, (self.center_x, self.center_y), self.outer_radius)
-        pygame.draw.circle(screen, DARK_GREEN, (self.center_x, self.center_y), self.inner_radius)
-        pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.outer_radius, 3)
-        pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.inner_radius, 3)
+        pygame.draw.circle(
+            screen, GRAY, (self.center_x, self.center_y), self.outer_radius
+        )
+        pygame.draw.circle(
+            screen, DARK_GREEN, (self.center_x, self.center_y), self.inner_radius
+        )
+        pygame.draw.circle(
+            screen, BLACK, (self.center_x, self.center_y), self.outer_radius, 3
+        )
+        pygame.draw.circle(
+            screen, BLACK, (self.center_x, self.center_y), self.inner_radius, 3
+        )
 
         self.bike1.draw(screen)
         self.bike2.draw(screen)
@@ -257,7 +308,9 @@ class Course:
         self.bike1.update_collisions()
         self.bike2.update_collisions()
 
-        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
+        if (
+            self.count % (ACTION_INTERVAL * MPC_HORIZON) == 0
+        ) and IS_COST_DATA_CREATION_MODE:
             self.save_costs()
 
         self.count += 1
@@ -274,12 +327,12 @@ class Course:
         - None
         """
 
-        with open(RACE_DATA, mode='a', newline='') as file:
+        with open(RACE_DATA, mode="a", newline="") as file:
             writer = csv.writer(file)
 
             try:
-                p1_ahead = round(self.bike1.ahead_cnt/self.bike1.choice_cnt,2)
-                p2_ahead = round(self.bike2.ahead_cnt/self.bike1.choice_cnt,2)
+                p1_ahead = round(self.bike1.ahead_cnt / self.bike1.choice_cnt, 2)
+                p2_ahead = round(self.bike2.ahead_cnt / self.bike1.choice_cnt, 2)
             except ZeroDivisionError:
                 p1_ahead = 0
                 p2_ahead = 0
@@ -289,55 +342,101 @@ class Course:
 
             # print(self.bike1.collision_cnt)
             # P1 always ahead, pass count -1 since counts as a pass
-            writer.writerow([self.race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
-                             ceil(self.bike1.collision_cnt/collision_amount), self.bike1.choice_cnt,
-                             p1_ahead, p2_ahead,
-                             self.bike1.is_ahead, self.bike2.is_ahead,
-                             round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
-                             self.bike1.out_bounds_cnt, self.bike2.out_bounds_cnt,
-                             round(self.bike1.progress_cost, 2), round(self.bike2.progress_cost, 2),
-                             round(self.bike1.bounds_cost, 2), round(self.bike2.bounds_cost,2),
-                             round(self.bike1.proximity_cost, 2), round(self.bike2.proximity_cost, 2),
-                             round(self.p1_x_init), round(self.p1_y_init),
-                             round(self.p2_x_init), round(self.p2_y_init),
-                             self.bike1.theta_a, self.bike1.theta_b, self.bike1.theta_c,
-                             self.bike2.theta_a, self.bike2.theta_b, self.bike2.theta_c,
-                             self.bike2.adjust_cnt])
+            writer.writerow(
+                [
+                    self.race_number + 1,
+                    self.bike1.pass_cnt,
+                    self.bike2.pass_cnt,
+                    ceil(self.bike1.collision_cnt / collision_amount),
+                    self.bike1.choice_cnt,
+                    p1_ahead,
+                    p2_ahead,
+                    self.bike1.is_ahead,
+                    self.bike2.is_ahead,
+                    round(self.bike1.progress_cnt),
+                    round(self.bike2.progress_cnt),
+                    self.bike1.out_bounds_cnt,
+                    self.bike2.out_bounds_cnt,
+                    round(self.bike1.progress_cost, 2),
+                    round(self.bike2.progress_cost, 2),
+                    round(self.bike1.bounds_cost, 2),
+                    round(self.bike2.bounds_cost, 2),
+                    round(self.bike1.proximity_cost, 2),
+                    round(self.bike2.proximity_cost, 2),
+                    round(self.p1_x_init),
+                    round(self.p1_y_init),
+                    round(self.p2_x_init),
+                    round(self.p2_y_init),
+                    self.bike1.theta_a,
+                    self.bike1.theta_b,
+                    self.bike1.theta_c,
+                    self.bike2.theta_a,
+                    self.bike2.theta_b,
+                    self.bike2.theta_c,
+                    self.bike2.adjust_cnt,
+                ]
+            )
 
     def write_race_stats_header(self, seed):
-        with open(RACE_DATA, mode='a', newline='') as file:
+        with open(RACE_DATA, mode="a", newline="") as file:
 
             writer = csv.writer(file)
-            writer.writerow(["Race Number", 'Passes P1', 'Passes P2', 'Collisions',
-                                'Choices',
-                                'Proportion Ahead P1', 'Proportion Ahead P2',
-                                'Win P1', 'Win P2',
-                                'Progress P1', 'Progress P2',
-                                'Out of Bounds P1', 'Out of Bounds P2',
-                                'Progress Cost P1', 'Progress Cost P2',
-                                'Bounds Cost P1', 'Bounds Cost P2',
-                                'Proximity Cost P1', 'Proximity Cost P2',
-                                'Initial X Position P1', 'Initial Y Position P1',
-                                'Initial X Position P2', 'Initial Y Position P2',
-                                'Theta_a1', 'Theta_b1', 'Theta_c1',
-                                'Theta_a2', 'Theta_b2', 'Theta_c2',
-                                'Adjustment Count P2', f'Seed: {seed}'])
-
+            writer.writerow(
+                [
+                    "Race Number",
+                    "Passes P1",
+                    "Passes P2",
+                    "Collisions",
+                    "Choices",
+                    "Proportion Ahead P1",
+                    "Proportion Ahead P2",
+                    "Win P1",
+                    "Win P2",
+                    "Progress P1",
+                    "Progress P2",
+                    "Out of Bounds P1",
+                    "Out of Bounds P2",
+                    "Progress Cost P1",
+                    "Progress Cost P2",
+                    "Bounds Cost P1",
+                    "Bounds Cost P2",
+                    "Proximity Cost P1",
+                    "Proximity Cost P2",
+                    "Initial X Position P1",
+                    "Initial Y Position P1",
+                    "Initial X Position P2",
+                    "Initial Y Position P2",
+                    "Theta_a1",
+                    "Theta_b1",
+                    "Theta_c1",
+                    "Theta_a2",
+                    "Theta_b2",
+                    "Theta_c2",
+                    "Adjustment Count P2",
+                    f"Seed: {seed}",
+                ]
+            )
 
     def save_costs(self):
         """
         Save scalar and full 2D matrix features into CSV, expanding headers for both dimensions.
         """
 
-        with open(COST_DATA, mode='a', newline='') as file:
+        with open(COST_DATA, mode="a", newline="") as file:
             writer = csv.writer(file)
 
             # --- Build row data ---
             row = [
-                self.bike1.theta_a, self.bike1.theta_b, self.bike1.theta_c,
-                self.bike2.theta_a, self.bike2.theta_b, self.bike2.theta_c,
-                self.bike1.action_index, self.bike1.action_space_size,
-                self.bike2.action_index, self.bike2.action_space_size,
+                self.bike1.theta_a,
+                self.bike1.theta_b,
+                self.bike1.theta_c,
+                self.bike2.theta_a,
+                self.bike2.theta_b,
+                self.bike2.theta_c,
+                self.bike1.action_index,
+                self.bike1.action_space_size,
+                self.bike2.action_index,
+                self.bike2.action_space_size,
             ]
 
             # Append full matrix data by flattening in row-major order:
@@ -353,35 +452,50 @@ class Course:
             writer.writerow(row)
 
     def write_cost_stats_header(self):
-        with open(COST_DATA, mode='a', newline='') as file:
+        with open(COST_DATA, mode="a", newline="") as file:
             writer = csv.writer(file)
 
             # Scalar features header
             header = [
-                'Theta_a1', 'Theta_b1', 'Theta_c1',
-                'Theta_a2', 'Theta_b2', 'Theta_c2',
-                'action1', 'Action_space1',
-                'action2', 'Action_space2'
+                "Theta_a1",
+                "Theta_b1",
+                "Theta_c1",
+                "Theta_a2",
+                "Theta_b2",
+                "Theta_c2",
+                "action1",
+                "Action_space1",
+                "action2",
+                "Action_space2",
             ]
 
-                        # For bike1 matrices: A, B, C (assuming they are 2D arrays)
-            header += self.matrix_print(self.bike1.A, 'A1')
-            header += self.matrix_print(self.bike1.B, 'B1')
-            header += self.matrix_print(self.bike1.C, 'C1')
+            # For bike1 matrices: A, B, C (assuming they are 2D arrays)
+            header += self.matrix_print(self.bike1.A, "A1")
+            header += self.matrix_print(self.bike1.B, "B1")
+            header += self.matrix_print(self.bike1.C, "C1")
 
             # For bike2 matrices: A, B, C
-            header += self.matrix_print(self.bike2.A, 'A2')
-            header += self.matrix_print(self.bike2.B, 'B2')
-            header += self.matrix_print(self.bike2.C, 'C2')
+            header += self.matrix_print(self.bike2.A, "A2")
+            header += self.matrix_print(self.bike2.B, "B2")
+            header += self.matrix_print(self.bike2.C, "C2")
 
             # For state vectors (assuming these are 2D arrays; if 1D, adjust accordingly)
-            state_dict = {1:'x', 2:'y', 3:'v', 4:'phi', 5:'b'}
-            header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
-            header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
+            state_dict = {1: "x", 2: "y", 3: "v", 4: "phi", 5: "b"}
+            header += [
+                f"State1_{state_dict[i]}"
+                for i in range(1, self.bike1.state.shape[0] + 1)
+            ]
+            header += [
+                f"State2_{state_dict[i]}"
+                for i in range(1, self.bike2.state.shape[0] + 1)
+            ]
 
             writer.writerow(header)
 
-
     def matrix_print(self, matrix, name):
-        line = [f'{name}_{i}_{j}' for i in range(1,matrix.shape[0]+1) for j in range(1,matrix.shape[1]+1)]
+        line = [
+            f"{name}_{i}_{j}"
+            for i in range(1, matrix.shape[0] + 1)
+            for j in range(1, matrix.shape[1] + 1)
+        ]
         return line

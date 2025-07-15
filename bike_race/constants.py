@@ -31,7 +31,7 @@ BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
 NUM_RACES = 1000
-RACE_DURATION = 2000  # Number of frames per race, base 1500
+RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 42
 IS_RANDOM_START=True
@@ -47,14 +47,14 @@ COLLISION_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
 # Data output path
 RACE_DATA = "../data/race_stats.csv"
 COST_DATA = "../data/cost_stats.csv"
-SEMBAS_DATA = "../data/vector_tuning.json"
+SEMBAS_DATA = "../data/scalar_server_test.json"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step

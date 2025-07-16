@@ -69,34 +69,37 @@ def main():
     phase = []
 
     race = 0
-    for i in range(NUM_RACES):
-        print("=======================================================")
-        print(f"Starting race {race}")
 
-        cur_phase = session.expect_phase()
-        x = session.receive_request()
-        # result = run_race(x[:3], x[3:], race)
+    try:
+        for i in range(NUM_RACES):
+            print("=======================================================")
+            print(f"Starting race {race}")
 
-        result = run_race([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])], race)
-        session.send_response(result)
-        race += 1
+            cur_phase = session.expect_phase()
+            x = session.receive_request()
 
-        requests.append(x.tolist())
-        results.append(result)
-        phase.append(cur_phase)
+            result = run_race([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])], race)
+            session.send_response(result)
+            race += 1
 
-        plt.pause(0.01)
+            requests.append(x.tolist())
+            results.append(result)
+            phase.append(cur_phase)
 
-    with open(SEMBAS_DATA, "w") as f:
-        # Unfortunately it isn't known which requests fall on a
-        # boundary. That information is known on SEMBAS (in rust). However, you can
-        # assume the points during the BE (boundary exploration phase) are
-        # near the boundary. We can discuss how to look at the boundary
-        # requests later.
-        json.dump(
-            {"requests": requests, "results": results, "phase": phase},
-            f,
-        )
+            plt.pause(0.01)
+    except:
 
+        with open(SEMBAS_DATA, "w") as f:
+            # Unfortunately it isn't known which requests fall on a
+            # boundary. That information is known on SEMBAS (in rust). However, you can
+            # assume the points during the BE (boundary exploration phase) are
+            # near the boundary. We can discuss how to look at the boundary
+            # requests later.
+            json.dump(
+                {"requests": requests, "results": results, "phase": phase},
+                f,
+            )
+
+        print("Wrote data")
 
 main()

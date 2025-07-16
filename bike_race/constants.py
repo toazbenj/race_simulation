@@ -47,14 +47,16 @@ COLLISION_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
 # Data output path
 RACE_DATA = "../data/race_stats.csv"
 COST_DATA = "../data/cost_stats.csv"
-SEMBAS_DATA = "../data/scalar_spread_test.json"
+SEMBAS_DATA = "../data/vector_spread_test.json"
+# SEMBAS_DATA = "../data/scalar_spread_test.json"
+
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = False
+P2_IS_VECTOR_COST = True
 
 # Bicycle
 # Time step

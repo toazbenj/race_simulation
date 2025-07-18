@@ -29,9 +29,11 @@ YELLOW = (255, 255, 0)
 ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
+
 # Number of races to run
-NUM_RACES = 1000
+NUM_RACES = 50
 RACE_DURATION = 1500  # Number of frames per race, base 1500
+
 # Seed setting
 SEED = 42
 IS_RANDOM_START=True
@@ -47,8 +49,10 @@ COLLISION_RANGE = np.linspace(1, 11, NUM_THETA_INTERVALS)
 # Data output path
 RACE_DATA = "../data/race_stats.csv"
 COST_DATA = "../data/cost_stats.csv"
-SEMBAS_DATA = "../data/vector_spread_test.json"
-# SEMBAS_DATA = "../data/scalar_spread_test.json"
+
+SEMBAS_DATA = "../data/vector_collision_test.json"
+# SEMBAS_DATA = "../data/vector_test.json"
+# SEMBAS_DATA = 'test.json'
 
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
@@ -77,19 +81,36 @@ BIKE_SIZE = 20
 LR = 1
 LF = 1
 # how close bike center points are in pixels to count as collision
-COLLISION_RADIUS = 45
-
-# Trajectory cost weights
-progress_weight = 1
-bounds_weight = 1
-prox_weight = 1
-
-PROXIMITY_SPREAD = 45
+COLLISION_RADIUS = 22.5
+PROXIMITY_SPREAD = 21
 BOUNDS_SPREAD = 205
 
-RELATIVE_PROGRESS_WEIGHT_1 = progress_weight
-BOUNDS_WEIGHT_1 = bounds_weight
-PROXIMITY_WEIGHT_1 = prox_weight
+# Trajectory cost weights
+
+# point 38 - false positives - scalar_match_test - complete success
+# progress_weight = 0.53
+# bounds_weight = 0.49
+# prox_weight = 0.46
+
+# point 44 - false positives - scalar_match_test
+# progress_weight = 0.58
+# bounds_weight = 0.54
+# prox_weight = 0.47
+
+# point 20 - false positives - scalar_match_test
+# progress_weight = 0.48
+# bounds_weight = 0.46
+# prox_weight = 0.50
+
+progress_weight = 0.74
+bounds_weight = 0.20
+prox_weight = 0.0
+
+
+
+RELATIVE_PROGRESS_WEIGHT_1 = 1.0
+BOUNDS_WEIGHT_1 = 1.0
+PROXIMITY_WEIGHT_1 = 1.0
 
 RELATIVE_PROGRESS_WEIGHT_2 = progress_weight
 BOUNDS_WEIGHT_2 = bounds_weight

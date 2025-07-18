@@ -7,9 +7,9 @@ import json
 
 bounds = np.array(
     [
-        [0.0, 10.0],
-        [0.0, 10.0],
-        [0.0, 10.0]
+        [0.0, 1.0],
+        [0.0, 1.0],
+        [0.0, 1.0]
     ]
 )
 
@@ -28,13 +28,14 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42)
         randomize_start=IS_RANDOM_START,
         seed=seed,
     )
+    # print(course.bike1.x, course.bike2.x, course.bike1.y, course.bike2.y)
 
     # search for collsions
-    # i = 0
-    # while i < RACE_DURATION and course.bike1.collision_cnt == 0:
-    #     course.update()
-    #     i += 1
-    # return course.bike1.collision_cnt == 0
+    i = 0
+    while i < RACE_DURATION and course.bike2.collision_cnt == 0:
+        course.update()
+        i += 1
+    return course.bike2.collision_cnt == 0
 
     # search for out of bounds
     # i = 0
@@ -44,19 +45,22 @@ def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42)
     #     # print(f'bounds count: {course.bike2.out_bounds_cnt}')
     # return course.bike2.out_bounds_cnt == 0
 
-    i = 0
-    while i < RACE_DURATION and \
-            (course.bike2.pass_cnt == 0
-            and course.bike2.out_bounds_cnt == 0
-            and course.bike1.collision_cnt == 0):
 
-        course.update()
-        i += 1
-    return (
-        course.bike2.pass_cnt == 0
-        and course.bike2.out_bounds_cnt == 0
-        and course.bike1.collision_cnt == 0
-    )
+    # Exit condition at end of race time or for safety infraction (not at successful pass)
+    # i = 0
+    # while i < RACE_DURATION and \
+    #         (course.bike2.out_bounds_cnt == 0) \
+    #         and (course.bike2.collision_cnt == 0):
+
+    #     course.update()
+    #     i += 1
+
+    # # Check if all goals satisfied (complete success)
+    # return (
+    #     course.bike2.pass_cnt == 1
+    #     and course.bike2.out_bounds_cnt == 0
+    #     and course.bike2.collision_cnt == 0
+    # )
 
 
 def main():
@@ -87,6 +91,11 @@ def main():
             phase.append(cur_phase)
 
             plt.pause(0.01)
+
+            # early save
+            if i == NUM_RACES//2:
+                with open(SEMBAS_DATA, "w") as f:
+                    json.dump({"requests": requests, "results": results, "phase": phase}, f,)
     except:
 
         with open(SEMBAS_DATA, "w") as f:
@@ -101,5 +110,8 @@ def main():
             )
 
         print("Wrote data")
+    finally:
+        with open(SEMBAS_DATA, "w") as f:
+            json.dump({"requests": requests, "results": results, "phase": phase}, f,)
 
 main()

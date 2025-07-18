@@ -41,6 +41,10 @@ def main():
     random.seed(SEED)
     seed_lst = [random.randint(1, 1000) for _ in range(NUM_RACES)]
 
+    # cheating for testing
+    seed_lst[0] = 42
+
+
     weights_lst1 = []
     if IS_COST_DATA_CREATION_MODE:
         # Cartesian product using itertools
@@ -48,9 +52,9 @@ def main():
         # Convert to NumPy array
         weights_lst1 = np.array(combinations)
     else:
-        weights_1 = np.array([PROXIMITY_WEIGHT_1, BOUNDS_WEIGHT_1, RELATIVE_PROGRESS_WEIGHT_1])
+        weights_1 = np.array([RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1])
 
-    weights_2 = np.array([PROXIMITY_WEIGHT_2, BOUNDS_WEIGHT_2, RELATIVE_PROGRESS_WEIGHT_2])
+    weights_2 = np.array([RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2])
 
     for race in range(NUM_THETA_INTERVALS**3):
         if IS_COST_DATA_CREATION_MODE:
@@ -63,6 +67,8 @@ def main():
         course = Course(center_x, center_y, weights_1, weights_2, race,
                         inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
                         randomize_start=IS_RANDOM_START, seed=seed_lst[race])
+
+        # print(course.bike1.x, course.bike2.x, course.bike1.y, course.bike2.y)
 
         for _ in range(RACE_DURATION):
             skip_requested = False
@@ -91,6 +97,14 @@ def main():
 
             pygame.display.flip()
             clock.tick(FRAME_RATE)  # Limit frame rate
+
+            # print(course.bike2.pass_cnt == 0 and course.bike2.out_bounds_cnt == 0 and course.bike2.collision_cnt == 0)
+
+            print((course.bike2.pass_cnt == 1) and (course.bike2.out_bounds_cnt == 0) and (course.bike2.collision_cnt == 0))
+            
+            # print(course.bike2.out_bounds_cnt == 0)
+            # print(course.bike2.pass_cnt)
+            # print(course.bike2.collision_cnt == 0)
 
         course.save_stats()
         print(f"Race {race + 1} finished!")

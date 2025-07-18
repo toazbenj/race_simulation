@@ -60,7 +60,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step
@@ -76,37 +76,20 @@ MPC_HORIZON = 1
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 # how large the bike appears on screen
-BIKE_SIZE = 20
+BIKE_SIZE = 40
 # size for calculations, radial (width) and frontal (length) axes
 LR = 1
 LF = 1
 # how close bike center points are in pixels to count as collision
 COLLISION_RADIUS = 22.5
-PROXIMITY_SPREAD = 21
+PROXIMITY_SPREAD = 22.5
 BOUNDS_SPREAD = 205
 
 # Trajectory cost weights
 
-# point 38 - false positives - scalar_match_test - complete success
-# progress_weight = 0.53
-# bounds_weight = 0.49
-# prox_weight = 0.46
-
-# point 44 - false positives - scalar_match_test
-# progress_weight = 0.58
-# bounds_weight = 0.54
-# prox_weight = 0.47
-
-# point 20 - false positives - scalar_match_test
-# progress_weight = 0.48
-# bounds_weight = 0.46
-# prox_weight = 0.50
-
 progress_weight = 0.74
 bounds_weight = 0.20
 prox_weight = 0.0
-
-
 
 RELATIVE_PROGRESS_WEIGHT_1 = 1.0
 BOUNDS_WEIGHT_1 = 1.0

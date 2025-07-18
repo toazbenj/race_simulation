@@ -85,8 +85,7 @@ def main():
             if skip_requested:
                 break
 
-            # Update the simulation
-            course.update()
+
 
             # Draw everything
             screen.fill(WHITE)
@@ -96,6 +95,10 @@ def main():
             course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
 
             pygame.display.flip()
+
+            # Update the simulation
+            course.update()
+
             clock.tick(FRAME_RATE)  # Limit frame rate
 
             # print(course.bike2.pass_cnt == 0 and course.bike2.out_bounds_cnt == 0 and course.bike2.collision_cnt == 0)

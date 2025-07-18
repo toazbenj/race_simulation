@@ -62,12 +62,12 @@ ACCELERATION_INCREMENT = 3
 STEER_LIMIT = radians(20)
 # best combos: interval = 70, horizon = 1;
 # interval = 50, horizon = 2; interval = 40, mpc = 3
-ACTION_INTERVAL = 70
+ACTION_INTERVAL = 50
 MPC_HORIZON = 1
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
-# how large the bike appears on screen
-BIKE_SIZE = 20
+# how large the bike appears on screen (length)
+BIKE_SIZE = 40
 # size for calculations, radial (width) and frontal (length) axes
 LR = 1
 LF = 1
@@ -77,7 +77,7 @@ COLLISION_RADIUS = 45
 # Trajectory cost weights
 progress_weight = 1
 bounds_weight = 1
-prox_weight = 1
+prox_weight = 0
 
 PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205
@@ -86,6 +86,10 @@ RELATIVE_PROGRESS_WEIGHT_1 = progress_weight
 BOUNDS_WEIGHT_1 = bounds_weight
 PROXIMITY_WEIGHT_1 = prox_weight
 
+WEIGHTS_1 = [RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1]
+
 RELATIVE_PROGRESS_WEIGHT_2 = progress_weight
 BOUNDS_WEIGHT_2 = bounds_weight
 PROXIMITY_WEIGHT_2 = prox_weight
+
+WEIGHTS_2 = [RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2]

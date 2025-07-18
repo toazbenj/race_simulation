@@ -44,6 +44,7 @@ def main():
     combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
     weights_lst = np.array(combinations)
 
+    # dummy course for writing the headers in the csv
     course = Course(0, 0, [0,0,0], [0,0,0], 1)
     course.write_race_stats_header(seed=SEED)
     course.write_cost_stats_header()
@@ -55,9 +56,13 @@ def main():
 
             # Initialize a new course with bikes in random positions
             center_x, center_y = WIDTH // 2, HEIGHT // 2
-            course = Course(center_x, center_y, combination, combination, race,
-                            inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                            randomize_start=IS_RANDOM_START, seed=seed_lst[race])
+            # course = Course(center_x, center_y, combination, combination, race,
+            #                 inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+            #                 randomize_start=IS_RANDOM_START, seed=seed_lst[race])
+            
+            course = Course(center_x, center_y, WEIGHTS_1, WEIGHTS_2, race,
+                inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                randomize_start=IS_RANDOM_START, seed=seed_lst[race])
 
             for _ in range(RACE_DURATION):
                 skip_requested = False
@@ -74,15 +79,15 @@ def main():
                 if skip_requested:
                     break
 
-                # Update the simulation
-                course.update()
-
                 # Draw everything
                 screen.fill(WHITE)
                 course.draw(screen)
 
                 # Draw Skip Button
                 course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
+
+                # Update the simulation
+                course.update()
 
                 pygame.display.flip()
                 clock.tick(FRAME_RATE)  # Limit frame rate

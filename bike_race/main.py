@@ -39,78 +39,61 @@ def main():
     clock = pygame.time.Clock()
 
     random.seed(SEED)
-    seed_lst = [random.randint(1, 1000) for _ in range(NUM_RACES)]
+    seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]    
 
-    # cheating for testing
-    seed_lst[0] = 42
+    combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
+    weights_lst = np.array(combinations)
 
+    # dummy course for writing the headers in the csv
+    course = Course(0, 0, [0,0,0], [0,0,0], 1)
+    course.write_race_stats_header(seed=SEED)
+    course.write_cost_stats_header()
 
-    weights_lst1 = []
-    if IS_COST_DATA_CREATION_MODE:
-        # Cartesian product using itertools
-        combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
-        # Convert to NumPy array
-        weights_lst1 = np.array(combinations)
-    else:
-        weights_1 = np.array([RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1])
+    for combination in weights_lst:
+        for race in range(NUM_RACES):
 
-    weights_2 = np.array([RELATIVE_PROGRESS_WEIGHT_2, BOUNDS_WEIGHT_2, PROXIMITY_WEIGHT_2])
+            print(f"Starting Race {race + 1}")
 
-    for race in range(NUM_THETA_INTERVALS**3):
-        if IS_COST_DATA_CREATION_MODE:
-            weights_1 = weights_lst1[race]
-
-        print(f"Starting Race {race + 1}")
-
-        # Initialize a new course with bikes in random positions
-        center_x, center_y = WIDTH // 2, HEIGHT // 2
-        course = Course(center_x, center_y, weights_1, weights_2, race,
-                        inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                        randomize_start=IS_RANDOM_START, seed=seed_lst[race])
-
-        # print(course.bike1.x, course.bike2.x, course.bike1.y, course.bike2.y)
-
-        for _ in range(RACE_DURATION):
-            skip_requested = False
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR,
-                                          BUTTON_HOVER):
-                        skip_requested = True
-
-            if skip_requested:
-                break
-
-
-
-            # Draw everything
-            screen.fill(WHITE)
-            course.draw(screen)
-
-            # Draw Skip Button
-            course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
-
-            pygame.display.flip()
-
-            # Update the simulation
-            course.update()
-
-            clock.tick(FRAME_RATE)  # Limit frame rate
-
-            # print(course.bike2.pass_cnt == 0 and course.bike2.out_bounds_cnt == 0 and course.bike2.collision_cnt == 0)
-
-            print((course.bike2.pass_cnt == 1) and (course.bike2.out_bounds_cnt == 0) and (course.bike2.collision_cnt == 0))
+            # Initialize a new course with bikes in random positions
+            center_x, center_y = WIDTH // 2, HEIGHT // 2
+            # course = Course(center_x, center_y, combination, combination, race,
+            #                 inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+            #                 randomize_start=IS_RANDOM_START, seed=seed_lst[race])
             
-            # print(course.bike2.out_bounds_cnt == 0)
-            # print(course.bike2.pass_cnt)
-            # print(course.bike2.collision_cnt == 0)
+            course = Course(center_x, center_y, WEIGHTS_1, WEIGHTS_2, race,
+                inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                randomize_start=IS_RANDOM_START, seed=seed_lst[race])
 
-        course.save_stats()
-        print(f"Race {race + 1} finished!")
+            for _ in range(RACE_DURATION):
+                skip_requested = False
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR,
+                                            BUTTON_HOVER):
+                            skip_requested = True
+
+                if skip_requested:
+                    break
+
+                # Draw everything
+                screen.fill(WHITE)
+                course.draw(screen)
+
+                # Draw Skip Button
+                course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
+
+                # Update the simulation
+                course.update()
+
+                pygame.display.flip()
+                clock.tick(FRAME_RATE)  # Limit frame rate
+
+            course.save_stats()
+            print(f"Race {race + 1} finished!")
 
 
 if __name__ == "__main__":

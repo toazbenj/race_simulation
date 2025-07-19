@@ -17,6 +17,8 @@ Citation:
 }
 ```
 
+Note that this repository has been updated since the publication and some branches are under active construction. Main is the branch that will always be kept stable with new features as they come in. The legacy_mecc2025 branch is the frozen state of the code as of the publication date. The experimental and sembas branches are where new features are currently being developed (and are not safe places for mortals to tarry).
+
 ## Abstract
 
 We formulate a vector cost alternative to the scalarization method for weighting and
@@ -28,8 +30,6 @@ structure. The magnitude of this adjustment serves as a metric for differentiati
 Pareto optimal solutions. We implement this approach in a racing competition between agents
 with heterogeneous cost structures, resulting in fewer collision incidents with a minimal decrease
 in performance. 
-
-Note that this repository has been updated since the publication and some branches are under active construction. Main is the branch that will always be kept stable with new features as they come in. The legacy_mecc2025 branch is the frozen state of the code as of the publication date. The experimental and sembas branches are where new features are currently being developed (and are not safe places for mortals to tarry).
 
 
 ## Installation

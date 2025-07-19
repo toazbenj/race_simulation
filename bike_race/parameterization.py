@@ -14,7 +14,7 @@ bounds = np.array(
 )
 
 
-def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=42):
+def run_race(weights_1: list[float], weights_2: list[float], race: int, seed=SEED):
     # Initialize a new course with bikes in random positions
     center_x, center_y = WIDTH // 2, HEIGHT // 2
     course = Course(
@@ -113,5 +113,6 @@ def main():
     finally:
         with open(SEMBAS_DATA, "w") as f:
             json.dump({"requests": requests, "results": results, "phase": phase}, f,)
+        print("Wrote data")
 
 main()

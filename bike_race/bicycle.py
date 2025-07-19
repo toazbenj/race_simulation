@@ -266,6 +266,15 @@ class Bicycle:
 
     def update_collisions(self):
         # Collision detection (intersecting polygons)
+        self.bike_poly  = create_vehicle_polygon(
+            x=self.x,
+            y=self.y,
+            length_rov=BIKE_SIZE/2,
+            length_fov=BIKE_SIZE/2,
+            width=BIKE_SIZE/2,
+            phi=np.rad2deg(self.phi)  # convert radians to degrees
+        )
+              
         if self.bike_poly.intersects(self.opponent.bike_poly):
             if not self.in_collision:
                 self.collision_cnt += 1
@@ -273,7 +282,7 @@ class Bicycle:
         else:
             self.in_collision = False
 
-        print(self.collision_cnt)
+        # print(self.collision_cnt)
 
     def update_action(self, count):
         """

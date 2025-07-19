@@ -119,7 +119,7 @@ class Course:
                 # make sure they are close enough to interact, but not for spawn collision
                 distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
                 max_distance = 2 * math.pi * self.centerline_radius/7
-                if (distance < max_distance) and (distance > 2 * COLLISION_RADIUS) and (abs(angle1-angle2) < math.pi):
+                if (distance < max_distance) and (distance > 2 * MIN_SPAWN_DISTANCE) and (abs(angle1-angle2) < math.pi):
                     break
             
             # print(f'Spawn angles: {compute_angle(x1, y1, self.center_x, self.center_y)},\
@@ -130,9 +130,11 @@ class Course:
             # Default start positions
             x1 = center_x
             y1 = center_y + self.centerline_radius
+            print(f'Defender spawn: {(x1, y1)}')
 
-            x2 = center_x + 100
-            y2 = center_y + self.centerline_radius
+            x2 = ATTACKER_SPAWN_STATE[0]
+            y2 = ATTACKER_SPAWN_STATE[1]
+            print(f'Attacker spawn: {ATTACKER_SPAWN_STATE}')
 
         phi1 = atan2(y1-center_y, x1-center_x) + pi/2
         phi2 = atan2(y2-center_y, x2-center_x) + pi/2
@@ -257,8 +259,8 @@ class Course:
         self.bike1.update_collisions()
         self.bike2.update_collisions()
 
-        if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
-            self.save_costs()
+        # if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
+        #     self.save_costs()
 
         self.count += 1
 

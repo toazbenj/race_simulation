@@ -28,12 +28,43 @@ ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
-NUM_RACES = 50
+NUM_RACES = 1000
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 42
-IS_RANDOM_START=True
+IS_RANDOM_START=False
 FRAME_RATE = 60
+MIN_SPAWN_DISTANCE = 45
+
+# typle x, y
+# spawn_dict = {'close_tail': (798, 735), # 100 pts appart
+#               'far_tail': (901, 681), 
+#               'outside_edge': (),
+#               'inside_edge': ()}
+
+# car lengths ccw from defender along centerline
+# (739.8742792579025, 747.544635443938) 1
+# (779.1460607189534, 740.2156421763865) 2
+# (817.221950289289, 728.1237608145813) 3
+# (853.5266237246535, 711.4516989087491) 4
+# (887.511519742754, 690.4513702427674) 5
+# (918.6631287489795, 665.4400884330798) 6 
+
+# (740, 748) 1
+# (779, 740) 2
+# (817, 728) 3
+# (854, 711) 4
+# (888, 690) 5
+# (919, 665) 6
+
+# need to shift edge scenarios up/down still
+
+spawn_dict = {'close_tail': (817, 728), # 3 car lengths, centered
+              'far_tail': (919, 665), # 6 car lengths, centered
+              'outside_edge': (854, 711), # 4 car lengths, 1/3 track width down
+              'inside_edge': (854, 711)} # 4 car lengths, 1/3 track width up
+
+ATTACKER_SPAWN_STATE = spawn_dict['inside_edge']
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 5
@@ -43,8 +74,11 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-RACE_DATA = "./data/race_stats.csv"
-COST_DATA = "./data/cost_stats.csv"
+# SEMBAS_DATA = '../data/scalar_full_collision_test.json'
+SEMBAS_DATA = '../data/vector_full_collision_test.json'
+
+RACE_DATA = ''
+COST_DATA = ''
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
@@ -71,20 +105,22 @@ BIKE_SIZE = 40
 # size for calculations, radial (width) and frontal (length) axes
 LR = 1
 LF = 1
-# how close bike center points are in pixels to count as collision
-COLLISION_RADIUS = 45
 
 # Trajectory cost weights
-progress_weight = 1
-bounds_weight = 1
-prox_weight = 0
+progress_weight = 1.0
+bounds_weight = 1.0
+prox_weight = 1.0
 
 PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205
 
-RELATIVE_PROGRESS_WEIGHT_1 = progress_weight
-BOUNDS_WEIGHT_1 = bounds_weight
-PROXIMITY_WEIGHT_1 = prox_weight
+# RELATIVE_PROGRESS_WEIGHT_1 = progress_weight
+# BOUNDS_WEIGHT_1 = bounds_weight
+# PROXIMITY_WEIGHT_1 = prox_weight
+
+RELATIVE_PROGRESS_WEIGHT_1 = 1.0
+BOUNDS_WEIGHT_1 = 1.0
+PROXIMITY_WEIGHT_1 = 1.0
 
 WEIGHTS_1 = [RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1]
 

@@ -45,6 +45,7 @@ from constants import *
 from cost_adjust_cvx import find_adjusted_costs
 from trajectory import Trajectory
 from itertools import product
+from shapely_polygon import create_vehicle_polygon
 
 def generate_combinations(numbers, num_picks):
     """
@@ -88,6 +89,7 @@ class Bicycle:
             Returns:
             - None
         """
+
         self.bicycle_size = BIKE_SIZE
         self.color = color
 
@@ -99,6 +101,16 @@ class Bicycle:
 
         self.lr = LR
         self.lf = LF
+
+        self.bike_poly  = create_vehicle_polygon(
+            x=self.x,
+            y=self.y,
+            length_rov=BIKE_SIZE/2,
+            length_fov=BIKE_SIZE/2,
+            width=BIKE_SIZE/2,
+            phi=np.rad2deg(self.phi)  # convert radians to degrees
+        )
+
 
         self.a = 0
         self.steering_angle = 0
@@ -142,7 +154,8 @@ class Bicycle:
         self.out_bounds_cnt = 0
         self.adjust_cnt = 0
         self.collision_radius = COLLISION_RADIUS
-
+        self.is_in_collision = False
+        
         self.progress_cost = 0
         self.bounds_cost = 0
         self.proximity_cost = 0
@@ -219,16 +232,31 @@ class Bicycle:
         - None
         """
         # Draw the bike
-        points = [
-            (self.x + self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
-             self.y + self.bicycle_size * sin(self.phi) + self.bicycle_size / 2 * cos(self.phi)),
-            (self.x - self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
-             self.y - self.bicycle_size * sin(self.phi) + self.bicycle_size / 2 * cos(self.phi)),
-            (self.x - self.bicycle_size * cos(self.phi) + self.bicycle_size / 2 * sin(self.phi),
-             self.y - self.bicycle_size * sin(self.phi) - self.bicycle_size / 2 * cos(self.phi)),
-            (self.x + self.bicycle_size * cos(self.phi) + self.bicycle_size / 2 * sin(self.phi),
-             self.y + self.bicycle_size * sin(self.phi) - self.bicycle_size / 2 * cos(self.phi))
-        ]
+        # points = [
+        #     (self.x + self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
+        #      self.y + self.bicycle_size * sin(self.phi) + self.bicycle_size / 2 * cos(self.phi)),
+        #     (self.x - self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
+        #      self.y - self.bicycle_size * sin(self.phi) + self.bicycle_size / 2 * cos(self.phi)),
+        #     (self.x - self.bicycle_size * cos(self.phi) + self.bicycle_size / 2 * sin(self.phi),
+        #      self.y - self.bicycle_size * sin(self.phi) - self.bicycle_size / 2 * cos(self.phi)),
+        #     (self.x + self.bicycle_size * cos(self.phi) + self.bicycle_size / 2 * sin(self.phi),
+        #      self.y + self.bicycle_size * sin(self.phi) - self.bicycle_size / 2 * cos(self.phi))
+        # ]
+        # pygame.draw.polygon(screen, self.color, points)
+
+        # --- Draw the bike polygon using Shapely ---
+        self.bike_poly  = create_vehicle_polygon(
+            x=self.x,
+            y=self.y,
+            length_rov=BIKE_SIZE/2,
+            length_fov=BIKE_SIZE/2,
+            width=BIKE_SIZE/2,
+            phi=np.rad2deg(self.phi)  # convert radians to degrees
+        )
+
+        # Get exterior coordinates of the polygon for drawing
+        x_coords, y_coords = self.bike_poly .exterior.xy
+        points = [(x, y) for x, y in zip(x_coords, y_coords)]
         pygame.draw.polygon(screen, self.color, points)
 
         # Draw the past trajectory
@@ -255,11 +283,15 @@ class Bicycle:
             self.new_choices(other_bike)
 
     def update_collisions(self):
-        # check where opponent is, determine collision in every frame
-        x2, y2 = self.opponent.x, self.opponent.y
-        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
-        if distance < self.collision_radius:
-            self.collision_cnt += 1
+        # Collision detection (intersecting polygons)
+        if self.bike_poly.intersects(self.opponent.bike_poly):
+            if not self.in_collision:
+                self.collision_cnt += 1
+                self.in_collision = True
+        else:
+            self.in_collision = False
+
+        # print(self.collision_cnt)
 
     def update_action(self, count):
         """

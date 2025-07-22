@@ -2,7 +2,7 @@ from math import radians
 import numpy as np
 
 # Main
-IS_COST_DATA_CREATION_MODE = True
+IS_COST_DATA_CREATION_MODE = False
 
 # Screen dimensions
 WIDTH, HEIGHT = 1400, 850
@@ -28,7 +28,7 @@ ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
-NUM_RACES = 1000
+NUM_RACES = 1
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 42
@@ -59,12 +59,12 @@ MIN_SPAWN_DISTANCE = 45
 
 # need to shift edge scenarios up/down still
 
-spawn_dict = {'close_tail': (817, 728), # 3 car lengths, centered
+SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
               'far_tail': (919, 665), # 6 car lengths, centered
               'outside_edge': (854, 711), # 4 car lengths, 1/3 track width down
               'inside_edge': (854, 711)} # 4 car lengths, 1/3 track width up
 
-ATTACKER_SPAWN_STATE = spawn_dict['inside_edge']
+ATTACKER_SPAWN_STATE = SPAWN_DICT['inside_edge']
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 5
@@ -75,7 +75,7 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 # Course
 # Data output path
 # SEMBAS_DATA = '../data/scalar_full_collision_test.json'
-SEMBAS_DATA = '../data/vector_full_collision_test.json'
+SEMBAS_DATA = '../data/small_run_test.json'
 
 RACE_DATA = ''
 COST_DATA = ''

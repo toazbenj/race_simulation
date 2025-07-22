@@ -66,8 +66,14 @@ def compute_angle(x, y, center_x, center_y):
 
 
 class Course:
-    def __init__(self, center_x, center_y, weights1, weights2, race_number, outer_radius=300, inner_radius=125,
-                 randomize_start=False, seed=42):
+    def __init__(self, center_x=WIDTH//2, center_y=HEIGHT//2,
+                 race_number=0, 
+                 weights_1=WEIGHTS_1, weights_2=WEIGHTS_2, 
+                 attacker_spawn_state=ATTACKER_SPAWN_STATE,
+                 is_player1_vector_cost=P1_IS_VECTOR_COST, 
+                 is_player2_vector_cost=P2_IS_VECTOR_COST,
+                 outer_radius=INNER_RADIUS, inner_radius=OUTER_RADIUS,
+                 randomize_start=IS_RANDOM_START, seed=SEED):
         """
         Initializes the racecourse with specified track dimensions and randomization options.
 
@@ -132,9 +138,9 @@ class Course:
             y1 = center_y + self.centerline_radius
             print(f'Defender spawn: {(x1, y1)}')
 
-            x2 = ATTACKER_SPAWN_STATE[0]
-            y2 = ATTACKER_SPAWN_STATE[1]
-            print(f'Attacker spawn: {ATTACKER_SPAWN_STATE}')
+            x2 = attacker_spawn_state[0]
+            y2 = attacker_spawn_state[1]
+            print(f'Attacker spawn: {attacker_spawn_state}')
 
         phi1 = atan2(y1-center_y, x1-center_x) + pi/2
         phi2 = atan2(y2-center_y, x2-center_x) + pi/2
@@ -147,10 +153,10 @@ class Course:
         # self.bike1.opponent = self.bike2
 
         self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
-                             velocity_limit=DEFENDER_SPEED, theta_a=weights1[0], theta_b=weights1[1], theta_c=weights1[2])
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=P2_IS_VECTOR_COST, is_cost_populating=True,
+                             velocity_limit=DEFENDER_SPEED, theta_a=weights_1[0], theta_b=weights_1[1], theta_c=weights_1[2])
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=is_player2_vector_cost, is_cost_populating=True,
                              velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
-                             theta_a=weights2[0], theta_b=weights2[1], theta_c=weights2[2])
+                             theta_a=weights_2[0], theta_b=weights_2[1], theta_c=weights_2[2])
         # bike must be initialized first before sharing information
         self.bike1.opponent = self.bike2
 

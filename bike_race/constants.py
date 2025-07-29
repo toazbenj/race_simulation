@@ -28,7 +28,7 @@ ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
 # Number of races to run
-NUM_RACES = 1
+NUM_RACES = 10
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
 SEED = 42

@@ -161,7 +161,7 @@ def run_test(description, race_func, session: api.SembasSession):
 
         # while cur_phase != "NEXT":
 
-        while cur_phase != "NEXT" and i < NUM_RACES:
+        while cur_phase != "NEXT":
             print("=======================================================")
             print(f"Starting race {i}")
 
@@ -174,6 +174,7 @@ def run_test(description, race_func, session: api.SembasSession):
             results.append(result)
             phase.append(cur_phase)
             cur_phase = session.expect_phase()
+            print("Phase:", cur_phase)
 
             i += 1
 

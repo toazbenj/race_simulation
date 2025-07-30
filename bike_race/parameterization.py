@@ -116,7 +116,8 @@ def main_old():
             json.dump({"requests": requests, "results": results, "phase": phase}, f,)
         print("Wrote data")
 
-def write_data(requests, results, phase):
+def write_data(description, requests, results, phase):
+    print('Writing data')
     with open(SEMBAS_DATA, "r") as f:
         try:
             existing_data = json.load(f)
@@ -125,7 +126,7 @@ def write_data(requests, results, phase):
         except json.JSONDecodeError:
             existing_data = []
 
-    data = {"requests": requests, "results": results, "phase": phase}
+    data = {"description": description, "requests": requests, "results": results, "phase": phase}
     existing_data.append(data)
 
     with open(SEMBAS_DATA, "w") as f:
@@ -149,14 +150,16 @@ def setup_race(attacker_spawn_tup, test_func, is_vector_cost):
         return test_func(course.bike2, is_returning=True)
     return race_func
 
-def run_test(race_func, session: api.SembasSession):
+def run_test(description, race_func, session: api.SembasSession):
     requests = []
     results = []
     phase = []
     i = 0
     try:
         cur_phase = None
-        while cur_phase != "NEXT":
+        # while cur_phase != "NEXT":
+
+        while cur_phase != "NEXT" and i < NUM_RACES:
             print("=======================================================")
             print(f"Starting race {i}")
 
@@ -176,20 +179,20 @@ def run_test(race_func, session: api.SembasSession):
             # if i == NUM_RACES//2:
             #     with open(SEMBAS_DATA, "w") as f:
             #         json.dump({"requests": requests, "results": results, "phase": phase}, f,)
-        write_data(requests, results, phase)
+        write_data(description, requests, results, phase)
         
     except Exception as e:
         print("Encountered unexpected error: {e}")
-    finally:
-        # with open(SEMBAS_DATA, "w") as f:
-        #     # Unfortunately it isn't known which requests fall on a
-        #     # boundary. That information is known on SEMBAS (in rust). However, you can
-        #     # assume the points during the BE (boundary exploration phase) are
-        #     # near the boundary. We can discuss how to look at the boundary
-        #     # requests later.
-        #     json.dump({"requests": requests, "results": results, "phase": phase}, f,)
-        # print("Wrote data")
-        write_data(requests, results, phase)        
+    # finally:
+    #     # with open(SEMBAS_DATA, "w") as f:
+    #     #     # Unfortunately it isn't known which requests fall on a
+    #     #     # boundary. That information is known on SEMBAS (in rust). However, you can
+    #     #     # assume the points during the BE (boundary exploration phase) are
+    #     #     # near the boundary. We can discuss how to look at the boundary
+    #     #     # requests later.
+    #     #     json.dump({"requests": requests, "results": results, "phase": phase}, f,)
+    #     # print("Wrote data")
+    #     write_data(requests, results, phase)        
     if cur_phase == "NEXT":
         print("Test completed")
     else:
@@ -202,7 +205,7 @@ def pass_test(bike, is_returning=False):
         return bike.pass_cnt == 0
 
 def bounds_test(bike, is_returning=False):
-    return bike.out_of_bounds_cnt == 0
+    return bike.out_bounds_cnt == 0
 
 def collision_test(bike, is_returning=False):
     return bike.collision_cnt == 0
@@ -215,14 +218,17 @@ def main_multi_test():
     scenario_lst = ['close_tail','far_tail','outside_edge','inside_edge']
     test_func_lst = [pass_test, bounds_test, collision_test]
 
-    # physical spawn
-    for scenario_key in scenario_lst:
+    # algorithm type - 0 or 1
+    for algo in range(2):
         # target metric
         for test_func in test_func_lst:
-            # algorithm type - 0 or 1
-            for algo in range(2):
+            # physical spawn
+            for scenario_key in scenario_lst:
+               
+               description = f'Is Vector Cost: {algo}, Metric: {test_func}, Scenario: {scenario_key}'
                race_test = setup_race(SPAWN_DICT[scenario_key], test_func, algo)     
-               run_test(race_test, session)
+               run_test(description, race_test, session)
+               print(description)
 
     # # Define your first test
     # race_test_1 = setup_race(WIDTH//2, HEIGHT//2)
@@ -233,6 +239,5 @@ def main_multi_test():
     # # repeat however many tests you have/need
     # race_test_2 = setup_race(WIDTH//3, HEIGHT//3)
     # run_test(race_test_2, session)
-
 
 main_multi_test()

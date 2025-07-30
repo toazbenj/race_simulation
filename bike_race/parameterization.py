@@ -156,14 +156,15 @@ def run_test(description, race_func, session: api.SembasSession):
     phase = []
     i = 0
     try:
-        cur_phase = None
+        # cur_phase = None
+        cur_phase = session.expect_phase()
+
         # while cur_phase != "NEXT":
 
         while cur_phase != "NEXT" and i < NUM_RACES:
             print("=======================================================")
             print(f"Starting race {i}")
 
-            cur_phase = session.expect_phase()
             x = session.receive_request()
 
             result = race_func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
@@ -172,6 +173,7 @@ def run_test(description, race_func, session: api.SembasSession):
             requests.append(x.tolist())
             results.append(result)
             phase.append(cur_phase)
+            cur_phase = session.expect_phase()
 
             i += 1
 

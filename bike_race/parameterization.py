@@ -69,9 +69,10 @@ def run_until_phase(
     session.expect_phase()
     while session.prev_known_phase != target_phase:
         x = session.receive_request()
-        func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
-
+        res = func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
+        session.send_response(res)
         session.expect_phase()
+
 
 
 def main_old():
@@ -182,38 +183,38 @@ def run_test(description, race_func, session: api.SembasSession):
     results = []
     phase = []
     i = 0
-    try:
-        # cur_phase = None
-        cur_phase = session.expect_phase()
-        run_until_phase(session, race_func, "BE")
+    # try:
+    # cur_phase = None
+    session.expect_phase()
+    run_until_phase(session, race_func, "BE")
 
-        # while cur_phase != "NEXT":
+    # while cur_phase != "NEXT":
 
-        while cur_phase != "GS":
-            print("=======================================================")
-            print(f"Starting race {i}")
+    while session.prev_known_phase != "GS":
+        print("=======================================================")
+        print(f"Starting race {i}")
 
-            x = session.receive_request()
+        x = session.receive_request()
 
-            result = race_func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
-            session.send_response(result)
+        result = race_func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
+        session.send_response(result)
 
-            requests.append(x.tolist())
-            results.append(result)
-            phase.append(cur_phase)
-            cur_phase = session.expect_phase()
-            print("Phase:", cur_phase)
+        requests.append(x.tolist())
+        results.append(result)
+        phase.append(session.prev_known_phase)
+        session.expect_phase()
+        print("Phase:", session.prev_known_phase)
 
-            i += 1
+        i += 1
 
-            # early save
-            # if i == NUM_RACES//2:
-            #     with open(SEMBAS_DATA, "w") as f:
-            #         json.dump({"requests": requests, "results": results, "phase": phase}, f,)
-        write_data(description, requests, results, phase)
+        # early save
+        # if i == NUM_RACES//2:
+        #     with open(SEMBAS_DATA, "w") as f:
+        #         json.dump({"requests": requests, "results": results, "phase": phase}, f,)
+    write_data(description, requests, results, phase)
 
-    except Exception as e:
-        print("Encountered unexpected error: {e}")
+    # except Exception as e:
+    #     print(f"Encountered unexpected error: {e}")
     # finally:
     #     # with open(SEMBAS_DATA, "w") as f:
     #     #     # Unfortunately it isn't known which requests fall on a
@@ -224,7 +225,7 @@ def run_test(description, race_func, session: api.SembasSession):
     #     #     json.dump({"requests": requests, "results": results, "phase": phase}, f,)
     #     # print("Wrote data")
     #     write_data(requests, results, phase)
-    if cur_phase == "GS":
+    if session.prev_known_phase == "GS":
         print("Test completed")
     else:
         print("Test incomplete / ended early?")

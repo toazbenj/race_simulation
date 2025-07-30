@@ -161,7 +161,7 @@ def run_test(description, race_func, session: api.SembasSession):
 
         # while cur_phase != "NEXT":
 
-        while cur_phase != "NEXT":
+        while cur_phase != "GS":
             print("=======================================================")
             print(f"Starting race {i}")
 
@@ -196,7 +196,7 @@ def run_test(description, race_func, session: api.SembasSession):
     #     #     json.dump({"requests": requests, "results": results, "phase": phase}, f,)
     #     # print("Wrote data")
     #     write_data(requests, results, phase)        
-    if cur_phase == "NEXT":
+    if cur_phase == "GS":
         print("Test completed")
     else:
         print("Test incomplete / ended early?")

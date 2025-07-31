@@ -255,6 +255,16 @@ class SembasSession:
         print("(Msg Sent)")
         self._phase_retrieved = False
 
+    def expect_message(self):
+        "Careful with accidentally receiving phase messages"
+        print("Expecting message")
+        assert (
+            self._step == self.STEP_MSG
+        ), "Must be in messaging mode to receive messages"
+        msg = receive_message(self.socket)
+        print(f"Received message: {msg}")
+        return msg
+
     def map_sembas(self, x: tuple) -> torch.Tensor:
         x = torch.tensor(x)
         return x * (self.hi - self.lo) + self.lo

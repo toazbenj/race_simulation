@@ -74,8 +74,7 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-# SEMBAS_DATA = '../data/scalar_full_collision_test.json'
-SEMBAS_DATA = '../data/small_run_test.json'
+SEMBAS_DATA = '../data/scalar_collision.json'
 
 RACE_DATA = ''
 COST_DATA = ''

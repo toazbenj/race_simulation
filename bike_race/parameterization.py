@@ -77,41 +77,41 @@ def run_test(description, race_func, session: api.SembasSession):
     phase = []
     i = 0
 
-    # try:
-    session.expect_phase()
-    phase_dict = run_until_phase(session, race_func, "BE")
-
-    for current_phase, entries in phase_dict.items():
-        for request, result in entries:
-            requests.append(request.tolist())
-            results.append(result)
-            phase.append(current_phase)
-
-    while session.prev_known_phase != "GS":
-        print("=======================================================")
-        print(f"Starting race {i}")
-
-        x = session.receive_request()
-
-        result = race_func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
-        session.send_response(result)
-
-        requests.append(x.tolist())
-        results.append(result)
-        phase.append(session.prev_known_phase)
+    try:
         session.expect_phase()
-        print("Phase:", session.prev_known_phase)
+        phase_dict = run_until_phase(session, race_func, "BE")
 
-        i += 1
+        for current_phase, entries in phase_dict.items():
+            for request, result in entries:
+                requests.append(request.tolist())
+                results.append(result)
+                phase.append(current_phase)
 
-    write_data(description, requests, results, phase)
+        while session.prev_known_phase != "GS":
+            print("=======================================================")
+            print(f"Starting race {i}")
 
-    if session.prev_known_phase == "GS":
-        print("Test completed")
-    else:
-        print("Test incomplete / ended early?")
-    # except:
-    #     write_data(description, requests, results, phase)
+            x = session.receive_request()
+
+            result = race_func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
+            session.send_response(result)
+
+            requests.append(x.tolist())
+            results.append(result)
+            phase.append(session.prev_known_phase)
+            session.expect_phase()
+            print("Phase:", session.prev_known_phase)
+
+            i += 1
+
+        write_data(description, requests, results, phase)
+
+        if session.prev_known_phase == "GS":
+            print("Test completed")
+        else:
+            print("Test incomplete / ended early?")
+    except:
+        write_data(description, requests, results, phase)
 
 
 def pass_test(bike, is_returning=False):

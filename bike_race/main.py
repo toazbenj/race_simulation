@@ -46,11 +46,11 @@ def main():
 
     # Initialize a new course with bikes in random positions
     center_x, center_y = WIDTH // 2, HEIGHT // 2
-    course = Course(center_x, center_y, WEIGHTS_1, WEIGHTS_2, race,
+    course = Course(center_x=center_x, center_y=center_y, weights_1=WEIGHTS_1, weights_2=WEIGHTS_2, race_number=race,
         inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
         randomize_start=IS_RANDOM_START, seed=seed_lst[race])
     
-    print(f'Center line snap: {course.snap_to_centerline(ATTACKER_SPAWN_STATE[0],ATTACKER_SPAWN_STATE[1])}')
+    # print(f'Center line snap: {course.snap_to_centerline(ATTACKER_SPAWN_STATE[0],ATTACKER_SPAWN_STATE[1])}')
 
     for _ in range(RACE_DURATION):
         skip_requested = False
@@ -75,7 +75,7 @@ def main():
         course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
 
         # Update the simulation
-        # course.update()
+        course.update()
 
         pygame.display.flip()
         clock.tick(FRAME_RATE)  # Limit frame rate

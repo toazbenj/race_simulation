@@ -6,7 +6,7 @@ from constants import *
 from matplotlib import pyplot as plt
 import json
 
-bounds = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+bounds = np.array([[0.0, 0.2], [0.0, 1.0], [0.0, 1.0]])
 
 
 
@@ -60,15 +60,19 @@ def run_until_phase(session: api.SembasSession, func, target_phase: str,) -> dic
     
     session.expect_phase()
     prev_phase = None
-    while session.prev_known_phase != target_phase:
-        if session.prev_known_phase != prev_phase:
-            result[session.prev_known_phase] = []
-        x = session.receive_request()
-        res = func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
-        session.send_response(res)
-        result[session.prev_known_phase].append((x, res))
-        prev_phase = session.prev_known_phase
-        session.expect_phase()
+    try:
+        while session.prev_known_phase != target_phase:
+            if session.prev_known_phase != prev_phase:
+                result[session.prev_known_phase] = []
+            x = session.receive_request()
+            res = func([1.0, 1.0, 1.0], [float(x[0]), float(x[1]), float(x[2])])
+            session.send_response(res)
+            result[session.prev_known_phase].append((x, res))
+            prev_phase = session.prev_known_phase
+            session.expect_phase()
+    except KeyboardInterrupt:
+        return result
+
     return result
 
 def run_test(description, race_func, session: api.SembasSession):
@@ -134,8 +138,13 @@ def main_multi_test():
     # (LOW, HIGH)
     session = api.SembasSession(bounds.T, plot_samples=False)
 
-    scenario_lst = ["close_tail", "far_tail", "outside_edge", "inside_edge"]
-    test_func_lst = [pass_test, bounds_test, collision_test]
+    # full testing
+    # scenario_lst = ["close_tail", "far_tail", "outside_edge", "inside_edge"]
+    # test_func_lst = [pass_test, bounds_test, collision_test]
+
+    # partial testing with scenarios/metrics that have boundaries (probably)
+    scenario_lst = ["outside_edge"]
+    test_func_lst = [pass_test]
 
     arg_lst = []
     # algorithm type - 0 or 1
@@ -146,8 +155,9 @@ def main_multi_test():
             for scenario_key in scenario_lst:
                 arg_lst.append([scenario_key, test_func, algo])
 
+    print(arg_lst)
     # skipped bounds testing for weighted sum, starting at 8 for collision testing
-    for i in range(8, len(arg_lst)):
+    for i in range(1, len(arg_lst)):
         scenario_key, test_func, algo = arg_lst[i]
         description = f"Is Vector Cost: {algo}, Metric: {test_func}, Scenario: {scenario_key}"
         race_test = setup_race(SPAWN_DICT[scenario_key], test_func, algo)

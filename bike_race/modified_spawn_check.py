@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_circle_points_by_angle(radius, start_point, angle_increment_rad, center=(0, 0), inner_radius_ratio=1.115):
-    """
+def plot_circle_points_by_angle(radius, start_point, angle_increment_rad, center=(0, 0), inner_radius_ratio=0.885):
+    """ 
+    inner_radius_ratio=1.115
+
     Plots points on a circle and a second inner circle using the same angles.
 
     Parameters:

@@ -36,20 +36,7 @@ IS_RANDOM_START=False
 FRAME_RATE = 60
 MIN_SPAWN_DISTANCE = 45
 
-# typle x, y
-# spawn_dict = {'close_tail': (798, 735), # 100 pts appart
-#               'far_tail': (901, 681), 
-#               'outside_edge': (),
-#               'inside_edge': ()}
-
 # car lengths ccw from defender along centerline
-# (739.8742792579025, 747.544635443938) 1
-# (779.1460607189534, 740.2156421763865) 2
-# (817.221950289289, 728.1237608145813) 3
-# (853.5266237246535, 711.4516989087491) 4
-# (887.511519742754, 690.4513702427674) 5
-# (918.6631287489795, 665.4400884330798) 6 
-
 # (740, 748) 1
 # (779, 740) 2
 # (817, 728) 3
@@ -57,13 +44,29 @@ MIN_SPAWN_DISTANCE = 45
 # (888, 690) 5
 # (919, 665) 6
 
+# outer points ccw from defender along centerline
+# (744, 785) 1
+# (788, 776) 2
+# (831, 763) 3
+# (871, 744) 4
+# (909, 721) 5 
+# (944, 693) 6
+
+# inner points ccw from defender along centerline
+# (735, 710) 1
+# (770, 704) 2
+# (804, 693) 3
+# (836, 679) 4
+# (866, 660) 5
+# (894, 638) 6
+
 # need to shift edge scenarios up/down still
 
 SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
               'far_tail': (919, 665), # 6 car lengths, centered
-              'outside_edge': (854, 711), # 4 car lengths, 1/3 track width down
-              'inside_edge': (854, 711)} # 4 car lengths, 1/3 track width up
-
+              'outside_edge': (871, 744), # 4 car lengths, 1/3 track width down
+              'inside_edge': (836, 679), # 4 car lengths, 1/3 track width up
+              'test': (804, 693)} 
 ATTACKER_SPAWN_STATE = SPAWN_DICT['inside_edge']
 
 # Opponent Cost Weights
@@ -74,7 +77,7 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-SEMBAS_DATA = '../data/scalar_collision.json'
+SEMBAS_DATA = '../data/vector_pass_inside_outside.json'
 
 RACE_DATA = ''
 COST_DATA = ''
@@ -84,7 +87,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = False
+P2_IS_VECTOR_COST = True
 
 # Bicycle
 # Time step
@@ -107,8 +110,8 @@ LF = 1
 
 # Trajectory cost weights
 progress_weight = 1.0
-bounds_weight = 1.0
-prox_weight = 1.0
+bounds_weight = 0.6
+prox_weight = 0.5
 
 PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205

@@ -77,7 +77,10 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-SEMBAS_DATA = '../data/vector_pass_inside_outside.json'
+SEMBAS_DATA = '../data/paper_data/bounds_test.json'
+# BOUNDS = np.array([[0.0, 0.1], [0.0, 0.3], [0.0, 1.0]])
+BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+
 
 RACE_DATA = ''
 COST_DATA = ''

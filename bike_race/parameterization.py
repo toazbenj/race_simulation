@@ -139,8 +139,8 @@ def main_multi_test():
     # test_func_lst = [pass_test, bounds_test, collision_test]
 
     # partial testing with scenarios/metrics that have boundaries (probably)
-    scenario_lst = ["close_tail", "far_tail"]
-    test_func_lst = [bounds_test]
+    scenario_lst = ["outside_edge"]
+    test_func_lst = [collision_test]
 
     arg_lst = []
     # algorithm type - 0 or 1
@@ -153,7 +153,7 @@ def main_multi_test():
 
     print(arg_lst)
     # skipped bounds testing for weighted sum, starting at 8 for collision testing
-    for i in range(3, len(arg_lst)):
+    for i in range(1, len(arg_lst)):
         scenario_key, test_func, algo = arg_lst[i]
         description = f"Is Vector Cost: {algo}, Metric: {test_func}, Scenario: {scenario_key}"
         race_test = setup_race(SPAWN_DICT[scenario_key], test_func, algo)

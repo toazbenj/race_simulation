@@ -67,7 +67,7 @@ SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
               'outside_edge': (871, 744), # 4 car lengths, 1/3 track width down
               'inside_edge': (836, 679), # 4 car lengths, 1/3 track width up
               'test': (804, 693)} 
-ATTACKER_SPAWN_STATE = SPAWN_DICT['inside_edge']
+ATTACKER_SPAWN_STATE = SPAWN_DICT['close_tail']
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 5
@@ -77,9 +77,12 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-SEMBAS_DATA = '../data/paper_data/bounds_test.json'
-# BOUNDS = np.array([[0.0, 0.1], [0.0, 0.3], [0.0, 1.0]])
-BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+SEMBAS_DATA = '../data/paper_data/vector_collision.json'
+# BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+
+# BOUNDS = np.array([[0.0, 0.2], [0.0, 1.0], [0.0, 1.0]])
+# BOUNDS = np.array([[0.0, 1.0], [0.0, 0.2], [0.0, 1.0]])
+BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 0.2]])
 
 
 RACE_DATA = ''
@@ -90,7 +93,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step
@@ -113,8 +116,8 @@ LF = 1
 
 # Trajectory cost weights
 progress_weight = 1.0
-bounds_weight = 0.6
-prox_weight = 0.5
+bounds_weight = 0.8
+prox_weight = 0.1
 
 PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205

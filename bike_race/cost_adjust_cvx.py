@@ -70,17 +70,21 @@ def cost_adjustment(A1, D2, global_min_position):
                 constraints.append(phi[k, j] >= epsilon)
 
     # Constraint 3: Ensure exact potential condition
-    for k in range(1, m):
-        for l in range(n):
-            delta_A = A_prime[k , l] - A_prime[k-1, l]
-            delta_phi = phi[k, l] - phi[k-1, l]
-            constraints.append(delta_A == delta_phi)
+    # for k in range(1, m):
+    #     for l in range(n):
+    #         delta_A = A_prime[k , l] - A_prime[k-1, l]
+    #         delta_phi = phi[k, l] - phi[k-1, l]
+    #         constraints.append(delta_A == delta_phi)
+    # for k in range(m):
+    #     for l in range(1, n):
+    #         delta_B = D2[k, l] - D2[k, l - 1]
+    #         delta_phi = phi[k, l] - phi[k, l - 1]
+    #         constraints.append(delta_B == delta_phi)
 
-    for k in range(m):
-        for l in range(1, n):
-            delta_B = D2[k, l] - D2[k, l - 1]
-            delta_phi = phi[k, l] - phi[k, l - 1]
-            constraints.append(delta_B == delta_phi)
+    constraints += [
+        A_prime[1:, :] - A_prime[:-1, :] == phi[1:, :] - phi[:-1, :],
+        D2[:, 1:] - D2[:, :-1] == phi[:, 1:] - phi[:, :-1]
+    ]
 
     # Solve optimization problem
     objective = cp.Minimize(cp.norm(E, 'fro'))
@@ -119,7 +123,7 @@ def potential_function(A, B, global_min_position):
     return phi - phi[global_min_position[0], global_min_position[1]]
 
 
-def is_valid_exact_potential(A, B, phi):
+def is_valid_exact_potential_old(A, B, phi):
     """
     Checks if the given potential function satisfies the exact potential condition.
 
@@ -148,7 +152,7 @@ def is_valid_exact_potential(A, B, phi):
     return True
 
 
-def is_global_min_enforced(phi, global_min_position):
+def is_global_min_enforced_old(phi, global_min_position):
     """
     Checks if the global minimum is correctly enforced in the potential function.
 
@@ -171,6 +175,20 @@ def is_global_min_enforced(phi, global_min_position):
 
     return True
 
+
+def is_valid_exact_potential(A, B, phi, epsilon=1e-6):
+    cond1 = np.allclose(A[1:, :] - A[:-1, :], phi[1:, :] - phi[:-1, :], atol=epsilon)
+    cond2 = np.allclose(B[:, 1:] - B[:, :-1], phi[:, 1:] - phi[:, :-1], atol=epsilon)
+    return cond1 and cond2
+
+
+def is_global_min_enforced(phi, global_min_position):
+    i, j = global_min_position
+    if not np.isclose(phi[i, j], 0):
+        return False
+    mask = np.ones_like(phi, dtype=bool)
+    mask[i, j] = False
+    return np.all(phi[mask] > 0)
 
 def pareto_optimal(A1, B1, C1, column):
     """
@@ -219,7 +237,6 @@ def pareto_optimal(A1, B1, C1, column):
             pareto_indices.append(i)
 
     return np.array(pareto_indices)
-
 
 def find_adjusted_costs(A1, B1, C1, D2):
     """

@@ -4,6 +4,17 @@ from constants import *
 import numpy as np
 import itertools
 
+import cProfile
+import logging
+import os
+import atexit
+
+PROFILE_PATH = os.path.expanduser('bike_race/logs/profile_vector2.prof')
+logging.basicConfig(level=logging.INFO)
+
+profiler = cProfile.Profile()
+profiler.enable()
+
 def main():
     random.seed(SEED)
     seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]    
@@ -38,6 +49,15 @@ def main():
             course.save_stats()
             print(f"Race {race + 1} finished!")
 
+def save_profile():
+    profiler.disable()
+    profiler.dump_stats(PROFILE_PATH)
+    if os.path.exists(PROFILE_PATH):
+        logging.info(f"Profile successfully saved to {PROFILE_PATH}")
+    else:
+        logging.error(f"Profile not saved. Expected at {PROFILE_PATH}")
+
+atexit.register(save_profile)
 
 if __name__ == "__main__":
     main()

@@ -43,90 +43,14 @@ Entry Point:
 from math import atan2, pi
 import pygame
 from constants import *
-
-def bounding_box(points):
-    """
-    Compute the bounding box of a set of points.
-
-    Parameters:
-    - points (list[tuple[float, float]]): List of (x, y) coordinate points.
-
-    Returns:
-    - tuple[float, float, float, float]: (min_x, min_y, max_x, max_y) defining the bounding box.
-    """
-
-    xs = [p[0] for p in points]
-    ys = [p[1] for p in points]
-    return min(xs), min(ys), max(xs), max(ys)
-
-def boxes_intersect(box1, box2):
-    """
-    Check if two bounding boxes intersect.
-
-    Parameters:
-    - box1 (tuple[float, float, float, float]): (min_x, min_y, max_x, max_y) for box 1.
-    - box2 (tuple[float, float, float, float]): (min_x, min_y, max_x, max_y) for box 2.
-
-    Returns:
-    - bool: True if the boxes intersect, False otherwise.
-    """
-
-    return not (box1[2] < box2[0] or box1[0] > box2[2] or
-                box1[3] < box2[1] or box1[1] > box2[3])
-
-
-def intersecting_area(box1, box2):
-    """
-    Calculate the area of intersection between two bounding boxes.
-
-    Parameters:
-    - box1 (tuple[float, float, float, float]): Bounding box 1.
-    - box2 (tuple[float, float, float, float]): Bounding box 2.
-
-    Returns:
-    - float: The intersection area, or 0 if no intersection occurs.
-    """
-
-    # Calculate the intersection bounds
-    inter_min_x = max(box1[0], box2[0])
-    inter_min_y = max(box1[1], box2[1])
-    inter_max_x = min(box1[2], box2[2])
-    inter_max_y = min(box1[3], box2[3])
-
-    # Compute the width and height of the intersection
-    inter_width = max(0, inter_max_x - inter_min_x)
-    inter_height = max(0, inter_max_y - inter_min_y)
-
-    # Return the intersection area
-    return inter_width * inter_height
-
-
-def intersect(line1, line2):
-    """
-    Check if two line segments intersect.
-
-    Parameters:
-    - line1 (list[tuple[float, float]]): Two endpoints (x1, y1) and (x2, y2) of the first line segment.
-    - line2 (list[tuple[float, float]]): Two endpoints (x3, y3) and (x4, y4) of the second line segment.
-
-    Returns:
-    - bool: True if the line segments intersect, False otherwise.
-    """
-
-    def ccw(A, B, C):
-        return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
-
-    A, B = line1
-    C, D = line2
-
-    is_same_point = A == C or B == D or A == D or B == C
-    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D) or is_same_point
+from scipy.spatial import KDTree
+import numpy as np
 
 def euclidean_distance(point1, point2):
     return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
 
-def min_point_to_point_distance(line1, line2):
+def min_point_to_point_distance_old(line1, line2):
     min_dist = float('inf')
     for p1 in line1:
         for p2 in line2:
@@ -134,6 +58,21 @@ def min_point_to_point_distance(line1, line2):
             if dist < min_dist:
                 min_dist = dist
     return min_dist
+
+
+def min_point_to_point_distance(line1, line2):
+    # Convert to numpy arrays
+    line1 = np.array(line1)
+    line2 = np.array(line2)
+    
+    # Build KDTree on one line
+    tree = KDTree(line2)
+    
+    # Query nearest neighbor for all points in line1
+    dists, _ = tree.query(line1)
+    
+    # Return the minimum distance
+    return np.min(dists)
 
 
 class Trajectory:
@@ -189,7 +128,9 @@ class Trajectory:
         - None
         """
         for pt in self.points:
-            pygame.draw.circle(screen, self.color, (pt[0], pt[1]), 1)
+            # pygame.draw.circle(screen, self.color, (pt[0], pt[1]), 1)
+            pygame.draw.lines(screen, self.color, False, self.points, 3)
+
 
         # Draw costs near trajectories with spacing adjustment
         if self.is_displaying:
@@ -217,6 +158,10 @@ class Trajectory:
         self.max_x = max(self.max_x, x)
         self.min_y = min(self.min_y, y)
         self.max_y = max(self.max_y, y)
+
+        # xs, ys = np.array(self.points).T
+        # self.min_x, self.max_x = xs.min(), xs.max()
+        # self.min_y, self.max_y = ys.min(), ys.max()
 
         # self.bounds_cost += self.check_bounds(x, y)
         # boolean check if out of bounds for each point

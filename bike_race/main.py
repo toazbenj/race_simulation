@@ -24,11 +24,10 @@ Entry Point:
 
 import pygame
 import sys
-import random
 from course import Course
 from constants import *
-import numpy as np
-import itertools
+
+# Now only for short visualizations
 
 def main():
     pygame.init()
@@ -38,62 +37,45 @@ def main():
 
     clock = pygame.time.Clock()
 
-    random.seed(SEED)
-    seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]    
+    for race in range(NUM_RACES):
 
-    combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
-    weights_lst = np.array(combinations)
+        print(f"Starting Race {race + 1}")
 
-    # dummy course for writing the headers in the csv
-    course = Course(0, 0, [0,0,0], [0,0,0], 1)
-    course.write_race_stats_header(seed=SEED)
-    course.write_cost_stats_header()
+        # Initialize a new course with bikes in random positions
+        center_x, center_y = WIDTH // 2, HEIGHT // 2
+        course = Course(center_x, center_y, WEIGHTS_1, WEIGHTS_2, race,
+                        inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                        randomize_start=IS_RANDOM_START, seed=SEED)
 
-    for combination in weights_lst:
-        for race in range(NUM_RACES):
+        for _ in range(RACE_DURATION):
+            skip_requested = False
 
-            print(f"Starting Race {race + 1}")
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR,
+                                        BUTTON_HOVER):
+                        skip_requested = True
 
-            # Initialize a new course with bikes in random positions
-            center_x, center_y = WIDTH // 2, HEIGHT // 2
-            # course = Course(center_x, center_y, combination, combination, race,
-            #                 inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-            #                 randomize_start=IS_RANDOM_START, seed=seed_lst[race])
-            
-            course = Course(center_x, center_y, WEIGHTS_1, WEIGHTS_2, race,
-                inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                randomize_start=IS_RANDOM_START, seed=seed_lst[race])
+            if skip_requested:
+                break
 
-            for _ in range(RACE_DURATION):
-                skip_requested = False
+            # Update the simulation
+            course.update()
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                        if course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR,
-                                            BUTTON_HOVER):
-                            skip_requested = True
+            # Draw everything
+            screen.fill(WHITE)
+            course.draw(screen)
 
-                if skip_requested:
-                    break
+            # Draw Skip Button
+            course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
 
-                # Draw everything
-                screen.fill(WHITE)
-                course.draw(screen)
+            pygame.display.flip()
+            clock.tick(FRAME_RATE)  # Limit frame rate
 
-                # Draw Skip Button
-                course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
-
-                # Update the simulation
-                course.update()
-
-                pygame.display.flip()
-                clock.tick(FRAME_RATE)  # Limit frame rate
-
-            course.save_stats()
-            print(f"Race {race + 1} finished!")
+        print(f"Race {race + 1} finished!")
 
 
 if __name__ == "__main__":

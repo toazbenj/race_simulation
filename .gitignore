@@ -1,6 +1,3 @@
-data_processing/gpr_data.csv
-data/gpr_data.csv
-data_processing/opponent_prediction
-data
+data/old_data
 __pycache__/
 *.pyc

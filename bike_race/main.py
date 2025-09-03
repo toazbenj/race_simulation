@@ -42,9 +42,7 @@ def main():
         print(f"Starting Race {race + 1}")
 
         # Initialize a new course with bikes in random positions
-        center_x, center_y = WIDTH // 2, HEIGHT // 2
-        course = Course(center_x, center_y, WEIGHTS_1, WEIGHTS_2, race,
-                        inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+        course = Course(inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
                         randomize_start=IS_RANDOM_START, seed=SEED)
 
         for _ in range(RACE_DURATION):

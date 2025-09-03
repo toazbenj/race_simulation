@@ -160,8 +160,6 @@ class Bicycle:
         self.bounds_cost = 0
         self.proximity_cost = 0
 
-        self.is_in_collision = False
-
         # Lap tracking
         self.laps_completed = 0
         self.previous_angle = self.compute_angle()  # Initial angle

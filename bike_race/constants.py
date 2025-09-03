@@ -31,15 +31,21 @@ BUTTON_HOVER = (255, 0, 0)
 NUM_RACES = 50
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
-SEED = 42
-IS_RANDOM_START=True
+SEED = 41
+IS_RANDOM_START=False
 FRAME_RATE = 60
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 5
-PROGRESS_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
-BOUNDS_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
-COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
+PROGRESS_RANGE = np.linspace(0.001, 1.0, NUM_THETA_INTERVALS)
+BOUNDS_RANGE = np.linspace(0, 1.0, NUM_THETA_INTERVALS)
+COLLISION_RANGE = np.linspace(0, 1.0, NUM_THETA_INTERVALS)
+
+SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
+              'far_tail': (919, 665), # 6 car lengths, centered
+              'outside_edge': (871, 744), # 4 car lengths, 1/3 track width down
+              'inside_edge': (836, 679)} # 4 car lengths, 1/3 track width up
+ATTACKER_SPAWN_STATE = SPAWN_DICT['close_tail']
 
 # Course
 # Data output path
@@ -51,7 +57,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step

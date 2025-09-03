@@ -70,17 +70,21 @@ def cost_adjustment(A1, D2, global_min_position):
                 constraints.append(phi[k, j] >= epsilon)
 
     # Constraint 3: Ensure exact potential condition
-    for k in range(1, m):
-        for l in range(n):
-            delta_A = A_prime[k , l] - A_prime[k-1, l]
-            delta_phi = phi[k, l] - phi[k-1, l]
-            constraints.append(delta_A == delta_phi)
+    # for k in range(1, m):
+    #     for l in range(n):
+    #         delta_A = A_prime[k , l] - A_prime[k-1, l]
+    #         delta_phi = phi[k, l] - phi[k-1, l]
+    #         constraints.append(delta_A == delta_phi)
+    # for k in range(m):
+    #     for l in range(1, n):
+    #         delta_B = D2[k, l] - D2[k, l - 1]
+    #         delta_phi = phi[k, l] - phi[k, l - 1]
+    #         constraints.append(delta_B == delta_phi)
 
-    for k in range(m):
-        for l in range(1, n):
-            delta_B = D2[k, l] - D2[k, l - 1]
-            delta_phi = phi[k, l] - phi[k, l - 1]
-            constraints.append(delta_B == delta_phi)
+    constraints += [
+        A_prime[1:, :] - A_prime[:-1, :] == phi[1:, :] - phi[:-1, :],
+        D2[:, 1:] - D2[:, :-1] == phi[:, 1:] - phi[:, :-1]
+    ]
 
     # Solve optimization problem
     objective = cp.Minimize(cp.norm(E, 'fro'))
@@ -119,7 +123,7 @@ def potential_function(A, B, global_min_position):
     return phi - phi[global_min_position[0], global_min_position[1]]
 
 
-def is_valid_exact_potential(A, B, phi):
+def is_valid_exact_potential_old(A, B, phi):
     """
     Checks if the given potential function satisfies the exact potential condition.
 
@@ -148,7 +152,7 @@ def is_valid_exact_potential(A, B, phi):
     return True
 
 
-def is_global_min_enforced(phi, global_min_position):
+def is_global_min_enforced_old(phi, global_min_position):
     """
     Checks if the global minimum is correctly enforced in the potential function.
 
@@ -172,7 +176,21 @@ def is_global_min_enforced(phi, global_min_position):
     return True
 
 
-def pareto_optimal(A1, B1, C1, column):
+def is_valid_exact_potential(A, B, phi, epsilon=1e-6):
+    cond1 = np.allclose(A[1:, :] - A[:-1, :], phi[1:, :] - phi[:-1, :], atol=epsilon)
+    cond2 = np.allclose(B[:, 1:] - B[:, :-1], phi[:, 1:] - phi[:, :-1], atol=epsilon)
+    return cond1 and cond2
+
+
+def is_global_min_enforced(phi, global_min_position):
+    i, j = global_min_position
+    if not np.isclose(phi[i, j], 0):
+        return False
+    mask = np.ones_like(phi, dtype=bool)
+    mask[i, j] = False
+    return np.all(phi[mask] > 0)
+
+def pareto_optimal_old(A1, B1, C1, column):
     """
     Identifies Pareto-optimal rows in two cost matrices where no other row is strictly better.
 
@@ -219,6 +237,33 @@ def pareto_optimal(A1, B1, C1, column):
             pareto_indices.append(i)
 
     return np.array(pareto_indices)
+
+
+def pareto_optimal(A1, B1, C1, column):
+    """
+    Identifies Pareto-optimal rows in three cost matrices where no other row is strictly better.
+
+    Parameters:
+    - A1, B1, C1 (np.ndarray): Cost matrices for players.
+    - column (int): The column index for evaluating Pareto optimality.
+
+    Returns:
+    - np.ndarray: Indices of Pareto-optimal rows.
+    """
+    # Build (n, 3) cost matrix for the chosen column
+    costs = np.column_stack((A1[:, column], B1[:, column], C1[:, column]))
+
+    # Make a (n, n, 3) tensor that compares "row j" to "row i"
+    # j dominates i  <=>  costs[j] <= costs[i] in all dims AND costs[j] < costs[i] in some dim
+    le = costs[None, :, :] <= costs[:, None, :]   # shape (i, j, d): compare j <= i
+    lt = costs[None, :, :] <  costs[:, None, :]   # shape (i, j, d): compare j <  i
+
+    dominates_ji = le.all(axis=2) & lt.any(axis=2)  # shape (i, j): True if j dominates i
+
+    # A row i is dominated if ANY j dominates it (look down column i)
+    dominated = dominates_ji.any(axis=1)
+
+    return np.flatnonzero(~dominated)
 
 
 def find_adjusted_costs(A1, B1, C1, D2):
@@ -273,6 +318,7 @@ def find_adjusted_costs(A1, B1, C1, D2):
         return None
     else:
         # print(E_star+A1)
+        print('\nyay')
         return E_star
 
 
@@ -322,33 +368,51 @@ if __name__ == '__main__':
     #              [9, 0, 0, 7, 7, 8, 1, 9, 9],
     #              [6, 3, 8, 2, 5, 7, 9, 4, 4]])
 
-    A1_load = np.load('../samples/A1.npz')
-    A2_load = np.load('../samples/A1.npz')
-    B_load = np.load('../samples/A1.npz')
+    # A1_load = np.load('../samples/A1.npz')
+    # A2_load = np.load('../samples/A1.npz')
+    # B_load = np.load('../samples/A1.npz')
 
-    # Extract the array
-    A1 = A1_load['arr']
-    A2 = A2_load['arr']
-    B = B_load['arr']
-    E = find_adjusted_costs(A1, A2, B)
+    # # Extract the array
+    # A1 = A1_load['arr']
+    # A2 = A2_load['arr']
+    # B = B_load['arr']
+    # E = find_adjusted_costs(A1, A2, B)
 
-    if E is None:
-        print('None')
+    # if E is None:
+    #     print('None')
 
-    else:
-        A_prime = A1 + E
-        player1_sec = np.argmin(np.max(A_prime, axis=1))
-        player2_sec = np.argmin(np.max(B.transpose(), axis=1))
+    # else:
+    #     A_prime = A1 + E
+    #     player1_sec = np.argmin(np.max(A_prime, axis=1))
+    #     player2_sec = np.argmin(np.max(B.transpose(), axis=1))
 
-        min_position = (player1_sec, player2_sec)
-        phi = potential_function(A_prime, B, min_position)
+    #     min_position = (player1_sec, player2_sec)
+    #     phi = potential_function(A_prime, B, min_position)
 
-        print("Error:")
-        print(E)
-        print("Player 1 A_prime:")
-        print(A_prime)
-        print("Potential Function:")
-        print(phi)
-        print("Global Min:", int(min_position[0]), int(min_position[1]))
-        print("Global Minimum Enforced:", is_global_min_enforced(phi, min_position))
-        print("Exact Potential:", is_valid_exact_potential(A_prime, B, phi))
+    #     print("Error:")
+    #     print(E)
+    #     print("Player 1 A_prime:")
+    #     print(A_prime)
+    #     print("Potential Function:")
+    #     print(phi)
+    #     print("Global Min:", int(min_position[0]), int(min_position[1]))
+    #     print("Global Minimum Enforced:", is_global_min_enforced(phi, min_position))
+    #     print("Exact Potential:", is_valid_exact_potential(A_prime, B, phi))
+
+
+    # A = np.full((3, 3), 1)
+    # B = np.full((3, 3), 2)
+    # C = np.full((3, 3), 3)
+
+    A = np.array([[0, 1, 2],
+                  [1, 2, 3],
+                  [2, 3, 4]])
+    B = np.array([[0, 1, 2],
+                  [1, 2, 3],
+                  [2, 3, 4]])
+    C = np.array([[0, 1, 2],
+                  [1, 2, 3],
+                  [2, 3, 4]])
+    
+    print(pareto_optimal_old(A, B, C, 0))
+    print(pareto_optimal(A, B, C, 0))

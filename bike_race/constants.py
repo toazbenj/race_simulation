@@ -31,7 +31,7 @@ BUTTON_HOVER = (255, 0, 0)
 NUM_RACES = 50
 RACE_DURATION = 1500  # Number of frames per race, base 1500
 # Seed setting
-SEED = 41
+SEED = 42
 IS_RANDOM_START=True
 FRAME_RATE = 60
 
@@ -51,7 +51,7 @@ DEFENDER_SPEED = 15
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = False
+P2_IS_VECTOR_COST = True
 
 # Bicycle
 # Time step
@@ -66,6 +66,7 @@ ACTION_INTERVAL = 50
 MPC_HORIZON = 1
 # Control inputs (acceleration, steering)
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+
 # how large the bike appears on screen
 BIKE_SIZE = 40
 # size for calculations, radial (width) and frontal (length) axes

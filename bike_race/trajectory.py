@@ -263,8 +263,6 @@ class Trajectory:
 
         distance = abs(angle2 - angle1)
         return distance
-
-    def trajectory_intersection(self, other_traj):
         """
         Checks if this trajectory intersects with another trajectory.
 

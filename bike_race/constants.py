@@ -45,7 +45,7 @@ P2_IS_RELATIVE_COST = True
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step
@@ -58,8 +58,8 @@ STEER_LIMIT = radians(20)
 ACTION_INTERVAL = 75
 MPC_HORIZON = 1
 # Control inputs (acceleration, steering)
-# ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
-ACTION_LST = [(1, -1), (1, 0), (1, 1)]
+ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+# ACTION_LST = [(1, -1), (1, 0), (1, 1)]
 
 # how large the bike appears on screen
 BIKE_SIZE = 20

@@ -70,17 +70,22 @@ def cost_adjustment(A, B, global_min_position):
                 constraints.append(phi[k, j] >= epsilon)
 
     # Constraint 3: Ensure exact potential condition
-    for k in range(1, m):
-        for l in range(n):
-            delta_A = A_prime[k , l] - A_prime[k-1, l]
-            delta_phi = phi[k, l] - phi[k-1, l]
-            constraints.append(delta_A == delta_phi)
+    # for k in range(1, m):
+    #     for l in range(n):
+    #         delta_A = A_prime[k , l] - A_prime[k-1, l]
+    #         delta_phi = phi[k, l] - phi[k-1, l]
+    #         constraints.append(delta_A == delta_phi)
 
-    for k in range(m):
-        for l in range(1, n):
-            delta_B = B[k, l] - B[k, l - 1]
-            delta_phi = phi[k, l] - phi[k, l - 1]
-            constraints.append(delta_B == delta_phi)
+    # for k in range(m):
+    #     for l in range(1, n):
+    #         delta_B = B[k, l] - B[k, l - 1]
+    #         delta_phi = phi[k, l] - phi[k, l - 1]
+    #         constraints.append(delta_B == delta_phi)
+
+    constraints += [
+        A_prime[1:, :] - A_prime[:-1, :] == phi[1:, :] - phi[:-1, :],
+        B[:, 1:] - B[:, :-1] == phi[:, 1:] - phi[:, :-1]
+    ]
 
     # Solve optimization problem
     objective = cp.Minimize(cp.norm(E, 'fro'))
@@ -185,23 +190,37 @@ def pareto_optimal(A1, B1, column):
     - np.ndarray: Indices of Pareto-optimal rows.
     """
 
-    num_rows = A1.shape[0]
-    pareto_indices = []
+    # num_rows = A1.shape[0]
+    # pareto_indices = []
 
-    for i in range(num_rows):
-        dominated = False
-        for j in range(num_rows):
-            if i != j:
-                # Check if row j dominates row i
-                if (A1[j][column] <= A1[i][column] and B1[j][column] <= B1[i][column]) and (
-                        A1[j][column] < A1[i][column] or B1[j][column] < B1[i][column]):
-                    dominated = True
-                    break
-        if not dominated:
-            pareto_indices.append(i)
+    # for i in range(num_rows):
+    #     dominated = False
+    #     for j in range(num_rows):
+    #         if i != j:
+    #             # Check if row j dominates row i
+    #             if (A1[j][column] <= A1[i][column] and B1[j][column] <= B1[i][column]) and (
+    #                     A1[j][column] < A1[i][column] or B1[j][column] < B1[i][column]):
+    #                 dominated = True
+    #                 break
+    #     if not dominated:
+    #         pareto_indices.append(i)
 
-    return np.array(pareto_indices)
+    # return np.array(pareto_indices)
 
+    # Build (n, 3) cost matrix for the chosen column
+    costs = np.column_stack((A1[:, column], B1[:, column]))
+
+    # Make a (n, n, 3) tensor that compares "row j" to "row i"
+    # j dominates i  <=>  costs[j] <= costs[i] in all dims AND costs[j] < costs[i] in some dim
+    le = costs[None, :, :] <= costs[:, None, :]   # shape (i, j, d): compare j <= i
+    lt = costs[None, :, :] <  costs[:, None, :]   # shape (i, j, d): compare j <  i
+
+    dominates_ji = le.all(axis=2) & lt.any(axis=2)  # shape (i, j): True if j dominates i
+
+    # A row i is dominated if ANY j dominates it (look down column i)
+    dominated = dominates_ji.any(axis=1)
+
+    return np.flatnonzero(~dominated)
 
 def find_adjusted_costs(A1, B1, C2):
     """

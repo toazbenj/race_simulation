@@ -4,4 +4,5 @@ data_processing/opponent_prediction
 data
 __pycache__/
 *.pyc
- bike_race/__pycache__/*
+*.csv
+bike_race/__pycache__/*

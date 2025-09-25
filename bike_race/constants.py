@@ -45,7 +45,7 @@ SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
               'far_tail': (919, 665), # 6 car lengths, centered
               'outside_edge': (871, 744), # 4 car lengths, 1/3 track width down
               'inside_edge': (836, 679)} # 4 car lengths, 1/3 track width up
-ATTACKER_SPAWN_STATE = SPAWN_DICT['close_tail']
+ATTACKER_SPAWN_STATE = SPAWN_DICT['inside_edge']
 
 # Course
 # Data output path
@@ -82,7 +82,7 @@ LF = 1
 COLLISION_RADIUS = 45
 
 # Trajectory cost weights
-progress_weight = 1
+progress_weight = 0
 bounds_weight = 1
 prox_weight = 1
 

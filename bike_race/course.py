@@ -241,6 +241,30 @@ class Course:
         pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.outer_radius, 3)
         pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.inner_radius, 3)
 
+        # Draw segmented centerline
+        center_radius = (self.inner_radius + self.outer_radius) // 2
+        num_segments = 60  # Number of dashed segments
+        segment_angle = 2 * math.pi / num_segments
+        dash_length = segment_angle * 0.6  # 60% dash, 40% gap
+        
+        for i in range(num_segments):
+            if i % 2 == 0:  # Only draw every other segment for dashed effect
+                start_angle = i * segment_angle
+                end_angle = start_angle + dash_length
+                
+                # Calculate start and end points of the arc segment
+                points = []
+                steps = 10  # Number of points to approximate the arc
+                for j in range(steps + 1):
+                    angle = start_angle + (end_angle - start_angle) * j / steps
+                    x = self.center_x + center_radius * math.cos(angle)
+                    y = self.center_y + center_radius * math.sin(angle)
+                    points.append((x, y))
+                
+                # Draw the segment as a thick line through multiple points
+                if len(points) > 1:
+                    pygame.draw.lines(screen, WHITE, False, points, 3)
+
         self.bike1.draw(screen)
         self.bike2.draw(screen)
 

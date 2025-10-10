@@ -7,7 +7,9 @@ from course import Course
 from constants import *
 
 CROP_X1, CROP_X2 = 250, WIDTH-250
-CROP_Y1, CROP_Y2 =  HEIGHT//2, HEIGHT
+# CROP_Y1, CROP_Y2 =  HEIGHT//2, HEIGHT
+CROP_Y1, CROP_Y2 =  0, HEIGHT
+
 CROP_W = CROP_X2 - CROP_X1
 CROP_H = CROP_Y2 - CROP_Y1
 

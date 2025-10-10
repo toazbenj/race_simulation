@@ -16,14 +16,14 @@ BUTTON_H = 40
 INNER_RADIUS=250
 OUTER_RADIUS=400
 # Colors
-GRAY = (169, 169, 169)
-GREEN = (0, 255, 0)
-DARK_GREEN = (0, 150, 0)
+GRAY = (78, 80, 77)
+GREEN = (118, 204, 93)
 WHITE = (255, 255, 255)
+DARK_GREEN = WHITE
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
+BLUE = (82, 166, 233)
+YELLOW = (240, 251, 146)
 ORANGE = (255, 130, 80)
 BUTTON_COLOR = (200, 0, 0)
 BUTTON_HOVER = (255, 0, 0)
@@ -67,7 +67,7 @@ SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
               'outside_edge': (871, 744), # 4 car lengths, 1/3 track width down
               'inside_edge': (836, 679), # 4 car lengths, 1/3 track width up
               'test': (804, 693)} 
-ATTACKER_SPAWN_STATE = SPAWN_DICT['outside_edge']
+ATTACKER_SPAWN_STATE = SPAWN_DICT['far_tail']
 
 # Opponent Cost Weights
 NUM_THETA_INTERVALS = 5
@@ -117,9 +117,9 @@ LF = 1
 # Trajectory cost weights
 
 # success
-progress_weight = 0.02
-bounds_weight = 0.92
-prox_weight = 0.05
+progress_weight = 1.0
+bounds_weight = 0.25
+prox_weight = 0.25
 
 PROXIMITY_SPREAD = 45
 BOUNDS_SPREAD = 205

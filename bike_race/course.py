@@ -70,7 +70,8 @@ class Course:
                  race_number=0, 
                  weights_1=WEIGHTS_1, weights_2=WEIGHTS_2, 
                  attacker_spawn_state=ATTACKER_SPAWN_STATE,
-                 is_attacker_vector_cost=P2_IS_VECTOR_COST,
+                 is_player1_vector_cost=P1_IS_VECTOR_COST, 
+                 is_player2_vector_cost=P2_IS_VECTOR_COST,
                  outer_radius=INNER_RADIUS, inner_radius=OUTER_RADIUS,
                  randomize_start=IS_RANDOM_START, seed=SEED):
         """
@@ -124,7 +125,7 @@ class Course:
                 # make sure they are close enough to interact, but not for spawn collision
                 distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
                 max_distance = 2 * math.pi * self.centerline_radius/7
-                if (distance < max_distance) and (distance > 2 * COLLISION_RADIUS) and (abs(angle1-angle2) < math.pi):
+                if (distance < max_distance) and (distance > 2 * MIN_SPAWN_DISTANCE) and (abs(angle1-angle2) < math.pi):
                     break
             
             # print(f'Spawn angles: {compute_angle(x1, y1, self.center_x, self.center_y)},\
@@ -132,7 +133,7 @@ class Course:
             # print(f'Distance: {distance}')
 
         else:
-            # Scenario set from constants file
+            # Default start positions
             x1 = center_x
             y1 = center_y + self.centerline_radius
             print(f'Defender spawn: {(x1, y1)}')
@@ -153,7 +154,7 @@ class Course:
 
         self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
                              velocity_limit=DEFENDER_SPEED, theta_a=weights_1[0], theta_b=weights_1[1], theta_c=weights_1[2])
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=is_attacker_vector_cost, is_cost_populating=True,
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=is_player2_vector_cost, is_cost_populating=True,
                              velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
                              theta_a=weights_2[0], theta_b=weights_2[1], theta_c=weights_2[2])
         # bike must be initialized first before sharing information
@@ -240,6 +241,30 @@ class Course:
         pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.outer_radius, 3)
         pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.inner_radius, 3)
 
+        # Draw segmented centerline
+        center_radius = (self.inner_radius + self.outer_radius) // 2
+        num_segments = 60  # Number of dashed segments
+        segment_angle = 2 * math.pi / num_segments
+        dash_length = segment_angle * 0.6  # 60% dash, 40% gap
+        
+        for i in range(num_segments):
+            if i % 2 == 0:  # Only draw every other segment for dashed effect
+                start_angle = i * segment_angle
+                end_angle = start_angle + dash_length
+                
+                # Calculate start and end points of the arc segment
+                points = []
+                steps = 10  # Number of points to approximate the arc
+                for j in range(steps + 1):
+                    angle = start_angle + (end_angle - start_angle) * j / steps
+                    x = self.center_x + center_radius * math.cos(angle)
+                    y = self.center_y + center_radius * math.sin(angle)
+                    points.append((x, y))
+                
+                # Draw the segment as a thick line through multiple points
+                if len(points) > 1:
+                    pygame.draw.lines(screen, WHITE, False, points, 3)
+
         self.bike1.draw(screen)
         self.bike2.draw(screen)
 
@@ -264,8 +289,8 @@ class Course:
         self.bike1.update_collisions()
         self.bike2.update_collisions()
 
-        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
-            self.save_costs()
+        # if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
+        #     self.save_costs()
 
         self.count += 1
 
@@ -291,13 +316,13 @@ class Course:
                 p1_ahead = 0
                 p2_ahead = 0
 
+            # how many times a single collision is registered (how hard the hit was)
+            collision_amount = 200
+
+            # print(self.bike1.collision_cnt)
             # P1 always ahead, pass count -1 since counts as a pass
-
-            reverse_spawn_dict = {v: k for k, v in SPAWN_DICT.items()}
-
-            writer.writerow([self.race_number+1, 
-                             self.bike1.pass_cnt, self.bike2.pass_cnt,
-                             ceil(self.bike1.collision_cnt), self.bike1.choice_cnt,
+            writer.writerow([self.race_number+1, self.bike1.pass_cnt, self.bike2.pass_cnt,
+                             ceil(self.bike1.collision_cnt/collision_amount), self.bike1.choice_cnt,
                              p1_ahead, p2_ahead,
                              self.bike1.is_ahead, self.bike2.is_ahead,
                              round(self.bike1.progress_cnt), round(self.bike2.progress_cnt),
@@ -309,10 +334,7 @@ class Course:
                              round(self.p2_x_init), round(self.p2_y_init),
                              self.bike1.theta_a, self.bike1.theta_b, self.bike1.theta_c,
                              self.bike2.theta_a, self.bike2.theta_b, self.bike2.theta_c,
-                             self.bike2.adjust_cnt,
-                             reverse_spawn_dict[(self.p2_x_init, self.p2_y_init)],
-                             self.bike2.is_vector_cost]
-                             )
+                             self.bike2.adjust_cnt])
 
     def write_race_stats_header(self, seed):
         with open(RACE_DATA, mode='a', newline='') as file:
@@ -331,9 +353,7 @@ class Course:
                                 'Initial X Position P2', 'Initial Y Position P2',
                                 'Theta_a1', 'Theta_b1', 'Theta_c1',
                                 'Theta_a2', 'Theta_b2', 'Theta_c2',
-                                'Adjustment Count P2',
-                                'Scenario',
-                                'P2 Vector Cost'])
+                                'Adjustment Count P2', f'Seed: {seed}'])
 
 
     def save_costs(self):
@@ -361,9 +381,6 @@ class Course:
             row += self.bike2.C.flatten().tolist()
             row += self.bike1.state.flatten().tolist()
             row += self.bike2.state.flatten().tolist()
-
-            reverse_spawn_dict = {v: k for k, v in SPAWN_DICT.items()}
-            row += [reverse_spawn_dict[(self.p2_x_init, self.p2_y_init)], self.bike2.is_vector_cost]
 
             writer.writerow(row)
 
@@ -394,8 +411,8 @@ class Course:
             header += [f'State1_{state_dict[i]}' for i in range(1,self.bike1.state.shape[0]+1)]
             header += [f'State2_{state_dict[i]}' for i in range(1,self.bike2.state.shape[0]+1)]
 
-            header += ['Scenario', 'P2 Vector Cost']
             writer.writerow(header)
+
 
     def matrix_print(self, matrix, name):
         line = [f'{name}_{i}_{j}' for i in range(1,matrix.shape[0]+1) for j in range(1,matrix.shape[1]+1)]

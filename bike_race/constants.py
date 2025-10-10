@@ -110,6 +110,7 @@ MPC_HORIZON = 1
 ACTION_LST = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 # how large the bike appears on screen (length)
 BIKE_SIZE = 40
+COLLISION_RADIUS = 45
 # size for calculations, radial (width) and frontal (length) axes
 LR = 1
 LF = 1

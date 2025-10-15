@@ -2,6 +2,6 @@
 .vscode/
 .idea/
 __pycache__/
-bike_race/__pycache__/*
+bike_race/__pycache__/
 .venv/
 *.pyc

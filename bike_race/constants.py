@@ -33,7 +33,7 @@ FRAME_RATE = 60
 
 # Course
 # Data output path
-WRITE_FILE = "../data/test.csv"
+WRITE_FILE = "data/test.csv"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
@@ -68,7 +68,6 @@ LR = 1
 LF = 1
 # how close bike center points are in pixels to count as collision
 COLLISION_RADIUS = 45
-
 
 # Trajectory
 # cost weights

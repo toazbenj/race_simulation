@@ -68,11 +68,8 @@ The main branch includes the infrastructure for building and visualizing the sim
    ```
 
 ## Basic Usage
-
-To run the simulation:
-1. **Edit the configuration file constants.py in the bike_race folder.**
    
-2. **Execute the Main Script within the bike_race folder**:
+1. **Execute the Main Script within the bike_race folder**:
 
    ```bash
    cd ~/race_simulation/bike_race
@@ -81,7 +78,7 @@ To run the simulation:
 
    This will launch the simulation window where you can watch the races. You can generate videos of the simulation using bike_race/view.py.
 
-3. **Using the simulation**:
+2. **Using the simulation**:
 
    You can skip to the next race using the big red skip button if the race gets boring. Data is saved to the files cost_stats.csv for information related to each turn (vehicle states, costs applied, actions taken) and race_stats.csv for data over the entire game (wins, collisions, out of bounds, etc). These are in the data folder. For headless mode, run the following script for pure data generation:
    ```bash

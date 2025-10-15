@@ -33,7 +33,7 @@ FRAME_RATE = 60
 
 # Course
 # Data output path
-WRITE_FILE = "../data2/test.csv"
+WRITE_FILE = "../data/test.csv"
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 

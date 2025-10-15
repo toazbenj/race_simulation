@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 *.csv
 bike_race/__pycache__/*
+.vscode/
+.idea/
+.venv/

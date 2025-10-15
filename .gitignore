@@ -1,3 +1,7 @@
-.venv/
+data_processing/gpr_data.csv
+data/gpr_data.csv
+data_processing/opponent_prediction.venv/
 .idea/
 .vscode/
+.venv/
+__pycache__/

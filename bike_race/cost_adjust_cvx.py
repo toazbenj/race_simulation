@@ -273,6 +273,7 @@ def find_adjusted_costs(A1, B1, C1, D2):
         return None
     else:
         # print(E_star+A1)
+        print('\nyay')
         return E_star
 
 

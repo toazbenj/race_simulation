@@ -162,8 +162,8 @@ class Trajectory:
 
         self.points = []
         self.intersecting_trajectories = []
-        self.collision_cost = 0
         self.bounds_cost = 0
+
         self.relative_progress_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
         self.proximity_costs =  np.zeros((len(self.bike.action_lst) ** self.bike.mpc_horizon))
 
@@ -175,6 +175,8 @@ class Trajectory:
 
         self.closest_boundary_distance = -1000
         self.closest_opponent_distance = -1000
+
+        self.out_bounds_cnt = 0
 
     def draw(self, screen):
         """
@@ -217,11 +219,13 @@ class Trajectory:
         self.max_y = max(self.max_y, y)
 
         # self.bounds_cost += self.check_bounds(x, y)
+        # boolean check if out of bounds for each point
+        self.out_bounds_cnt |= self.check_bounds(x,y)
         new_bounds_cost = self.out_of_bounds_cost(x, y)
         if new_bounds_cost > self.bounds_cost:
             self.bounds_cost = new_bounds_cost
 
-        if self.bounds_cost > 0:
+        if self.check_bounds(x,y) != 0:
             self.color = RED
 
         self.length = self.angle_displacement(self.bike.x, self.bike.y, x, y)
@@ -244,6 +248,7 @@ class Trajectory:
         #     cost = 0
         # distance from center line
 
+        # distance from race center line
         radius = (OUTER_RADIUS + INNER_RADIUS) / 2
         distance_to_perimeter = abs(dist - radius)
 

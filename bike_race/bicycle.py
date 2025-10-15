@@ -166,9 +166,6 @@ class Bicycle:
         # Compute angle normally (CCW) using atan2
         angle = atan2(dy, dx)
 
-        # Convert to clockwise by inverting and shifting
-        # angle = -angle  # Invert the direction to make it clockwise
-
         # Normalize angle to the range [0, 2π]
         if angle < 0:
             angle += 2 * pi  # Ensures all angles stay positive in [0, 2π]
@@ -243,13 +240,6 @@ class Bicycle:
             # print(f"Trajectory {i}: Cost = {traj.cost}, Points = {traj.points[0]}, {traj.points[-1]}")
             traj.draw(screen)
 
-        # check where opponent is, determine collision in every frame
-        x2, y2 = self.opponent.x, self.opponent.y
-        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
-        if distance < self.collision_radius:
-            self.collision_cnt += 1
-
-
     def update_choices(self, count, other_bike):
         """
         Updates the available choices for the bicycle at regular intervals.
@@ -263,6 +253,13 @@ class Bicycle:
         """
         if count % (self.action_interval * self.mpc_horizon) == 0:
             self.new_choices(other_bike)
+
+    def update_collisions(self):
+        # check where opponent is, determine collision in every frame
+        x2, y2 = self.opponent.x, self.opponent.y
+        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
+        if distance < self.collision_radius:
+            self.collision_cnt += 1
 
     def update_action(self, count):
         """
@@ -370,10 +367,11 @@ class Bicycle:
 
             self.progress_cnt += previous_traj.length
             self.progress_cost += previous_traj.relative_progress_costs[other_traj.number]
-            self.bounds_cost += previous_traj.bounds_cost
 
-            if previous_traj.bounds_cost > 0:
-                self.out_bounds_cnt += 1
+            self.out_bounds_cnt += previous_traj.out_bounds_cnt
+            self.bounds_cost += previous_traj.bounds_cost
+            
+            self.proximity_cost += previous_traj.proximity_costs[other_traj.number]
 
         # negative means ahead
         is_ahead_conditions = ((self.previous_angle > self.opponent.previous_angle) and (self.laps_completed >= self.opponent.laps_completed))\
@@ -415,7 +413,7 @@ class Bicycle:
                 for _ in range(self.action_interval):
                     x_temp, y_temp, v_temp, phi_temp, b_temp = self.dynamics(acc, steering, x_temp, y_temp, v_temp, phi_temp, b_temp)
                     traj.add_point(x_temp, y_temp)
-
+            
             traj.number = count
             self.choice_trajectories.append(traj)
             count += 1

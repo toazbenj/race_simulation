@@ -2,7 +2,7 @@ from math import radians
 import numpy as np
 
 # Main
-IS_COST_DATA_CREATION_MODE = False
+IS_COST_DATA_CREATION_MODE = True
 
 # Screen dimensions
 WIDTH, HEIGHT = 1400, 850
@@ -36,32 +36,6 @@ IS_RANDOM_START=False
 FRAME_RATE = 60
 MIN_SPAWN_DISTANCE = 45
 
-# car lengths ccw from defender along centerline
-# (740, 748) 1
-# (779, 740) 2
-# (817, 728) 3
-# (854, 711) 4
-# (888, 690) 5
-# (919, 665) 6
-
-# outer points ccw from defender along centerline
-# (744, 785) 1
-# (788, 776) 2
-# (831, 763) 3
-# (871, 744) 4
-# (909, 721) 5 
-# (944, 693) 6
-
-# inner points ccw from defender along centerline
-# (735, 710) 1
-# (770, 704) 2
-# (804, 693) 3
-# (836, 679) 4
-# (866, 660) 5
-# (894, 638) 6
-
-# need to shift edge scenarios up/down still
-
 SPAWN_DICT = {'close_tail': (817, 728), # 3 car lengths, centered
               'far_tail': (919, 665), # 6 car lengths, centered
               'outside_edge': (871, 744), # 4 car lengths, 1/3 track width down
@@ -77,23 +51,17 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-SEMBAS_DATA = '../data/paper_data/vector_collision.json'
-# BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
-
-# BOUNDS = np.array([[0.0, 0.2], [0.0, 1.0], [0.0, 1.0]])
-# BOUNDS = np.array([[0.0, 1.0], [0.0, 0.2], [0.0, 1.0]])
 BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 0.2]])
 
-
-RACE_DATA = ''
-COST_DATA = ''
+RACE_DATA = 'data/race_stats.csv'
+COST_DATA = 'data/cost_stats.csv'
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 
 # Whether costs are created via optimization of multiple objectives (vector)
 # or weighted sum (scalar)
 P1_IS_VECTOR_COST = False
-P2_IS_VECTOR_COST = True
+P2_IS_VECTOR_COST = False
 
 # Bicycle
 # Time step
@@ -116,8 +84,6 @@ LR = 1
 LF = 1
 
 # Trajectory cost weights
-
-# success
 progress_weight = 1.0
 bounds_weight = 0.25
 prox_weight = 0.25

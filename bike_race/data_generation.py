@@ -10,7 +10,7 @@ import os
 import atexit
 import pygame
 
-PROFILE_PATH = os.path.expanduser('bike_race/logs/data_run.prof')
+PROFILE_PATH = os.path.expanduser('bike_race/logs/test.prof')
 logging.basicConfig(level=logging.INFO)
 
 profiler = cProfile.Profile()
@@ -45,7 +45,7 @@ def main():
                 print(f"Starting Race {cnt + 1}")
 
                 course = Course(inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                                is_attacker_vector_cost=is_attacker_vector_cost,
+                                is_player2_vector_cost=is_attacker_vector_cost,
                                 weights_2=combination,
                                 attacker_spawn_state=scenario, race_number=cnt)
 
@@ -60,7 +60,7 @@ def main():
                     # pygame.display.flip()
                     # clock.tick(FRAME_RATE)  # Limit frame rate
 
-                course.save_stats()
+                course.save_race_stats()
                 print(f"Race {cnt + 1} finished!")
                 cnt += 1
 

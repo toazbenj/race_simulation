@@ -152,7 +152,7 @@ class Course:
         #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=10, opponent=self.bike1)
         # self.bike1.opponent = self.bike2
 
-        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
+        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=is_player1_vector_cost,
                              velocity_limit=DEFENDER_SPEED, theta_a=weights_1[0], theta_b=weights_1[1], theta_c=weights_1[2])
         self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=is_player2_vector_cost, is_cost_populating=True,
                              velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
@@ -289,12 +289,12 @@ class Course:
         self.bike1.update_collisions()
         self.bike2.update_collisions()
 
-        # if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
-        #     self.save_costs()
+        if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
+            self.save_costs()
 
         self.count += 1
 
-    def save_stats(self):
+    def save_race_stats(self):
         """
         Saves race statistics, such as passes, collisions, and performance metrics, to a CSV file.
 

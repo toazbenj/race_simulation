@@ -66,8 +66,14 @@ def compute_angle(x, y, center_x, center_y):
 
 
 class Course:
-    def __init__(self, center_x, center_y, weights1, weights2, race_number, outer_radius=300, inner_radius=125,
-                 randomize_start=False, seed=42):
+    def __init__(self, center_x=WIDTH//2, center_y=HEIGHT//2,
+                 race_number=0, 
+                 weights_1=WEIGHTS_1, weights_2=WEIGHTS_2, 
+                 attacker_spawn_state=ATTACKER_SPAWN_STATE,
+                 is_player1_vector_cost=P1_IS_VECTOR_COST, 
+                 is_player2_vector_cost=P2_IS_VECTOR_COST,
+                 outer_radius=INNER_RADIUS, inner_radius=OUTER_RADIUS,
+                 randomize_start=IS_RANDOM_START, seed=SEED):
         """
         Initializes the racecourse with specified track dimensions and randomization options.
 
@@ -119,7 +125,7 @@ class Course:
                 # make sure they are close enough to interact, but not for spawn collision
                 distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
                 max_distance = 2 * math.pi * self.centerline_radius/7
-                if (distance < max_distance) and (distance > 2 * COLLISION_RADIUS) and (abs(angle1-angle2) < math.pi):
+                if (distance < max_distance) and (distance > 2 * MIN_SPAWN_DISTANCE) and (abs(angle1-angle2) < math.pi):
                     break
             
             # print(f'Spawn angles: {compute_angle(x1, y1, self.center_x, self.center_y)},\
@@ -130,9 +136,11 @@ class Course:
             # Default start positions
             x1 = center_x
             y1 = center_y + self.centerline_radius
+            print(f'Defender spawn: {(x1, y1)}')
 
-            x2 = center_x + 100
-            y2 = center_y + self.centerline_radius
+            x2 = attacker_spawn_state[0]
+            y2 = attacker_spawn_state[1]
+            print(f'Attacker spawn: {attacker_spawn_state}')
 
         phi1 = atan2(y1-center_y, x1-center_x) + pi/2
         phi2 = atan2(y2-center_y, x2-center_x) + pi/2
@@ -144,11 +152,11 @@ class Course:
         #                      is_vector_cost=False, is_relative_cost=True, velocity_limit=10, opponent=self.bike1)
         # self.bike1.opponent = self.bike2
 
-        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=P1_IS_VECTOR_COST,
-                             velocity_limit=DEFENDER_SPEED, theta_a=weights1[0], theta_b=weights1[1], theta_c=weights1[2])
-        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=P2_IS_VECTOR_COST, is_cost_populating=True,
+        self.bike1 = Bicycle(self, x=x1, y=y1, phi=phi1, is_vector_cost=is_player1_vector_cost,
+                             velocity_limit=DEFENDER_SPEED, theta_a=weights_1[0], theta_b=weights_1[1], theta_c=weights_1[2])
+        self.bike2 = Bicycle(self, x=x2, y=y2, phi=phi2, color=GREEN, is_vector_cost=is_player2_vector_cost, is_cost_populating=True,
                              velocity_limit=ATTACKER_SPEED, opponent=self.bike1,
-                             theta_a=weights2[0], theta_b=weights2[1], theta_c=weights2[2])
+                             theta_a=weights_2[0], theta_b=weights_2[1], theta_c=weights_2[2])
         # bike must be initialized first before sharing information
         self.bike1.opponent = self.bike2
 
@@ -233,6 +241,30 @@ class Course:
         pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.outer_radius, 3)
         pygame.draw.circle(screen, BLACK, (self.center_x, self.center_y), self.inner_radius, 3)
 
+        # Draw segmented centerline
+        center_radius = (self.inner_radius + self.outer_radius) // 2
+        num_segments = 60  # Number of dashed segments
+        segment_angle = 2 * math.pi / num_segments
+        dash_length = segment_angle * 0.6  # 60% dash, 40% gap
+        
+        for i in range(num_segments):
+            if i % 2 == 0:  # Only draw every other segment for dashed effect
+                start_angle = i * segment_angle
+                end_angle = start_angle + dash_length
+                
+                # Calculate start and end points of the arc segment
+                points = []
+                steps = 10  # Number of points to approximate the arc
+                for j in range(steps + 1):
+                    angle = start_angle + (end_angle - start_angle) * j / steps
+                    x = self.center_x + center_radius * math.cos(angle)
+                    y = self.center_y + center_radius * math.sin(angle)
+                    points.append((x, y))
+                
+                # Draw the segment as a thick line through multiple points
+                if len(points) > 1:
+                    pygame.draw.lines(screen, WHITE, False, points, 3)
+
         self.bike1.draw(screen)
         self.bike2.draw(screen)
 
@@ -257,12 +289,12 @@ class Course:
         self.bike1.update_collisions()
         self.bike2.update_collisions()
 
-        if self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0:
+        if (self.count % (ACTION_INTERVAL* MPC_HORIZON) == 0) and IS_COST_DATA_CREATION_MODE:
             self.save_costs()
 
         self.count += 1
 
-    def save_stats(self):
+    def save_race_stats(self):
         """
         Saves race statistics, such as passes, collisions, and performance metrics, to a CSV file.
 

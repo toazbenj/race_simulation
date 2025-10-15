@@ -4,40 +4,75 @@ from constants import *
 import numpy as np
 import itertools
 
+import cProfile
+import logging
+import os
+import atexit
+import pygame
+
+PROFILE_PATH = os.path.expanduser('bike_race/logs/test.prof')
+logging.basicConfig(level=logging.INFO)
+
+profiler = cProfile.Profile()
+profiler.enable()
+
 def main():
-    random.seed(SEED)
-    seed_lst = [random.randint(1, NUM_RACES) for _ in range(NUM_RACES)]    
 
     combinations = list(itertools.product(PROGRESS_RANGE, BOUNDS_RANGE, COLLISION_RANGE))
     weights_lst = np.array(combinations)
-    weights = [RELATIVE_PROGRESS_WEIGHT_1, BOUNDS_WEIGHT_1, PROXIMITY_WEIGHT_1]
 
-    # initialize to write headers, then overwrite later
-    center_x, center_y = WIDTH // 2, HEIGHT // 2
-    course = Course(center_x, center_y, weights, weights, 
-                    0, inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                    randomize_start=IS_RANDOM_START, seed=seed_lst[0])
-    course.write_race_stats_header(seed=SEED)
-    course.write_cost_stats_header()
+    # np.set_printoptions(precision=3, suppress=True)
+    # print(len(combinations))
+    # print(weights_lst)
 
-    for combination in weights_lst:
-        for race in range(NUM_RACES):
+    # graphics
+    # pygame.init()
+    # screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    # pygame.display.set_caption("Racing Simulation")
+    # clock = pygame.time.Clock()
 
-            print(f"Starting Race {race + 1}")
+    cnt = 0
+    for is_attacker_vector_cost in [False, True]:
 
-            # Initialize a new course with bikes in random positions
-            center_x, center_y = WIDTH // 2, HEIGHT // 2
-            course = Course(center_x, center_y, weights, combination, 
-                            race, inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
-                            randomize_start=IS_RANDOM_START, seed=seed_lst[race])
+        # initialize to write headers, then overwrite later
+        course = Course()
+        course.write_race_stats_header(seed=SEED)
+        course.write_cost_stats_header()
 
-            for _ in range(RACE_DURATION):
-                # Update the simulation
-                course.update()
+        for scenario in SPAWN_DICT.values():
+            for combination in weights_lst:
 
-            course.save_stats()
-            print(f"Race {race + 1} finished!")
+                print(f"Starting Race {cnt + 1}")
 
+                course = Course(inner_radius=INNER_RADIUS, outer_radius=OUTER_RADIUS,
+                                is_player2_vector_cost=is_attacker_vector_cost,
+                                weights_2=combination,
+                                attacker_spawn_state=scenario, race_number=cnt)
+
+                for _ in range(RACE_DURATION):
+                    # Update the simulation
+                    course.update()
+
+                    # graphics
+                    # screen.fill(WHITE)
+                    # course.draw(screen)
+                    # course.draw_button(screen, "Skip Race", BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, BUTTON_COLOR, BUTTON_HOVER)
+                    # pygame.display.flip()
+                    # clock.tick(FRAME_RATE)  # Limit frame rate
+
+                course.save_race_stats()
+                print(f"Race {cnt + 1} finished!")
+                cnt += 1
+
+def save_profile():
+    profiler.disable()
+    profiler.dump_stats(PROFILE_PATH)
+    if os.path.exists(PROFILE_PATH):
+        logging.info(f"Profile successfully saved to {PROFILE_PATH}")
+    else:
+        logging.error(f"Profile not saved. Expected at {PROFILE_PATH}")
+
+atexit.register(save_profile)
 
 if __name__ == "__main__":
     main()

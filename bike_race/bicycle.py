@@ -45,6 +45,7 @@ from constants import *
 from cost_adjust_cvx import find_adjusted_costs
 from trajectory import Trajectory
 from itertools import product
+from shapely_polygon import create_vehicle_polygon
 
 def generate_combinations(numbers, num_picks):
     """
@@ -88,6 +89,7 @@ class Bicycle:
             Returns:
             - None
         """
+
         self.bicycle_size = BIKE_SIZE
         self.color = color
 
@@ -99,6 +101,16 @@ class Bicycle:
 
         self.lr = LR
         self.lf = LF
+
+        self.bike_poly  = create_vehicle_polygon(
+            x=self.x,
+            y=self.y,
+            length_rov=BIKE_SIZE/2,
+            length_fov=BIKE_SIZE/2,
+            width=BIKE_SIZE/2,
+            phi=np.rad2deg(self.phi)  # convert radians to degrees
+        )
+
 
         self.a = 0
         self.steering_angle = 0
@@ -142,7 +154,8 @@ class Bicycle:
         self.out_bounds_cnt = 0
         self.adjust_cnt = 0
         self.collision_radius = COLLISION_RADIUS
-
+        self.is_in_collision = False
+        
         self.progress_cost = 0
         self.bounds_cost = 0
         self.proximity_cost = 0
@@ -151,6 +164,7 @@ class Bicycle:
         self.laps_completed = 0
         self.previous_angle = self.compute_angle()  # Initial angle
         self.is_crossing_finish = False
+
 
     def compute_angle(self):
         """
@@ -207,10 +221,10 @@ class Bicycle:
         self.state = np.round(np.array([x_next, y_next, v_next, phi_next, b_next]), decimals=6)
         return x_next, y_next, v_next, phi_next, b_next
 
-
     def draw(self, screen):
         """
-        Draws the bicycle and its past and possible future trajectories.
+        Draws the bicycle as a polygon based on geometric info (Shapely),
+        along with past and possible future trajectories.
 
         Parameters:
         - screen (pygame.Surface): The Pygame surface to draw on.
@@ -218,26 +232,31 @@ class Bicycle:
         Returns:
         - None
         """
-        # Draw the bike
-        points = [
-            (self.x + self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
-             self.y + self.bicycle_size * sin(self.phi) + self.bicycle_size / 2 * cos(self.phi)),
-            (self.x - self.bicycle_size * cos(self.phi) - self.bicycle_size / 2 * sin(self.phi),
-             self.y - self.bicycle_size * sin(self.phi) + self.bicycle_size / 2 * cos(self.phi)),
-            (self.x - self.bicycle_size * cos(self.phi) + self.bicycle_size / 2 * sin(self.phi),
-             self.y - self.bicycle_size * sin(self.phi) - self.bicycle_size / 2 * cos(self.phi)),
-            (self.x + self.bicycle_size * cos(self.phi) + self.bicycle_size / 2 * sin(self.phi),
-             self.y + self.bicycle_size * sin(self.phi) - self.bicycle_size / 2 * cos(self.phi))
-        ]
+        # --- Draw the bike polygon using Shapely ---
+        self.bike_poly  = create_vehicle_polygon(
+            x=self.x,
+            y=self.y,
+            length_rov=BIKE_SIZE/2,
+            length_fov=BIKE_SIZE/2,
+            width=BIKE_SIZE/2,
+            phi=np.rad2deg(self.phi)  # convert radians to degrees
+        )
+
+        # Get exterior coordinates of the polygon for drawing
+        x_coords, y_coords = self.bike_poly .exterior.xy
+        points = [(x, y) for x, y in zip(x_coords, y_coords)]
+
+        # Draw filled polygon with transparency
+        # polygon_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
         pygame.draw.polygon(screen, self.color, points)
 
-        # Draw the past trajectory
+        # --- Draw past trajectory ---
         if len(self.past_trajectories) > 1:
             for traj in self.past_trajectories:
                 traj.draw(screen)
 
-        for i, traj in enumerate(set(self.choice_trajectories)):
-            # print(f"Trajectory {i}: Cost = {traj.cost}, Points = {traj.points[0]}, {traj.points[-1]}")
+        # --- Draw future predicted trajectories ---
+        for traj in set(self.choice_trajectories):
             traj.draw(screen)
 
     def update_choices(self, count, other_bike):
@@ -255,11 +274,15 @@ class Bicycle:
             self.new_choices(other_bike)
 
     def update_collisions(self):
-        # check where opponent is, determine collision in every frame
-        x2, y2 = self.opponent.x, self.opponent.y
-        distance = sqrt((x2 - self.x) ** 2 + (y2 - self.y) ** 2)
-        if distance < self.collision_radius:
-            self.collision_cnt += 1
+        # Collision detection (intersecting polygons)
+        if self.bike_poly.intersects(self.opponent.bike_poly):
+            if not self.in_collision:
+                self.collision_cnt += 1
+                self.in_collision = True
+        else:
+            self.in_collision = False
+
+        # print(self.collision_cnt)
 
     def update_action(self, count):
         """
@@ -428,7 +451,7 @@ class Bicycle:
 
     def check_lap_completion(self):
         """
-        Detects when the bicycle crosses the finish line to complete a lap. Increments lap counter.
+        Detects when the bicycle crosses the finish line to complete a lap.
 
         Returns:
         - None

@@ -2,13 +2,35 @@
  
 ![image](https://github.com/user-attachments/assets/20c42835-d007-4a02-a065-2173970bb711)
 
-`race_simulation` is a Python-based simulation using Pygame to implement trajectory planning algorithms for racing scenarios.
+This branch contains the implementation for the simulated autonomous vehicle races featured in the paper: Vector Cost Bimatrix Games with Applications to Autonomous Racing. The code includes an object-oriented python GUI and data generator, which can be used in headless mode for improved performance. Note that this repository has been updated since the publication and some branches are under active construction. Main is the branch that will always be kept stable with new features as they come in. The legacy_mecc2025 branch is the frozen state of the code as of the publication date.
 
-## Features
+Citation:
+```bash
+@inproceedings{VectorCostBimatrix,
+  title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
+  author={Benjamin R. Toaz and Shaunak D. Bopardikar},
+  year={2025},
+  booktitle={Proceedings of the Modeling, Estimation and Control Conference},
+  month = {October},
+  year={2025},
+  address={Pittsburgh, PA, USA},
+  publisher={AACC},
+  url={https://arxiv.org/abs/2507.05171},
+}
+```
 
-- Trajectory Planning Algorithms: Implements a simple model predictive controller for trajectory selection
-- Game Theory: Vector and Scalar cost bimatrix games played between two opponent cars, one attacker and one defender
-- Reinforcement Learning Branch: Additional project for lane keeping with PID, image processing, and throttle learning by a DQN model
+## Abstract
+
+We formulate a vector cost alternative to the scalarization method for weighting and
+combining multi-objective costs. The algorithm produces solutions to bimatrix games that are
+simultaneously pure, unique Nash equilibria and Pareto optimal with guarantees for avoiding
+worst case outcomes. We achieve this by enforcing exact potential game constraints to guide
+cost adjustments towards equilibrium, while minimizing the deviation from the original cost
+structure. The magnitude of this adjustment serves as a metric for differentiating between
+Pareto optimal solutions. We implement this approach in a racing competition between agents
+with heterogeneous cost structures, resulting in fewer collision incidents with a minimal decrease
+in performance. 
+
 
 ## Installation
 

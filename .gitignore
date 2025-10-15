@@ -5,3 +5,5 @@ data_processing/opponent_prediction.venv/
 .vscode/
 .venv/
 __pycache__/
+bike_race/__pycache__/*
+*.pyc

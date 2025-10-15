@@ -2,7 +2,7 @@
  
 ![image](https://github.com/user-attachments/assets/20c42835-d007-4a02-a065-2173970bb711)
 
-`race_simulation` is a Python-based simulation using Pygame to implement trajectory planning algorithms for bike racing scenarios.
+`race_simulation` is a Python-based simulation using Pygame to implement trajectory planning algorithms for racing scenarios.
 
 ## Features
 
@@ -18,18 +18,10 @@
    git clone https://github.com/toazbenj/race_simulation.git
    ```
 
-2. **Navigate to the Project Directory**:
+2. **Install Required Dependencies**:
 
    ```bash
-   cd race_simulation/bike_race
-   ```
-
-3. **Install Required Dependencies**:
-
-   Ensure that Python and Pygame are installed on your system. You can install Pygame using pip:
-
-   ```bash
-   pip install pygame
+   pip install -r requirements.txt
    ```
 
 ## Usage
@@ -40,6 +32,8 @@ To run the simulation:
 2. **Execute the Main Script within the bike_race folder**:
 
    ```bash
+   cd ~/race_simulation
+   cd bike_race
    python main.py
    ```
 
@@ -47,4 +41,12 @@ To run the simulation:
 
 3. **Interact with the Simulation**:
 
-   You can skip to the next race using the big red skip button
+   You can skip to the next race using the big red skip button.
+   
+4. **Gather data and change parameters**:
+
+   The constants.py file in the bike_race folder allows you to change the race settings. Data from the race will accumulate in this file:
+   ```bash
+   WRITE_FILE = "../data/test.csv"
+   ```
+   

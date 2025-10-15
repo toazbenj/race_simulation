@@ -66,7 +66,7 @@ To run the simulation:
    python3 main.py
    ```
 
-   This will launch the simulation window.
+   This will launch the simulation window where you can watch the races.
 
 3. **Using the simulation**:
 
@@ -75,6 +75,9 @@ To run the simulation:
    cd ~/race_simulation/bike_race
    python3 data_generation.py
    ```
+
+   The data will appear in the cost_stats.csv and race_stats.csv files in the data folder. You can edit the file names/paths in bike_race/constants.py.
+
 3. **Editing Configurations**:
 
    All parameters are included in the constants.py script. To edit the decision-making method, switch the IS_VECTOR_COST flag to True. Note that P2 (green) is the attacker that does the passing in this case, while P1 (blue) is the defender who starts in front.

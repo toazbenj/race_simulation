@@ -1,3 +1,3 @@
 # Race Simulation - Experimental
  
-Danger zone. Clone at your own risk ☣.
+Danger zone. Clone at your own risk.

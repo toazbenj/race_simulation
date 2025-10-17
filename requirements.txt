@@ -1,4 +1,3 @@
-json
 streamlit 
 go
 pandas

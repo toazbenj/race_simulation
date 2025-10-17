@@ -77,7 +77,7 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-SEMBAS_DATA = '../data/paper_data/vector_collision.json'
+SEMBAS_DATA = 'data/test.json'
 # BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
 
 # BOUNDS = np.array([[0.0, 0.2], [0.0, 1.0], [0.0, 1.0]])

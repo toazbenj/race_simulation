@@ -160,4 +160,7 @@ def main_multi_test():
         run_test(description, race_test, session)
         print(description)
 
-main_multi_test()
+try:
+    main_multi_test()
+except KeyboardInterrupt:
+    print("Exiting due to keyboard interrupt")

@@ -6,6 +6,5 @@ cvxpy==1.6.6
 numpy==1.26.4
 pygame==2.6.1
 plotly
-numpy
 matplotlib
 shapely

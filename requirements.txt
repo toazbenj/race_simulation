@@ -1,5 +1,4 @@
 streamlit 
-go
 pandas
 cvxpy==1.6.6
 numpy==1.26.4

@@ -1,36 +1,49 @@
 # Race Simulation 
  
-![image](Edge_Case_Demo.gif)
+![image](edge_case_example.gif)
 
-This repository contains the implementation for the simulated autonomous vehicle races featured in the paper: Vector Cost Bimatrix Games with Applications to Autonomous Racing. The code includes an object-oriented python GUI and data generator, which can be used in headless mode for improved performance. 
+This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Vehicles with Contemporary Validation Strategies". The journal paper is currently under review as of 10-15-25, so please use the following citation for now if you decide to use any of these tools:
 
 Citation:
-```bash
-@misc{toaz2025vectorcostbimatrixgames,
-      title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
-      author={Benjamin R. Toaz and Shaunak D. Bopardikar},
-      year={2025},
-      eprint={2507.05171},
-      archivePrefix={arXiv},
-      primaryClass={cs.GT},
-      url={https://arxiv.org/abs/2507.05171}, 
+```
+@inproceedings{VectorCostBimatrix,
+  title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
+  author={Benjamin R. Toaz and Shaunak D. Bopardikar},
+  year={2025},
+  booktitle={Proceedings of the Modeling, Estimation and Control Conference},
+  month = {October},
+  year={2025},
+  address={Pittsburgh, PA, USA},
+  publisher={AACC},
+  url={https://arxiv.org/abs/2507.05171},
 }
 ```
 
-Note that this repository has been updated since the publication and some branches are under active construction. Main is the branch that will always be kept stable with new features as they come in. The legacy_mecc2025 branch is the frozen state of the code as of the publication date. The experimental and sembas branches are where new features are currently being developed (and are not safe places for mortals to tarry).
-
 ## Abstract
 
-We formulate a vector cost alternative to the scalarization method for weighting and
-combining multi-objective costs. The algorithm produces solutions to bimatrix games that are
-simultaneously pure, unique Nash equilibria and Pareto optimal with guarantees for avoiding
-worst case outcomes. We achieve this by enforcing exact potential game constraints to guide
-cost adjustments towards equilibrium, while minimizing the deviation from the original cost
-structure. The magnitude of this adjustment serves as a metric for differentiating between
-Pareto optimal solutions. We implement this approach in a racing competition between agents
-with heterogeneous cost structures, resulting in fewer collision incidents with a minimal decrease
-in performance. 
+The vector cost bimatrix game is a method for
+multi-objective decision making that enables agents to op-
+timize for multiple goals at once while avoiding worst-case
+scenarios in neglected objectives. We expand this approach to
+arbitrary numbers of objectives and compare its performance
+to scalar weighted sum methods during competitive motion
+planning. Explainable Artificial Intelligence (XAI) software is
+used to aid in the analysis of high dimensional decision-making
+data. State-space Exploration of Multidimensional Boundaries
+using Adherence Strategies (SEMBAS) is applied to explore
+performance modes in the parameter space as a sensitivity
+study for the baseline and proposed frameworks. While some
+works have explored aspects of game theoretic planning and
+autonomous vehicle validation separately, we combine each of
+these into a novel and comprehensive simulation pipeline. This
+integration demonstrates a dramatic improvement of the vector
+cost method over scalarization and offers an interpretable and
+generalizable framework for autonomous vehicle behavioral
+planning.
 
+## Branches
+
+The main branch includes the infrastructure for building and visualizing the simulation, as well as healess data generation with automatic iteration through the vehicle parameters described in the paper. The scenario_visualization repository is included [here](https://github.com/toazbenj/scenario_visualization) to make the XAI and visualization tools available. The experimental branch is where active feature construction is underway and is not reccomended for use. Sembas branch is set up to connect the simulation to its counterpart in the SEMBAS repository, which is available on the example-v0.4.x-race_simulation branch of the SEMBAS repo [here](https://github.com/Thomj-Dev/SEMBAS/tree/example-v0.4.x-race_simulation). More details for use can be found on the sembas branch readme. The legacy_mecc2025 branch is the state of the repository as of the submission date of the previous paper and includes the data used for that publication as well. 
 
 ## Installation
 
@@ -54,21 +67,18 @@ in performance.
    pip install -r requirements.txt
    ```
 
-## Usage
-
-To run the simulation:
-1. **Edit the configuration file constants.py in the bike_race folder.**
+## Basic Usage
    
-2. **Execute the Main Script within the bike_race folder**:
+1. **Execute the Main Script within the bike_race folder**:
 
    ```bash
    cd ~/race_simulation/bike_race
    python3 main.py
    ```
 
-   This will launch the simulation window where you can watch the races.
+   This will launch the simulation window where you can watch the races. You can generate videos of the simulation using bike_race/view.py.
 
-3. **Using the simulation**:
+2. **Using the simulation**:
 
    You can skip to the next race using the big red skip button if the race gets boring. Data is saved to the files cost_stats.csv for information related to each turn (vehicle states, costs applied, actions taken) and race_stats.csv for data over the entire game (wins, collisions, out of bounds, etc). These are in the data folder. For headless mode, run the following script for pure data generation:
    ```bash
@@ -76,7 +86,7 @@ To run the simulation:
    python3 data_generation.py
    ```
 
-   The data will appear in the cost_stats.csv and race_stats.csv files in the data folder. You can edit the file names/paths in bike_race/constants.py.
+   The data will appear in the cost_stats.csv and race_stats.csv files in the data folder. You can edit the file names/paths in bike_race/constants.py. The script will iterate through all spawning and decision making weights automatically, creating a large amount of grid search data. These files are what can be fed into the XAI software, which is included in the scenario_visualization repository.
 
 3. **Editing Configurations**:
 
@@ -95,5 +105,3 @@ To run the simulation:
    PROXIMITY_SPREAD = 45
    BOUNDS_SPREAD = 205
    ```
-   
-

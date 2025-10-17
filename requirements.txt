@@ -8,3 +8,4 @@ matplotlib
 shapely
 opencv-python
 Pillow
+scipy>=1.13.0

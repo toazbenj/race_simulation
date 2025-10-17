@@ -1,14 +1,49 @@
 # Race Simulation 
  
-![image](https://github.com/user-attachments/assets/20c42835-d007-4a02-a065-2173970bb711)
+![image](edge_case_example.gif)
 
-`race_simulation` is a Python-based simulation using Pygame to implement trajectory planning algorithms for bike racing scenarios.
+This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Vehicles with Contemporary Validation Strategies". The journal paper is currently under review as of 10-15-25, so please use the following citation for now if you decide to use any of these tools:
 
-## Features
+Citation:
+```
+@inproceedings{VectorCostBimatrix,
+  title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
+  author={Benjamin R. Toaz and Shaunak D. Bopardikar},
+  year={2025},
+  booktitle={Proceedings of the Modeling, Estimation and Control Conference},
+  month = {October},
+  year={2025},
+  address={Pittsburgh, PA, USA},
+  publisher={AACC},
+  url={https://arxiv.org/abs/2507.05171},
+}
+```
 
-- Trajectory Planning Algorithms: Implements a simple model predictive controller for trajectory selection
-- Game Theory: Vector and Scalar cost bimatrix games played between two opponent cars, one attacker and one defender
-- Reinforcement Learning Branch: Additional project for lane keeping with PID, image processing, and throttle learning by a DQN model
+## Abstract
+
+The vector cost bimatrix game is a method for
+multi-objective decision making that enables agents to op-
+timize for multiple goals at once while avoiding worst-case
+scenarios in neglected objectives. We expand this approach to
+arbitrary numbers of objectives and compare its performance
+to scalar weighted sum methods during competitive motion
+planning. Explainable Artificial Intelligence (XAI) software is
+used to aid in the analysis of high dimensional decision-making
+data. State-space Exploration of Multidimensional Boundaries
+using Adherence Strategies (SEMBAS) is applied to explore
+performance modes in the parameter space as a sensitivity
+study for the baseline and proposed frameworks. While some
+works have explored aspects of game theoretic planning and
+autonomous vehicle validation separately, we combine each of
+these into a novel and comprehensive simulation pipeline. This
+integration demonstrates a dramatic improvement of the vector
+cost method over scalarization and offers an interpretable and
+generalizable framework for autonomous vehicle behavioral
+planning.
+
+## Branches
+
+The main branch includes the infrastructure for building and visualizing the simulation, as well as healess data generation with automatic iteration through the vehicle parameters described in the paper. The scenario_visualization repository is included [here](https://github.com/toazbenj/scenario_visualization) to make the XAI and visualization tools available. The experimental branch is where active feature construction is underway and is not reccomended for use. Sembas branch is set up to connect the simulation to its counterpart in the SEMBAS repository, which is available on the example-v0.4.x-race_simulation branch of the SEMBAS repo [here](https://github.com/Thomj-Dev/SEMBAS/tree/example-v0.4.x-race_simulation). More details for use can be found on the sembas branch readme. The legacy_mecc2025 branch is the state of the repository as of the submission date of the previous paper and includes the data used for that publication as well. 
 
 ## Installation
 
@@ -21,7 +56,7 @@
 2. **Navigate to the Project Directory**:
 
    ```bash
-   cd race_simulation/bike_race
+   cd ~/race_simulation
    ```
 
 3. **Install Required Dependencies**:
@@ -29,22 +64,44 @@
    Ensure that Python and Pygame are installed on your system. You can install Pygame using pip:
 
    ```bash
-   pip install pygame
+   pip install -r requirements.txt
    ```
 
-## Usage
-
-To run the simulation:
-1. **Edit the configuration file constants.py in the bike_race folder.**
+## Basic Usage
    
-2. **Execute the Main Script within the bike_race folder**:
+1. **Execute the Main Script within the bike_race folder**:
 
    ```bash
-   python main.py
+   cd ~/race_simulation/bike_race
+   python3 main.py
    ```
 
-   This will launch the simulation window.
+   This will launch the simulation window where you can watch the races. You can generate videos of the simulation using bike_race/view.py.
 
-3. **Interact with the Simulation**:
+2. **Using the simulation**:
 
-   You can skip to the next race using the big red skip button
+   You can skip to the next race using the big red skip button if the race gets boring. Data is saved to the files cost_stats.csv for information related to each turn (vehicle states, costs applied, actions taken) and race_stats.csv for data over the entire game (wins, collisions, out of bounds, etc). These are in the data folder. For headless mode, run the following script for pure data generation:
+   ```bash
+   cd ~/race_simulation/bike_race
+   python3 data_generation.py
+   ```
+
+   The data will appear in the cost_stats.csv and race_stats.csv files in the data folder. You can edit the file names/paths in bike_race/constants.py. The script will iterate through all spawning and decision making weights automatically, creating a large amount of grid search data. These files are what can be fed into the XAI software, which is included in the scenario_visualization repository.
+
+3. **Editing Configurations**:
+
+   All parameters are included in the constants.py script. To edit the decision-making method, switch the IS_VECTOR_COST flag to True. Note that P2 (green) is the attacker that does the passing in this case, while P1 (blue) is the defender who starts in front.
+   ```bash
+   P1_IS_VECTOR_COST = False
+   P2_IS_VECTOR_COST = True
+   ```
+
+   You can also edit these parameters like the relative priorities of each objective along with the shape of the cost functions (slope).
+   ```bash
+   progress_weight = 1
+   bounds_weight = 1
+   prox_weight = 1
+   
+   PROXIMITY_SPREAD = 45
+   BOUNDS_SPREAD = 205
+   ```

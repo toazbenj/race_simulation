@@ -31,11 +31,11 @@ This branch contains the bridge API to connect the branch to the State space Exp
    In your first terminal:
    
    ```bash
-   cd ~/race_simulation/bike_race
+   cd ~/race_simulation
    ```
   
    ```bash
-   python3 parameterization.py
+   python3 bike_race/parameterization.py
    ```
 
 3. **Launch SEMBAS (will install many packages on the first time)**:
@@ -52,4 +52,4 @@ This branch contains the bridge API to connect the branch to the State space Exp
 
 4. **Data Gathering**:
 
-   The data will be stored in the file data/test.json by default. Edit this in the bike_race/constants.py file.
+   The data will be stored in the file data/test.json by default in the race_simulation directory. Edit this in the bike_race/constants.py file. 

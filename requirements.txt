@@ -6,3 +6,4 @@ pygame==2.6.1
 plotly
 matplotlib
 shapely
+scipy>=1.13.0

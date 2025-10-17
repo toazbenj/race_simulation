@@ -47,7 +47,7 @@ This branch contains the bridge API to connect the branch to the State space Exp
    ```
   
    ```bash
-   cargo run --features all race_simulation
+   cargo run --example race_simulation --features all
    ```
 
 4. **Data Gathering**:

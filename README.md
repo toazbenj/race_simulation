@@ -7,26 +7,49 @@ This branch contains the bridge API to connect the branch to the State space Exp
 ## Installation
 
 1. **Get Rust**:
- Find instructions here: [Rust](https://rust-lang.org/tools/install/).
- 
-2. ** Clone SEMBAS **
-   
-  bash ```git clone https://github.com/Thomj-Dev/SEMBAS.git```
 
-3. ** Checkout the race_simulation branch**:
+   Find instructions here: [Rust](https://rust-lang.org/tools/install/).
+ 
+2. **Clone SEMBAS**
+
+   You can find it here: [SEMBAS](https://github.com/Thomj-Dev/SEMBAS/tree/example-v0.4.x-race_simulation) or just use the command below.
    
-  bash ```git checkout example-v0.4.x-race_simulation```
+   ```bash
+   git clone https://github.com/Thomj-Dev/SEMBAS.git
+   ```
+
+3. **Checkout the race_simulation branch**:
+   
+   ```bash
+   git checkout example-v0.4.x-race_simulation
+   ```
 
 ## Basic Usage (assuming setup is building off the steps in main)
    
 1. **Launch the race_simulation API**:
+
+   In your first terminal:
    
-  bash ```cd ~/race_simulation/bike_race```
+   ```bash
+   cd ~/race_simulation/bike_race
+   ```
   
-  bash ```python3 parameterization.py```
+   ```bash
+   python3 parameterization.py
+   ```
 
-2. **Launch SEMBAS (will install many packages on the first time)**:
+3. **Launch SEMBAS (will install many packages on the first time)**:
 
-  bash ```cd ~/SEMBAS```
+   In your second terminal:
+
+   ```bash
+   cd ~/SEMBAS
+   ```
   
-  bash ```cargo run --features all race_simulation```
+   ```bash
+   cargo run --features all race_simulation
+   ```
+
+4. **Data Gathering**:
+
+   The data will be stored in the file data/test.json by default. Edit this in the bike_race/constants.py file.

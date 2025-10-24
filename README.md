@@ -12,10 +12,10 @@ This branch contains the bridge API to connect the repo to the State space Explo
  
 2. **Clone SEMBAS**:
 
-   You can find it at [SEMBAS](https://github.com/Thomj-Dev/SEMBAS/tree/example-v0.4.x-race_simulation) or just use the command below.
+   You can find it at [SEMBAS](https://github.com/toazbenj/racing_sembas/tree/main) or just use the command below. Note that this fork is very similar to the original SEMBAS repo except for a few minor adjustments to the parameters to account for 3 dimensional boundaries.
    
    ```bash
-   git clone https://github.com/Thomj-Dev/SEMBAS.git
+   git clone https://github.com/toazbenj/racing_sembas.git
    ```
 
 3. **Checkout the race_simulation branch**:

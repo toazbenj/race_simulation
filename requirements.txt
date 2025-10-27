@@ -1,0 +1,9 @@
+streamlit 
+pandas
+cvxpy==1.6.6
+numpy==1.26.4
+pygame==2.6.1
+plotly
+matplotlib
+shapely
+scipy>=1.13.0

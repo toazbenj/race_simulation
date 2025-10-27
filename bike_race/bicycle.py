@@ -338,7 +338,9 @@ class Bicycle:
         # print(self.C)
 
         if self.is_vector_cost:
-            E = find_adjusted_costs(self.A, self.B, self.C, self.opponent.composite_cost_arr)
+
+            # check transposition here
+            E = find_adjusted_costs(self.A, self.B, self.C, self.opponent.composite_cost_arr.T)
 
             if E is None:
                 # print("no minima")

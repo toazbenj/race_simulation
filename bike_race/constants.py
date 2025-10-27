@@ -51,7 +51,7 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 
 # Course
 # Data output path
-BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 0.2]])
+BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
 
 RACE_DATA = 'data/race_stats.csv'
 COST_DATA = 'data/cost_stats.csv'

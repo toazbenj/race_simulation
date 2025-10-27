@@ -32,7 +32,8 @@ def main():
     # clock = pygame.time.Clock()
 
     cnt = 0
-    for is_attacker_vector_cost in [False, True]:
+    # for is_attacker_vector_cost in [False, True]:
+    for is_attacker_vector_cost in [True]:
 
         # initialize to write headers, then overwrite later
         course = Course()

@@ -47,6 +47,7 @@ from trajectory import Trajectory
 from itertools import product
 from shapely_polygon import create_vehicle_polygon
 
+
 def generate_combinations(numbers, num_picks):
     """
     Generate all possible combinations of choices by picking `num_picks` times from the list `numbers`.
@@ -89,7 +90,7 @@ class Bicycle:
             Returns:
             - None
         """
-
+        self.bike_poly = None
         self.bicycle_size = BIKE_SIZE
         self.color = color
 
@@ -101,16 +102,6 @@ class Bicycle:
 
         self.lr = LR
         self.lf = LF
-
-        self.bike_poly  = create_vehicle_polygon(
-            x=self.x,
-            y=self.y,
-            length_rov=BIKE_SIZE/2,
-            length_fov=BIKE_SIZE/2,
-            width=BIKE_SIZE/2,
-            phi=np.rad2deg(self.phi)  # convert radians to degrees
-        )
-
 
         self.a = 0
         self.steering_angle = 0
@@ -153,12 +144,12 @@ class Bicycle:
         self.progress_cnt = 0
         self.out_bounds_cnt = 0
         self.adjust_cnt = 0
-        self.collision_radius = COLLISION_RADIUS
-        self.is_in_collision = False
-        
+
         self.progress_cost = 0
         self.bounds_cost = 0
         self.proximity_cost = 0
+
+        self.is_in_collision = False
 
         # Lap tracking
         self.laps_completed = 0
@@ -275,6 +266,15 @@ class Bicycle:
 
     def update_collisions(self):
         # Collision detection (intersecting polygons)
+        self.bike_poly  = create_vehicle_polygon(
+            x=self.x,
+            y=self.y,
+            length_rov=BIKE_SIZE/2,
+            length_fov=BIKE_SIZE/2,
+            width=BIKE_SIZE/2,
+            phi=np.rad2deg(self.phi)  # convert radians to degrees
+        )
+              
         if self.bike_poly.intersects(self.opponent.bike_poly):
             if not self.in_collision:
                 self.collision_cnt += 1
@@ -338,9 +338,8 @@ class Bicycle:
         # print(self.C)
 
         if self.is_vector_cost:
-
-            # check transposition here
-            E = find_adjusted_costs(self.A, self.B, self.C, self.opponent.composite_cost_arr.T)
+            # check transpose here
+            E = find_adjusted_costs(self.A, self.B, self.C, self.opponent.composite_cost_arr)
 
             if E is None:
                 # print("no minima")

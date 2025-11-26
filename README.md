@@ -2,9 +2,10 @@
  
 ![image](edge_case_example.gif)
 
-This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Vehicles with Contemporary Validation Strategies". The journal paper is currently under review as of 11-26-25, so please use the following citation for now if you decide to use any of these tools:
+This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Robotic Systems with Contemporary Validation Strategies". The journal paper is currently under review as of 11-26-25, so please use the following citation for now if you decide to use any of these tools:
 
 Citation:
+```
 @misc{toaz2025vectorcostbehavioralplanning,
       title={Vector Cost Behavioral Planning for Autonomous Robotic Systems with Contemporary Validation Strategies}, 
       author={Benjamin R. Toaz and Quentin Goss and John Thompson and Seta Boğosyan and Shaunak D. Bopardikar and Mustafa İlhan Akbaş and Metin Gökaşan},

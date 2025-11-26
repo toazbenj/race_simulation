@@ -2,44 +2,23 @@
  
 ![image](edge_case_example.gif)
 
-This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Vehicles with Contemporary Validation Strategies". The journal paper is currently under review as of 10-15-25, so please use the following citation for now if you decide to use any of these tools:
+This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Vehicles with Contemporary Validation Strategies". The journal paper is currently under review as of 11-26-25, so please use the following citation for now if you decide to use any of these tools:
 
 Citation:
-```
-@inproceedings{VectorCostBimatrix,
-  title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
-  author={Benjamin R. Toaz and Shaunak D. Bopardikar},
-  year={2025},
-  booktitle={Proceedings of the Modeling, Estimation and Control Conference},
-  month = {October},
-  year={2025},
-  address={Pittsburgh, PA, USA},
-  publisher={AACC},
-  url={https://arxiv.org/abs/2507.05171},
+@misc{toaz2025vectorcostbehavioralplanning,
+      title={Vector Cost Behavioral Planning for Autonomous Robotic Systems with Contemporary Validation Strategies}, 
+      author={Benjamin R. Toaz and Quentin Goss and John Thompson and Seta Boğosyan and Shaunak D. Bopardikar and Mustafa İlhan Akbaş and Metin Gökaşan},
+      year={2025},
+      eprint={2511.17375},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2511.17375}, 
 }
 ```
 
 ## Abstract
 
-The vector cost bimatrix game is a method for
-multi-objective decision making that enables agents to op-
-timize for multiple goals at once while avoiding worst-case
-scenarios in neglected objectives. We expand this approach to
-arbitrary numbers of objectives and compare its performance
-to scalar weighted sum methods during competitive motion
-planning. Explainable Artificial Intelligence (XAI) software is
-used to aid in the analysis of high dimensional decision-making
-data. State-space Exploration of Multidimensional Boundaries
-using Adherence Strategies (SEMBAS) is applied to explore
-performance modes in the parameter space as a sensitivity
-study for the baseline and proposed frameworks. While some
-works have explored aspects of game theoretic planning and
-autonomous vehicle validation separately, we combine each of
-these into a novel and comprehensive simulation pipeline. This
-integration demonstrates a dramatic improvement of the vector
-cost method over scalarization and offers an interpretable and
-generalizable framework for autonomous vehicle behavioral
-planning.
+The vector cost bimatrix game is a method for multi-objective decision making that enables autonomous robotic systems to optimize for multiple goals at once while avoiding worst-case scenarios in neglected objectives. We expand this approach to arbitrary numbers of objectives and compare its performance to scalar weighted sum methods during competitive motion planning. Explainable Artificial Intelligence (XAI) software is used to aid in the analysis of high dimensional decision-making data. State-space Exploration of Multidimensional Boundaries using Adherence Strategies (SEMBAS) is applied to explore performance modes in the parameter space as a sensitivity study for the baseline and proposed frameworks. While some works have explored aspects of game theoretic planning and intelligent systems validation separately, we combine each of these into a novel and comprehensive simulation pipeline. This integration demonstrates a dramatic improvement of the vector cost method over scalarization and offers an interpretable and generalizable framework for robotic behavioral planning.
 
 ## Branches
 

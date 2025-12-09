@@ -83,3 +83,5 @@ The main branch includes the infrastructure for building and visualizing the sim
    PROXIMITY_SPREAD = 45
    BOUNDS_SPREAD = 205
    ```
+
+   Note that you may have to adjust the file paths for where the data is being saved if you are on windows vs linux (add/subtract a . at the beginning to change directories).

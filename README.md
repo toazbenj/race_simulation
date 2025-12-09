@@ -43,7 +43,7 @@ This branch contains the bridge API to connect the repo to the State space Explo
    In your second terminal:
 
    ```bash
-   cd ~/SEMBAS
+   cd ~/racing_sembas
    ```
   
    ```bash

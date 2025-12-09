@@ -1,5 +1,6 @@
 from math import radians
 import numpy as np
+import os
 
 # Main
 IS_COST_DATA_CREATION_MODE = True
@@ -53,8 +54,11 @@ COLLISION_RANGE = np.linspace(1, 10, NUM_THETA_INTERVALS)
 # Data output path
 BOUNDS = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 0.2]])
 
-RACE_DATA = 'data/race_stats.csv'
-COST_DATA = 'data/cost_stats.csv'
+RACE_DATA = '../data/race_stats.csv'
+COST_DATA = '../data/cost_stats.csv'
+
+PROFILE_PATH = os.path.expanduser('logs/test.prof')
+
 ATTACKER_SPEED = 22.5
 DEFENDER_SPEED = 15
 

@@ -10,7 +10,6 @@ import os
 import atexit
 import pygame
 
-PROFILE_PATH = os.path.expanduser('bike_race/logs/test.prof')
 logging.basicConfig(level=logging.INFO)
 
 profiler = cProfile.Profile()

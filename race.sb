@@ -1,0 +1,42 @@
+# Job name:
+#SBATCH --job-name=python_simulation
+# Number of tasks (processes)
+# SLURM defaults to 1 but we specify anyway
+# SBATCH --ntasks=1
+
+# Memory per node
+# Specify M or Gfor MB and GB respectively
+#SBATCH --mem=2G
+
+# Wall time
+# Format: minutes, hours:minutes:seconds, 
+# days-hours, or days-hours:minutes
+#SBATCH --time=24:00:00
+
+# Mail type
+# e.g., which events trigger email notifications
+#SBATCH --mail-type=ALL
+
+# Mail address
+#SBATCH --mail-user=toazbenj@msu.edu
+
+# Standard output and error to file
+# %x: job name, %j: job ID
+#SBATCH --output=%x-%j.SLURMout
+
+echo "Running Python simulation script"
+
+# Purge current modules and load those we require
+# Load Python modules
+module purge
+module load GCC/10.3.0 OpenMPI/4.1.1
+
+# Run our job
+cd /mnt/home/toazbenj/race_simulation/
+pip install --user -r requirements.txt
+
+srun python3 bike_race/data_generation.py
+
+# Print resource information
+scontrol show job $SLURM_JOB_ID
+js -j $SLURM_JOB_ID

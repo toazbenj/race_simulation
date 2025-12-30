@@ -2,48 +2,28 @@
  
 ![image](edge_case_example.gif)
 
-This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Vehicles with Contemporary Validation Strategies". The journal paper is currently under review as of 10-15-25, so please use the following citation for now if you decide to use any of these tools:
+This repository contains the implementation for the simulated autonomous vehicle races featured in the conference paper "Vector Cost Bimatrix Games with Applications to Autonomous Racing" and the expanded journal version, "Vector Cost Behavioral Planning for Autonomous Robotic Systems with Contemporary Validation Strategies". The journal paper is currently under review as of 11-26-25, so please use the following citation for now if you decide to use any of these tools:
 
 Citation:
 ```
-@inproceedings{VectorCostBimatrix,
-  title={Vector Cost Bimatrix Games with Applications to Autonomous Racing}, 
-  author={Benjamin R. Toaz and Shaunak D. Bopardikar},
-  year={2025},
-  booktitle={Proceedings of the Modeling, Estimation and Control Conference},
-  month = {October},
-  year={2025},
-  address={Pittsburgh, PA, USA},
-  publisher={AACC},
-  url={https://arxiv.org/abs/2507.05171},
+@misc{toaz2025vectorcostbehavioralplanning,
+      title={Vector Cost Behavioral Planning for Autonomous Robotic Systems with Contemporary Validation Strategies}, 
+      author={Benjamin R. Toaz and Quentin Goss and John Thompson and Seta Boğosyan and Shaunak D. Bopardikar and Mustafa İlhan Akbaş and Metin Gökaşan},
+      year={2025},
+      eprint={2511.17375},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2511.17375}, 
 }
 ```
 
 ## Abstract
 
-The vector cost bimatrix game is a method for
-multi-objective decision making that enables agents to op-
-timize for multiple goals at once while avoiding worst-case
-scenarios in neglected objectives. We expand this approach to
-arbitrary numbers of objectives and compare its performance
-to scalar weighted sum methods during competitive motion
-planning. Explainable Artificial Intelligence (XAI) software is
-used to aid in the analysis of high dimensional decision-making
-data. State-space Exploration of Multidimensional Boundaries
-using Adherence Strategies (SEMBAS) is applied to explore
-performance modes in the parameter space as a sensitivity
-study for the baseline and proposed frameworks. While some
-works have explored aspects of game theoretic planning and
-autonomous vehicle validation separately, we combine each of
-these into a novel and comprehensive simulation pipeline. This
-integration demonstrates a dramatic improvement of the vector
-cost method over scalarization and offers an interpretable and
-generalizable framework for autonomous vehicle behavioral
-planning.
+The vector cost bimatrix game is a method for multi-objective decision making that enables autonomous robotic systems to optimize for multiple goals at once while avoiding worst-case scenarios in neglected objectives. We expand this approach to arbitrary numbers of objectives and compare its performance to scalar weighted sum methods during competitive motion planning. Explainable Artificial Intelligence (XAI) software is used to aid in the analysis of high dimensional decision-making data. State-space Exploration of Multidimensional Boundaries using Adherence Strategies (SEMBAS) is applied to explore performance modes in the parameter space as a sensitivity study for the baseline and proposed frameworks. While some works have explored aspects of game theoretic planning and intelligent systems validation separately, we combine each of these into a novel and comprehensive simulation pipeline. This integration demonstrates a dramatic improvement of the vector cost method over scalarization and offers an interpretable and generalizable framework for robotic behavioral planning.
 
 ## Branches
 
-The main branch includes the infrastructure for building and visualizing the simulation, as well as healess data generation with automatic iteration through the vehicle parameters described in the paper. The scenario_visualization repository is included [here](https://github.com/toazbenj/scenario_visualization) to make the XAI and visualization tools available. The experimental branch is where active feature construction is underway and is not reccomended for use. Sembas branch is set up to connect the simulation to its counterpart in the SEMBAS repository, which is available on the example-v0.4.x-race_simulation branch of the SEMBAS repo [here](https://github.com/Thomj-Dev/SEMBAS/tree/example-v0.4.x-race_simulation). More details for use can be found on the sembas branch readme. The legacy_mecc2025 branch is the state of the repository as of the submission date of the previous paper and includes the data used for that publication as well. 
+The main branch includes the infrastructure for building and visualizing the simulation, as well as healess data generation with automatic iteration through the vehicle parameters described in the paper. The scenario_visualization repository is included [here](https://github.com/toazbenj/scenario_visualization) to make the XAI and visualization tools available. Also see the web app [Race Simulation](https://racesimulation.streamlit.app/) (may take some time to load). The experimental branch is where active feature construction is underway and is not reccomended for use. Sembas branch is set up to connect the simulation to its counterpart in the SEMBAS repository, which is available in this fork of the SEMBAS repo [here](https://github.com/toazbenj/racing_sembas/tree/main). More details for use can be found on the sembas branch readme. The legacy_mecc2025 branch is the state of the repository as of the submission date of the previous paper and includes the data used for that publication as well. 
 
 ## Installation
 
@@ -60,8 +40,6 @@ The main branch includes the infrastructure for building and visualizing the sim
    ```
 
 3. **Install Required Dependencies**:
-
-   Ensure that Python and Pygame are installed on your system. You can install Pygame using pip:
 
    ```bash
    pip install -r requirements.txt
@@ -105,3 +83,5 @@ The main branch includes the infrastructure for building and visualizing the sim
    PROXIMITY_SPREAD = 45
    BOUNDS_SPREAD = 205
    ```
+
+   Note that you may have to adjust the file paths for where the data is being saved if you are on windows vs linux (add/subtract a . at the beginning to change directories).
